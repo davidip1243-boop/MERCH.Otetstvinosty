@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мерч | Админ</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-page="admin">
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Главная">
+          <span class="brand-mark" aria-hidden="true">
+            <span class="brand-mark__vertical"></span>
+            <span class="brand-mark__horizontal"></span>
+          </span>
+          <span class="brand-copy">
+            <strong>MERCH</strong>
+            <span>quiet essentials</span>
+          </span>
+        </a>
+        <nav class="topnav" aria-label="Основная навигация">
+          <a href="/">Главная</a>
+          <a href="/catalog">Каталог</a>
+          <a href="/about">О нас</a>
+          <a href="/delivery">Доставка</a>
+        </nav>
+      </header>
+
+      <main>
+        <section class="hero hero--compact">
+          <div class="hero-copy">
+            <p class="eyebrow">Админ-панель</p>
+            <h1>Управление товарами и фотографиями</h1>
+            <p class="lead">
+              Здесь можно добавлять новые позиции, редактировать описание и загружать дополнительные фото.
+              Если задан `ADMIN_PASSWORD`, панель запросит пароль перед записью.
+            </p>
+          </div>
+        </section>
+
+        <section class="section admin-layout">
+          <div class="glass-panel admin-panel">
+            <div class="admin-lock" data-admin-lock>
+              <label>
+                Пароль администратора
+                <input data-admin-password type="password" placeholder="Введите пароль" />
+              </label>
+              <button class="button button--solid" type="button" data-admin-login>Разблокировать</button>
+              <p class="form-status" data-admin-status></p>
+            </div>
+
+            <form class="admin-form" data-admin-form>
+              <input name="id" type="hidden" />
+              <div class="admin-form__grid">
+                <label>
+                  Название
+                  <input name="title" type="text" placeholder="Худи «Свет»" required />
+                </label>
+                <label>
+                  Цена
+                  <input name="price" type="number" min="1" step="1" placeholder="7900" required />
+                </label>
+                <label>
+                  Категория
+                  <input name="category" type="text" placeholder="Худи" required />
+                </label>
+                <label>
+                  Акцентный цвет
+                  <input name="accent" type="color" value="#e7ddd4" />
+                </label>
+              </div>
+
+              <label>
+                Краткое описание
+                <input name="summary" type="text" placeholder="Короткое описание карточки" required />
+              </label>
+              <label>
+                Полное описание
+                <textarea name="description" rows="4" placeholder="Подробное описание товара" required></textarea>
+              </label>
+              <label>
+                Детали товара
+                <textarea
+                  name="details"
+                  rows="4"
+                  placeholder="Одна характеристика на строку"
+                  required
+                ></textarea>
+              </label>
+              <label>
+                Фотографии
+                <input name="images" type="file" accept="image/*" multiple />
+              </label>
+              <div class="existing-images" data-existing-images></div>
+              <div class="admin-actions">
+                <button class="button button--solid" type="submit">Сохранить товар</button>
+                <button class="button button--ghost" type="button" data-admin-reset>Очистить форму</button>
+              </div>
+              <p class="form-status" data-admin-form-status></p>
+            </form>
+          </div>
+
+          <div class="admin-products" data-admin-products></div>
+        </section>
+      </main>
+    </div>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

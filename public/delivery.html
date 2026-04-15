@@ -1,0 +1,115 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мерч | Доставка</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-page="delivery">
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Главная">
+          <span class="brand-mark" aria-hidden="true">
+            <span class="brand-mark__vertical"></span>
+            <span class="brand-mark__horizontal"></span>
+          </span>
+          <span class="brand-copy">
+            <strong>MERCH</strong>
+            <span>quiet essentials</span>
+          </span>
+        </a>
+        <nav class="topnav" aria-label="Основная навигация">
+          <a href="/">Главная</a>
+          <a href="/catalog">Каталог</a>
+          <a href="/about">О нас</a>
+          <a href="/delivery" aria-current="page">Доставка</a>
+        </nav>
+        <button class="cart-trigger" type="button" data-cart-toggle>
+          Корзина
+          <span class="cart-badge" data-cart-count>0</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="hero hero--compact">
+          <div class="hero-copy">
+            <p class="eyebrow">Доставка</p>
+            <h1>Просто, прозрачно, без перегруза</h1>
+            <p class="lead">
+              Вы оформляете заказ в корзине, данные сохраняются локально, а после отправки заявка мгновенно
+              уходит в Telegram для обработки.
+            </p>
+          </div>
+        </section>
+
+        <section class="section info-grid">
+          <article class="glass-panel info-card">
+            <p class="eyebrow">1</p>
+            <h2>Добавьте товары</h2>
+            <p>Каталог работает без аккаунта: просто собирайте корзину и переходите к форме заказа.</p>
+          </article>
+          <article class="glass-panel info-card">
+            <p class="eyebrow">2</p>
+            <h2>Заполните данные</h2>
+            <p>ФИО, телефон, адрес и ник в Telegram сохраняются в `LocalStorage` для следующего заказа.</p>
+          </article>
+          <article class="glass-panel info-card">
+            <p class="eyebrow">3</p>
+            <h2>Получите подтверждение</h2>
+            <p>Заказ прилетает в Telegram-бот или внешний вебхук, после чего менеджер связывается с вами.</p>
+          </article>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>Корзина хранится локально в браузере, а отправка заказа идёт через серверный API.</p>
+        <div class="footer-links">
+          <a href="https://t.me/" target="_blank" rel="noreferrer">Telegram</a>
+          <a href="https://www.youtube.com/" target="_blank" rel="noreferrer">YouTube</a>
+          <a href="/admin">Админ-панель</a>
+        </div>
+      </footer>
+    </div>
+
+    <aside class="cart-drawer" data-cart-drawer aria-hidden="true">
+      <div class="cart-backdrop" data-cart-close></div>
+      <div class="cart-panel glass-panel">
+        <div class="cart-head">
+          <div>
+            <p class="eyebrow">Корзина</p>
+            <h2>Оформление без регистрации</h2>
+          </div>
+          <button class="icon-button" type="button" data-cart-close aria-label="Закрыть корзину">×</button>
+        </div>
+        <div class="cart-items" data-cart-items></div>
+        <form class="checkout-form" data-checkout-form>
+          <label>
+            ФИО
+            <input name="fullName" type="text" placeholder="Иванов Иван Иванович" required />
+          </label>
+          <label>
+            Телефон
+            <input name="phone" type="tel" placeholder="+7 999 123-45-67" required />
+          </label>
+          <label>
+            Адрес
+            <textarea name="address" rows="3" placeholder="Город, улица, дом, квартира" required></textarea>
+          </label>
+          <label>
+            Ник в Telegram
+            <input name="telegram" type="text" placeholder="@username" />
+          </label>
+          <div class="checkout-summary">
+            <span>Итого</span>
+            <strong data-cart-total>0 ₽</strong>
+          </div>
+          <button class="button button--solid button--full" type="submit">Отправить заказ</button>
+          <p class="form-status" data-checkout-status></p>
+        </form>
+      </div>
+    </aside>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

@@ -1,0 +1,9 @@
+<svg width="1200" height="1320" viewBox="0 0 1200 1320" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <rect width="1200" height="1320" rx="64" fill="#FBFBFA"/>
+  <circle cx="980" cy="238" r="154" fill="#E7DDD4"/>
+  <path d="M408 380L516 288H690L792 380L892 486L792 602L748 1188H454L409 602L308 486L408 380Z" fill="white"/>
+  <path d="M529 336C548 381 655 381 674 336" stroke="#DADADA" stroke-width="18" stroke-linecap="round"/>
+  <path d="M597 548V650" stroke="#111111" stroke-width="14" stroke-linecap="round"/>
+  <path d="M531 596H662" stroke="#111111" stroke-width="14" stroke-linecap="round"/>
+  <text x="86" y="1180" fill="#111111" fill-opacity="0.48" font-family="Arial, sans-serif" font-size="52">ракурс</text>
+</svg>

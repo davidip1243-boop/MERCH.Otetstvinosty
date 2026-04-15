@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Мерч | О нас</title>
+    <link rel="stylesheet" href="/styles.css" />
+  </head>
+  <body data-page="about">
+    <div class="site-shell">
+      <header class="topbar">
+        <a class="brand" href="/" aria-label="Главная">
+          <span class="brand-mark" aria-hidden="true">
+            <span class="brand-mark__vertical"></span>
+            <span class="brand-mark__horizontal"></span>
+          </span>
+          <span class="brand-copy">
+            <strong>MERCH</strong>
+            <span>quiet essentials</span>
+          </span>
+        </a>
+        <nav class="topnav" aria-label="Основная навигация">
+          <a href="/">Главная</a>
+          <a href="/catalog">Каталог</a>
+          <a href="/about" aria-current="page">О нас</a>
+          <a href="/delivery">Доставка</a>
+        </nav>
+        <button class="cart-trigger" type="button" data-cart-toggle>
+          Корзина
+          <span class="cart-badge" data-cart-count>0</span>
+        </button>
+      </header>
+
+      <main>
+        <section class="hero hero--compact">
+          <div class="hero-copy">
+            <p class="eyebrow">О нас</p>
+            <h1>Уютный и сдержанный мерч</h1>
+            <p class="lead">
+              Мы собираем вещи, которые не давят графикой и не спорят с человеком. Белый фон, пастельные
+              полутона, тёплые материалы и деликатный символический слой.
+            </p>
+          </div>
+        </section>
+
+        <section class="section info-grid">
+          <article class="glass-panel info-card">
+            <p class="eyebrow">Подход</p>
+            <h2>Минимализм как доверие</h2>
+            <p>
+              Мы сознательно убрали шум: меньше текста, чище формы, мягче движение и понятнее путь к заказу.
+            </p>
+          </article>
+          <article class="glass-panel info-card">
+            <p class="eyebrow">Материалы</p>
+            <h2>Тактильность важнее декора</h2>
+            <p>
+              База коллекции строится на хлопке, футере и плотном канвасе. Вещи должны быть тихими, но
+              ощутимыми.
+            </p>
+          </article>
+          <article class="glass-panel info-card">
+            <p class="eyebrow">Коммуникация</p>
+            <h2>Заказ сразу в Telegram</h2>
+            <p>
+              После оформления все данные автоматически отправляются в бот или вебхук, чтобы заказ можно было
+              обработать без ручного копирования.
+            </p>
+          </article>
+        </section>
+      </main>
+
+      <footer class="site-footer">
+        <p>Открытая коммуникация, спокойная эстетика и быстрый путь от выбора до заказа.</p>
+        <div class="footer-links">
+          <a href="https://t.me/" target="_blank" rel="noreferrer">Telegram</a>
+          <a href="https://www.youtube.com/" target="_blank" rel="noreferrer">YouTube</a>
+          <a href="/admin">Админ-панель</a>
+        </div>
+      </footer>
+    </div>
+
+    <aside class="cart-drawer" data-cart-drawer aria-hidden="true">
+      <div class="cart-backdrop" data-cart-close></div>
+      <div class="cart-panel glass-panel">
+        <div class="cart-head">
+          <div>
+            <p class="eyebrow">Корзина</p>
+            <h2>Оформление без регистрации</h2>
+          </div>
+          <button class="icon-button" type="button" data-cart-close aria-label="Закрыть корзину">×</button>
+        </div>
+        <div class="cart-items" data-cart-items></div>
+        <form class="checkout-form" data-checkout-form>
+          <label>
+            ФИО
+            <input name="fullName" type="text" placeholder="Иванов Иван Иванович" required />
+          </label>
+          <label>
+            Телефон
+            <input name="phone" type="tel" placeholder="+7 999 123-45-67" required />
+          </label>
+          <label>
+            Адрес
+            <textarea name="address" rows="3" placeholder="Город, улица, дом, квартира" required></textarea>
+          </label>
+          <label>
+            Ник в Telegram
+            <input name="telegram" type="text" placeholder="@username" />
+          </label>
+          <div class="checkout-summary">
+            <span>Итого</span>
+            <strong data-cart-total>0 ₽</strong>
+          </div>
+          <button class="button button--solid button--full" type="submit">Отправить заказ</button>
+          <p class="form-status" data-checkout-status></p>
+        </form>
+      </div>
+    </aside>
+
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>
