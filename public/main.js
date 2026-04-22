@@ -1,6 +1,219 @@
 const CART_KEY = "merch-cart";
 const CUSTOMER_KEY = "merch-customer";
 const ADMIN_PASSWORD_KEY = "merch-admin-password";
+const LANG_KEY = "merch-lang";
+
+const translations = {
+  ru: {
+    "lang.label": "Язык",
+    "common.telegram": "Telegram",
+    "common.youtube": "YouTube",
+    "common.admin": "Админ-панель",
+    "nav.home": "Главная",
+    "nav.catalog": "Каталог",
+    "nav.delivery": "Доставка",
+    "nav.cart": "Корзина",
+    "index.meta.description":
+      "Минималистичный интернет-магазин мерча с лаконичной эстетикой, локальной корзиной и заказами в Telegram.",
+    "index.eyebrow": "Минимализм. Тишина. Доверие.",
+    "index.title": "Знаешь ли ты, кто мы?",
+    "index.lead":
+      "Мы делаем мерч без лишней декоративности: чистые формы, мягкая посадка и спокойные символы, которые не спорят с человеком.",
+    "index.openCatalog": "Открыть каталог",
+    "index.delivery": "Доставка",
+    "index.weekPick": "Выбор недели",
+    "index.weekTitle": "Тихий мерч для повседневной жизни",
+    "index.weekLead": "Белый, чёрный, пастельные акценты и мягкий тактильный объём.",
+    "index.selection": "Подборка",
+    "index.essentials": "Основные вещи",
+    "index.story1eyebrow": "Философия",
+    "index.story1title": "Красота без перегруза",
+    "index.story1text":
+      "Простые формы, пастельный воздух, тёплая пластика интерфейса и аккуратные отклики на каждом касании.",
+    "index.story2eyebrow": "Деталь",
+    "index.story2title": "Тихий знак",
+    "index.story2text":
+      "Крест встроен в систему сайта и мерча как сдержанный символ, а не декоративный шум.",
+    "index.footer": "Лаконичный магазин мерча с мягкими откликами и заказом через Telegram.",
+    "catalog.eyebrow": "Каталог",
+    "catalog.title": "Предметы с тихим характером",
+    "catalog.lead":
+      "У каждого товара уже есть три стартовых изображения: общий ракурс, детализация и подача на модели. Новые фото и позиции можно добавлять из админ-панели.",
+    "catalog.footer": "Доставка по России, оформление заказа без создания аккаунта.",
+    "delivery.eyebrow": "Доставка",
+    "delivery.title": "Просто, прозрачно, без перегруза",
+    "delivery.lead":
+      "Вы оформляете заказ в корзине, данные сохраняются локально, а после отправки заявка мгновенно уходит в Telegram для обработки.",
+    "delivery.step1n": "1",
+    "delivery.step1t": "Добавьте товары",
+    "delivery.step1d": "Каталог работает без аккаунта: просто собирайте корзину и переходите к форме заказа.",
+    "delivery.step2n": "2",
+    "delivery.step2t": "Заполните данные",
+    "delivery.step2d": "ФИО, телефон, адрес и ник в Telegram сохраняются в LocalStorage для следующего заказа.",
+    "delivery.step3n": "3",
+    "delivery.step3t": "Получите подтверждение",
+    "delivery.step3d": "Заказ прилетает в Telegram-бот или внешний вебхук, после чего менеджер связывается с вами.",
+    "delivery.footer": "Корзина хранится локально в браузере, а отправка заказа идёт через серверный API.",
+    "cart.backCatalog": "Вернуться в каталог",
+    "cart.eyebrow": "Корзина",
+    "cart.title": "Оформление без регистрации",
+    "cart.lead": "Проверьте состав заказа, заполните данные и отправьте заявку в один шаг.",
+    "cart.footer": "Оформление заказа в полном экране с той же визуальной системой магазина.",
+    "admin.eyebrow": "Админ-панель",
+    "admin.title": "Управление товарами и фотографиями",
+    "admin.lead":
+      "Здесь можно добавлять новые позиции, редактировать описание и загружать дополнительные фото. Если задан ADMIN_PASSWORD, панель запросит пароль перед записью.",
+    "admin.passwordLabel": "Пароль администратора",
+    "admin.passwordPlaceholder": "Введите пароль",
+    "admin.unlock": "Разблокировать",
+    "admin.name": "Название",
+    "admin.namePlaceholder": "Худи «Свет»",
+    "admin.price": "Цена",
+    "admin.pricePlaceholder": "7900",
+    "admin.category": "Категория",
+    "admin.categoryPlaceholder": "Худи",
+    "admin.accent": "Акцентный цвет",
+    "admin.summary": "Краткое описание",
+    "admin.summaryPlaceholder": "Короткое описание карточки",
+    "admin.description": "Полное описание",
+    "admin.descriptionPlaceholder": "Подробное описание товара",
+    "admin.details": "Детали товара",
+    "admin.detailsPlaceholder": "Одна характеристика на строку",
+    "admin.photos": "Фотографии",
+    "admin.save": "Сохранить товар",
+    "admin.clear": "Очистить форму",
+    "checkout.fullName": "ФИО",
+    "checkout.fullNamePlaceholder": "Иванов Иван Иванович",
+    "checkout.phone": "Телефон",
+    "checkout.phonePlaceholder": "+7 999 123-45-67",
+    "checkout.address": "Адрес",
+    "checkout.addressPlaceholder": "Город, улица, дом, квартира",
+    "checkout.telegram": "Ник в Telegram",
+    "checkout.telegramPlaceholder": "@username",
+    "checkout.total": "Итого",
+    "checkout.submit": "Отправить заказ",
+    "ui.addToCart": "В корзину",
+    "ui.cartEmpty": "Корзина пока пуста. Добавьте товар из каталога.",
+    "ui.checkoutNeedItem": "Добавьте хотя бы один товар перед оформлением.",
+    "ui.checkoutSending": "Отправляем заказ…",
+    "ui.checkoutSent": "Заказ отправлен. Мы свяжемся с вами через Telegram или телефон.",
+    "ui.adminUnlocked": "Панель разблокирована.",
+    "ui.adminSaving": "Сохраняем товар…",
+    "ui.adminSaved": "Товар сохранён.",
+    "ui.adminEdit": "Редактировать",
+    "ui.adminDelete": "Удалить",
+    "ui.adminKeep": "оставить",
+    "ui.adminDeleteConfirm": "Удалить товар из каталога?",
+    "404.title": "Страница не найдена",
+    "404.eyebrow": "404",
+    "404.main": "Страница не найдена. Но, возможно, ты найдешь себя!",
+    "404.home": "Вернуться на главную"
+  },
+  en: {
+    "lang.label": "Language",
+    "common.telegram": "Telegram",
+    "common.youtube": "YouTube",
+    "common.admin": "Admin panel",
+    "nav.home": "Home",
+    "nav.catalog": "Shop",
+    "nav.delivery": "Delivery",
+    "nav.cart": "Cart",
+    "index.meta.description":
+      "Minimal merch storefront with a clean aesthetic, local cart persistence, and Telegram order flow.",
+    "index.eyebrow": "Minimal. Quiet. Trusted.",
+    "index.title": "Do You Know Who We Are?",
+    "index.lead":
+      "We create merch without visual noise: clean forms, soft fit, and calm symbols that never overpower the person.",
+    "index.openCatalog": "Open Shop",
+    "index.delivery": "Delivery",
+    "index.weekPick": "Pick of the Week",
+    "index.weekTitle": "Quiet Merch for Everyday Life",
+    "index.weekLead": "White, black, soft accents, and tactile volume.",
+    "index.selection": "Selection",
+    "index.essentials": "Core Pieces",
+    "index.story1eyebrow": "Philosophy",
+    "index.story1title": "Beauty Without Clutter",
+    "index.story1text":
+      "Simple shapes, airy tones, warm interface motion, and thoughtful feedback in every interaction.",
+    "index.story2eyebrow": "Detail",
+    "index.story2title": "Quiet Symbol",
+    "index.story2text": "The cross is integrated as a restrained symbol, not decorative noise.",
+    "index.footer": "A clean merch store with soft interactions and Telegram-based ordering.",
+    "catalog.eyebrow": "Shop",
+    "catalog.title": "Items with a Quiet Character",
+    "catalog.lead":
+      "Each product starts with three images: angle, close detail, and model view. Add new products and photos in the admin panel.",
+    "catalog.footer": "Delivery across Russia with checkout available without account creation.",
+    "delivery.eyebrow": "Delivery",
+    "delivery.title": "Simple, Transparent, No Overload",
+    "delivery.lead":
+      "You place an order in the cart, your data is saved locally, and the request is instantly sent to Telegram for processing.",
+    "delivery.step1n": "1",
+    "delivery.step1t": "Add products",
+    "delivery.step1d": "The shop works without an account: build your cart and move to checkout.",
+    "delivery.step2n": "2",
+    "delivery.step2t": "Enter details",
+    "delivery.step2d": "Name, phone, address, and Telegram handle are stored in LocalStorage for your next order.",
+    "delivery.step3n": "3",
+    "delivery.step3t": "Get confirmation",
+    "delivery.step3d": "Orders arrive in Telegram bot or webhook, then a manager contacts you.",
+    "delivery.footer": "The cart is stored locally in your browser, and orders are submitted via server API.",
+    "cart.backCatalog": "Back to shop",
+    "cart.eyebrow": "Cart",
+    "cart.title": "Checkout Without Sign-Up",
+    "cart.lead": "Review your order, fill in details, and send it in one step.",
+    "cart.footer": "Fullscreen checkout with the same visual language as the rest of the store.",
+    "admin.eyebrow": "Admin panel",
+    "admin.title": "Manage Products and Photos",
+    "admin.lead":
+      "Add new items, edit descriptions, and upload extra photos. If ADMIN_PASSWORD is set, the panel asks for it before write actions.",
+    "admin.passwordLabel": "Admin password",
+    "admin.passwordPlaceholder": "Enter password",
+    "admin.unlock": "Unlock",
+    "admin.name": "Name",
+    "admin.namePlaceholder": "Hoodie “Light”",
+    "admin.price": "Price",
+    "admin.pricePlaceholder": "7900",
+    "admin.category": "Category",
+    "admin.categoryPlaceholder": "Hoodie",
+    "admin.accent": "Accent color",
+    "admin.summary": "Short description",
+    "admin.summaryPlaceholder": "Card short text",
+    "admin.description": "Full description",
+    "admin.descriptionPlaceholder": "Detailed product description",
+    "admin.details": "Product details",
+    "admin.detailsPlaceholder": "One feature per line",
+    "admin.photos": "Photos",
+    "admin.save": "Save product",
+    "admin.clear": "Clear form",
+    "checkout.fullName": "Full name",
+    "checkout.fullNamePlaceholder": "Ivan Ivanov",
+    "checkout.phone": "Phone",
+    "checkout.phonePlaceholder": "+7 999 123-45-67",
+    "checkout.address": "Address",
+    "checkout.addressPlaceholder": "City, street, building, apartment",
+    "checkout.telegram": "Telegram handle",
+    "checkout.telegramPlaceholder": "@username",
+    "checkout.total": "Total",
+    "checkout.submit": "Send order",
+    "ui.addToCart": "Add to cart",
+    "ui.cartEmpty": "Your cart is empty. Add a product from the shop.",
+    "ui.checkoutNeedItem": "Add at least one product before checkout.",
+    "ui.checkoutSending": "Sending order…",
+    "ui.checkoutSent": "Order sent. We will contact you via Telegram or phone.",
+    "ui.adminUnlocked": "Panel unlocked.",
+    "ui.adminSaving": "Saving product…",
+    "ui.adminSaved": "Product saved.",
+    "ui.adminEdit": "Edit",
+    "ui.adminDelete": "Delete",
+    "ui.adminKeep": "keep",
+    "ui.adminDeleteConfirm": "Delete this product from the catalog?",
+    "404.title": "Page Not Found",
+    "404.eyebrow": "404",
+    "404.main": "Page not found. But maybe you'll find yourself.",
+    "404.home": "Back to home"
+  }
+};
 
 const state = {
   products: [],
@@ -15,21 +228,22 @@ const state = {
   settings: {
     adminProtected: false
   },
+  language: detectInitialLanguage(),
   editingProduct: null
 };
-
-const currency = new Intl.NumberFormat("ru-RU");
 
 init().catch((error) => {
   console.error(error);
 });
 
 async function init() {
+  setupLanguageSwitcher();
   state.settings = await fetchJson("/api/settings");
   state.products = await fetchJson("/api/products");
   renderFeatured();
   renderCatalog();
   setupCart();
+  openCartFromQuery();
   setupCheckoutForm();
   setupAdmin();
 }
@@ -41,6 +255,61 @@ function loadJson(key, fallback) {
   } catch {
     return fallback;
   }
+}
+
+function detectInitialLanguage() {
+  const saved = localStorage.getItem(LANG_KEY);
+  if (saved === "ru" || saved === "en") {
+    return saved;
+  }
+
+  return navigator.language?.toLowerCase().startsWith("ru") ? "ru" : "en";
+}
+
+function t(key) {
+  return translations[state.language]?.[key] ?? translations.ru[key] ?? key;
+}
+
+function formatPrice(value) {
+  const locale = state.language === "en" ? "en-US" : "ru-RU";
+  return new Intl.NumberFormat(locale).format(Number(value) || 0);
+}
+
+function applyTranslations() {
+  document.documentElement.lang = state.language;
+
+  document.querySelectorAll("[data-i18n]").forEach((node) => {
+    node.textContent = t(node.dataset.i18n);
+  });
+
+  document.querySelectorAll("[data-i18n-placeholder]").forEach((node) => {
+    node.placeholder = t(node.dataset.i18nPlaceholder);
+  });
+
+  document.querySelectorAll("[data-i18n-content]").forEach((node) => {
+    node.setAttribute("content", t(node.dataset.i18nContent));
+  });
+
+  document.querySelectorAll("[data-lang-switch]").forEach((select) => {
+    select.value = state.language;
+  });
+}
+
+function setupLanguageSwitcher() {
+  applyTranslations();
+
+  document.querySelectorAll("[data-lang-switch]").forEach((select) => {
+    select.value = state.language;
+    select.addEventListener("change", () => {
+      state.language = select.value === "ru" ? "ru" : "en";
+      localStorage.setItem(LANG_KEY, state.language);
+      applyTranslations();
+      renderFeatured();
+      renderCatalog();
+      renderAdminProducts();
+      updateCartUi();
+    });
+  });
 }
 
 function saveJson(key, value) {
@@ -104,8 +373,8 @@ function buildProductCard(product, compact = false) {
         </div>
         ${compact ? "" : `<ul class="product-details">${product.details.map((item) => `<li>${item}</li>`).join("")}</ul>`}
         <div class="cart-head">
-          <strong class="product-price">${currency.format(product.price)} ₽</strong>
-          <button class="button button--solid" type="button" data-add-to-cart="${product.id}">В корзину</button>
+          <strong class="product-price">${formatPrice(product.price)} ₽</strong>
+          <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
         </div>
       </div>
     </article>
@@ -179,12 +448,12 @@ function updateCartUi() {
   });
 
   document.querySelectorAll("[data-cart-total]").forEach((node) => {
-    node.textContent = `${currency.format(total)} ₽`;
+    node.textContent = `${formatPrice(total)} ₽`;
   });
 
   containers.forEach((container) => {
     if (!state.cart.length) {
-      container.innerHTML = `<p class="empty-state">Корзина пока пуста. Добавьте товар из каталога.</p>`;
+      container.innerHTML = `<p class="empty-state">${t("ui.cartEmpty")}</p>`;
       return;
     }
 
@@ -194,7 +463,7 @@ function updateCartUi() {
           <div class="cart-row">
             <div>
               <strong>${item.title}</strong>
-              <span>${currency.format(item.price)} ₽</span>
+              <span>${formatPrice(item.price)} ₽</span>
             </div>
             <div class="quantity-controls">
               <button type="button" data-qty-change="${item.id}" data-delta="-1">−</button>
@@ -252,6 +521,17 @@ function closeCart() {
   document.body.style.overflow = "";
 }
 
+function openCartFromQuery() {
+  const url = new URL(window.location.href);
+  if (url.searchParams.get("cart") !== "open") {
+    return;
+  }
+
+  openCart();
+  url.searchParams.delete("cart");
+  window.history.replaceState({}, "", `${url.pathname}${url.search}${url.hash}`);
+}
+
 function setupCheckoutForm() {
   const form = document.querySelector("[data-checkout-form]");
   if (!form) {
@@ -270,14 +550,14 @@ function setupCheckoutForm() {
     const status = document.querySelector("[data-checkout-status]");
 
     if (!state.cart.length) {
-      status.textContent = "Добавьте хотя бы один товар перед оформлением.";
+      status.textContent = t("ui.checkoutNeedItem");
       return;
     }
 
     const formData = new FormData(form);
     state.customer = Object.fromEntries(formData.entries());
     saveJson(CUSTOMER_KEY, state.customer);
-    status.textContent = "Отправляем заказ…";
+    status.textContent = t("ui.checkoutSending");
 
     try {
       await fetchJson("/api/orders", {
@@ -292,7 +572,7 @@ function setupCheckoutForm() {
         })
       });
 
-      status.textContent = "Заказ отправлен. Мы свяжемся с вами через Telegram или телефон.";
+      status.textContent = t("ui.checkoutSent");
       state.cart = [];
       persistCart();
       updateCartUi();
@@ -335,7 +615,7 @@ function setupAdmin() {
       localStorage.setItem(ADMIN_PASSWORD_KEY, state.adminPassword);
       lock.hidden = true;
       form.hidden = false;
-      loginStatus.textContent = "Панель разблокирована.";
+      loginStatus.textContent = t("ui.adminUnlocked");
       renderAdminProducts();
     } catch (error) {
       loginStatus.textContent = error.message;
@@ -348,7 +628,7 @@ function setupAdmin() {
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
-    formStatus.textContent = "Сохраняем товар…";
+    formStatus.textContent = t("ui.adminSaving");
 
     const formData = new FormData(form);
     const details = String(formData.get("details") || "")
@@ -375,7 +655,7 @@ function setupAdmin() {
         body: formData
       });
 
-      formStatus.textContent = "Товар сохранён.";
+      formStatus.textContent = t("ui.adminSaved");
       resetAdminForm();
       state.products = await fetchJson("/api/products");
       renderCatalog();
@@ -404,7 +684,7 @@ function renderAdminProducts() {
               <p class="product-meta">${product.category}</p>
               <h3>${product.title}</h3>
             </div>
-            <strong>${currency.format(product.price)} ₽</strong>
+            <strong>${formatPrice(product.price)} ₽</strong>
           </div>
           <p>${product.summary}</p>
           <div class="product-thumbs">
@@ -419,8 +699,8 @@ function renderAdminProducts() {
               .join("")}
           </div>
           <div class="admin-card__actions">
-            <button class="button button--ghost" type="button" data-admin-edit="${product.id}">Редактировать</button>
-            <button class="button button--solid" type="button" data-admin-delete="${product.id}">Удалить</button>
+            <button class="button button--ghost" type="button" data-admin-edit="${product.id}">${t("ui.adminEdit")}</button>
+            <button class="button button--solid" type="button" data-admin-delete="${product.id}">${t("ui.adminDelete")}</button>
           </div>
         </article>
       `
@@ -438,7 +718,7 @@ function renderAdminProducts() {
 
   container.querySelectorAll("[data-admin-delete]").forEach((button) => {
     button.addEventListener("click", async () => {
-      const confirmed = window.confirm("Удалить товар из каталога?");
+      const confirmed = window.confirm(t("ui.adminDeleteConfirm"));
       if (!confirmed) {
         return;
       }
@@ -484,7 +764,7 @@ function populateAdminForm(product) {
           <img src="${image}" alt="${product.title} ${index + 1}" />
           <label>
             <input type="checkbox" data-existing-image value="${image}" checked />
-            оставить
+            ${t("ui.adminKeep")}
           </label>
         </div>
       `

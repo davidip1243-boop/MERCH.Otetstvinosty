@@ -36,7 +36,7 @@ const upload = multer({
 const staticPages = new Map([
   ["/", "index.html"],
   ["/catalog", "catalog.html"],
-  ["/about", "about.html"],
+  ["/cart", "cart.html"],
   ["/delivery", "delivery.html"],
   ["/admin", "admin.html"]
 ]);
