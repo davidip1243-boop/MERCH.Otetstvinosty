@@ -4,10 +4,12 @@ Minimal merch storefront with an Apple-inspired visual style, local cart persist
 
 ## Features
 
-- Multi-page storefront: Home, Catalog, About, Delivery
+- Multi-page storefront: Home, Catalog, Delivery, Cart, Admin
 - Apple-style glass navigation with soft rounded corners
 - Cart without registration
 - Customer data saved in `LocalStorage`
+- Email account registration and login
+- Google Sign-In (OAuth 2.0)
 - Admin panel for creating, editing, deleting products and uploading product photos
 - Product gallery with at least 3 photos per item
 - Server-side order submission to Telegram bot API or a webhook

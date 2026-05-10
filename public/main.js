@@ -2,6 +2,7 @@ const CART_KEY = "merch-cart";
 const CUSTOMER_KEY = "merch-customer";
 const ADMIN_PASSWORD_KEY = "merch-admin-password";
 const LANG_KEY = "merch-lang";
+const ACCOUNT_TOKEN_KEY = "merch-account-token";
 
 const translations = {
   ru: {
@@ -13,6 +14,7 @@ const translations = {
     "nav.catalog": "Каталог",
     "nav.delivery": "Доставка",
     "nav.cart": "Корзина",
+    "nav.account": "Аккаунт",
     "index.meta.description":
       "Минималистичный интернет-магазин мерча с лаконичной эстетикой, локальной корзиной и заказами в Telegram.",
     "index.eyebrow": "Минимализм. Тишина. Доверие.",
@@ -104,6 +106,20 @@ const translations = {
     "ui.adminDelete": "Удалить",
     "ui.adminKeep": "оставить",
     "ui.adminDeleteConfirm": "Удалить товар из каталога?",
+    "auth.title": "Аккаунт",
+    "auth.subtitle": "Войдите или создайте аккаунт по email",
+    "auth.name": "Имя",
+    "auth.namePlaceholder": "Иван",
+    "auth.email": "Email",
+    "auth.emailPlaceholder": "you@example.com",
+    "auth.password": "Пароль",
+    "auth.passwordPlaceholder": "Минимум 8 символов",
+    "auth.register": "Создать аккаунт",
+    "auth.login": "Войти",
+    "auth.logout": "Выйти",
+    "auth.loggedInAs": "Вы вошли как",
+    "auth.hasAccount": "Уже есть аккаунт? Войдите",
+    "auth.noAccount": "Нет аккаунта? Зарегистрируйтесь",
     "404.title": "Страница не найдена",
     "404.eyebrow": "404",
     "404.main": "Страница не найдена. Но, возможно, ты найдешь себя!",
@@ -118,6 +134,7 @@ const translations = {
     "nav.catalog": "Shop",
     "nav.delivery": "Delivery",
     "nav.cart": "Cart",
+    "nav.account": "Account",
     "index.meta.description":
       "Minimal merch storefront with a clean aesthetic, local cart persistence, and Telegram order flow.",
     "index.eyebrow": "Minimal. Quiet. Trusted.",
@@ -208,6 +225,20 @@ const translations = {
     "ui.adminDelete": "Delete",
     "ui.adminKeep": "keep",
     "ui.adminDeleteConfirm": "Delete this product from the catalog?",
+    "auth.title": "Account",
+    "auth.subtitle": "Log in or create an account with email",
+    "auth.name": "Name",
+    "auth.namePlaceholder": "John",
+    "auth.email": "Email",
+    "auth.emailPlaceholder": "you@example.com",
+    "auth.password": "Password",
+    "auth.passwordPlaceholder": "At least 8 characters",
+    "auth.register": "Create account",
+    "auth.login": "Log in",
+    "auth.logout": "Log out",
+    "auth.loggedInAs": "Logged in as",
+    "auth.hasAccount": "Already have an account? Log in",
+    "auth.noAccount": "No account yet? Sign up",
     "404.title": "Page Not Found",
     "404.eyebrow": "404",
     "404.main": "Page not found. But maybe you'll find yourself.",
@@ -225,9 +256,12 @@ const state = {
     telegram: ""
   }),
   adminPassword: localStorage.getItem(ADMIN_PASSWORD_KEY) || "",
+  accountToken: localStorage.getItem(ACCOUNT_TOKEN_KEY) || "",
+  account: null,
   settings: {
     adminProtected: false
   },
+  catalogFilter: "all",
   language: detectInitialLanguage(),
   editingProduct: null
 };
@@ -238,11 +272,14 @@ init().catch((error) => {
 
 async function init() {
   setupLanguageSwitcher();
+  await restoreSession();
   state.settings = await fetchJson("/api/settings");
   state.products = await fetchJson("/api/products");
   renderFeatured();
   renderCatalog();
+  setupCatalogFilters();
   setupCart();
+  setupAccountUi();
   openCartFromQuery();
   setupCheckoutForm();
   setupAdmin();
@@ -308,12 +345,239 @@ function setupLanguageSwitcher() {
       renderCatalog();
       renderAdminProducts();
       updateCartUi();
+      renderAccountUi();
     });
   });
 }
 
+async function restoreSession() {
+  if (!state.accountToken) {
+    return;
+  }
+
+  try {
+    const payload = await fetchJson("/api/auth/me", {
+      headers: {
+        Authorization: `Bearer ${state.accountToken}`
+      }
+    });
+
+    state.account = payload.user;
+  } catch {
+    clearAccountSession();
+  }
+}
+
+function clearAccountSession() {
+  state.accountToken = "";
+  state.account = null;
+  localStorage.removeItem(ACCOUNT_TOKEN_KEY);
+}
+
+function saveAccountSession(token, user) {
+  state.accountToken = token;
+  state.account = user;
+  localStorage.setItem(ACCOUNT_TOKEN_KEY, token);
+}
+
+function setupAccountUi() {
+  const topbar = document.querySelector(".topbar");
+  if (!topbar || document.querySelector("[data-account-trigger]")) {
+    return;
+  }
+
+  const trigger = document.createElement("button");
+  trigger.type = "button";
+  trigger.className = "button button--ghost account-trigger";
+  trigger.dataset.accountTrigger = "";
+  topbar.append(trigger);
+
+  const modal = document.createElement("aside");
+  modal.className = "auth-modal";
+  modal.dataset.authModal = "";
+  modal.setAttribute("aria-hidden", "true");
+  modal.innerHTML = `
+    <div class="auth-modal__backdrop" data-auth-close></div>
+    <div class="auth-modal__panel">
+      <button class="icon-button auth-close" type="button" data-auth-close aria-label="Close">×</button>
+      <div data-auth-content></div>
+    </div>
+  `;
+  document.body.append(modal);
+
+  trigger.addEventListener("click", openAuthModal);
+  modal.querySelectorAll("[data-auth-close]").forEach((node) => {
+    node.addEventListener("click", closeAuthModal);
+  });
+
+  renderAccountUi();
+}
+
+function renderAccountUi() {
+  const trigger = document.querySelector("[data-account-trigger]");
+  const content = document.querySelector("[data-auth-content]");
+  if (!trigger || !content) {
+    return;
+  }
+
+  trigger.textContent = state.account ? state.account.email : t("nav.account");
+
+  if (state.account) {
+    content.innerHTML = `
+      <div class="auth-content">
+        <p class="eyebrow">${t("auth.title")}</p>
+        <h2>${t("auth.loggedInAs")}</h2>
+        <p class="auth-email">${escapeHtml(state.account.email)}</p>
+        <button class="button button--solid button--full" type="button" data-auth-logout>${t("auth.logout")}</button>
+      </div>
+    `;
+
+    const logoutButton = content.querySelector("[data-auth-logout]");
+    logoutButton?.addEventListener("click", async () => {
+      try {
+        await fetchJson("/api/auth/logout", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${state.accountToken}`
+          }
+        });
+      } catch {
+        // Ignore logout network errors and clear local session anyway.
+      }
+
+      clearAccountSession();
+      renderAccountUi();
+      closeAuthModal();
+    });
+    return;
+  }
+
+  content.innerHTML = `
+    <div class="auth-content">
+      <p class="eyebrow">${t("auth.title")}</p>
+      <h2>${t("auth.subtitle")}</h2>
+      <form class="auth-form" data-auth-register>
+        <label>
+          ${t("auth.name")}
+          <input name="name" type="text" placeholder="${t("auth.namePlaceholder")}" />
+        </label>
+        <label>
+          ${t("auth.email")}
+          <input name="email" type="email" placeholder="${t("auth.emailPlaceholder")}" required />
+        </label>
+        <label>
+          ${t("auth.password")}
+          <input name="password" type="password" placeholder="${t("auth.passwordPlaceholder")}" required />
+        </label>
+        <button class="button button--solid button--full" type="submit">${t("auth.register")}</button>
+      </form>
+      <form class="auth-form auth-form--login" data-auth-login>
+        <label>
+          ${t("auth.email")}
+          <input name="email" type="email" placeholder="${t("auth.emailPlaceholder")}" required />
+        </label>
+        <label>
+          ${t("auth.password")}
+          <input name="password" type="password" placeholder="${t("auth.passwordPlaceholder")}" required />
+        </label>
+        <button class="button button--ghost button--full" type="submit">${t("auth.login")}</button>
+      </form>
+      <p class="form-status" data-auth-status></p>
+    </div>
+  `;
+
+  const status = content.querySelector("[data-auth-status]");
+  const registerForm = content.querySelector("[data-auth-register]");
+  const loginForm = content.querySelector("[data-auth-login]");
+
+  registerForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    status.textContent = "";
+    const formData = new FormData(registerForm);
+
+    try {
+      const payload = await fetchJson("/api/auth/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          name: String(formData.get("name") || "").trim(),
+          email: String(formData.get("email") || "").trim(),
+          password: String(formData.get("password") || "")
+        })
+      });
+
+      saveAccountSession(payload.token, payload.user);
+      renderAccountUi();
+      closeAuthModal();
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  });
+
+  loginForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    status.textContent = "";
+    const formData = new FormData(loginForm);
+
+    try {
+      const payload = await fetchJson("/api/auth/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: String(formData.get("email") || "").trim(),
+          password: String(formData.get("password") || "")
+        })
+      });
+
+      saveAccountSession(payload.token, payload.user);
+      renderAccountUi();
+      closeAuthModal();
+    } catch (error) {
+      status.textContent = error.message;
+    }
+  });
+}
+
+function openAuthModal() {
+  const modal = document.querySelector("[data-auth-modal]");
+  if (!modal) {
+    return;
+  }
+
+  modal.classList.add("is-open");
+  modal.setAttribute("aria-hidden", "false");
+  document.body.style.overflow = "hidden";
+}
+
+function closeAuthModal() {
+  const modal = document.querySelector("[data-auth-modal]");
+  const drawer = document.querySelector("[data-cart-drawer]");
+  if (!modal) {
+    return;
+  }
+
+  modal.classList.remove("is-open");
+  modal.setAttribute("aria-hidden", "true");
+  if (!drawer || !drawer.classList.contains("is-open")) {
+    document.body.style.overflow = "";
+  }
+}
+
+
 function saveJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+function escapeHtml(value) {
+  return String(value)
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;");
 }
 
 async function fetchJson(url, options = {}) {
@@ -342,8 +606,62 @@ function renderCatalog() {
     return;
   }
 
-  container.innerHTML = state.products.map((product) => buildProductCard(product)).join("");
+  container.innerHTML = state.products
+    .filter((product) => matchesCatalogFilter(product, state.catalogFilter))
+    .map((product) => buildProductCard(product))
+    .join("");
   bindProductActions(container);
+}
+
+function setupCatalogFilters() {
+  const buttons = document.querySelectorAll("[data-catalog-filter]");
+  if (!buttons.length) {
+    return;
+  }
+
+  buttons.forEach((button) => {
+    button.addEventListener("click", () => {
+      state.catalogFilter = button.dataset.catalogFilter || "all";
+      updateCatalogFilterUi();
+      renderCatalog();
+    });
+  });
+
+  updateCatalogFilterUi();
+}
+
+function updateCatalogFilterUi() {
+  document.querySelectorAll("[data-catalog-filter]").forEach((button) => {
+    button.classList.toggle("is-active", (button.dataset.catalogFilter || "all") === state.catalogFilter);
+  });
+}
+
+function matchesCatalogFilter(product, filter) {
+  if (filter === "all") {
+    return true;
+  }
+
+  const category = String(product.category || "").toLowerCase();
+  if (filter === "clothes") {
+    return (
+      category.includes("худи") ||
+      category.includes("футбол") ||
+      category.includes("одеж") ||
+      category.includes("hoodie") ||
+      category.includes("shirt") ||
+      category.includes("clothes")
+    );
+  }
+
+  if (filter === "candles") {
+    return category.includes("свеч") || category.includes("cand");
+  }
+
+  if (filter === "crosses") {
+    return category.includes("крест") || category.includes("cross");
+  }
+
+  return true;
 }
 
 function buildProductCard(product, compact = false) {

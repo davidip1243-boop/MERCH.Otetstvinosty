@@ -20,8 +20,7 @@
             <span class="brand-mark__horizontal"></span>
           </span>
           <span class="brand-copy">
-            <strong>MERCH</strong>
-            <span>quiet essentials</span>
+            <span class="brand-copy__tagline">Мерч команды<br />по ответственнастям</span>
           </span>
         </a>
         <nav class="topnav" aria-label="Основная навигация">
@@ -43,100 +42,24 @@
       </header>
 
       <main>
-        <section class="hero hero--home">
-          <div class="hero-copy">
-            <p class="eyebrow" data-i18n="index.eyebrow">Минимализм. Тишина. Доверие.</p>
-            <h1 data-i18n="index.title">Знаешь ли ты, кто мы?</h1>
-            <p class="lead" data-i18n="index.lead">
+        <section class="home-focus">
+          <div class="home-focus__copy">
+            <h1>Знаешь ли ты, кто мы?</h1>
+            <p>
               Мы делаем мерч без лишней декоративности: чистые формы, мягкая посадка и спокойные символы,
               которые не спорят с человеком.
             </p>
             <div class="hero-actions">
-              <a class="button button--solid" href="/catalog" target="_blank" rel="noopener" data-i18n="index.openCatalog">Открыть каталог</a>
-              <a class="button button--ghost" href="/delivery" data-i18n="index.delivery">Доставка</a>
+              <a class="button button--solid" href="/catalog" target="_blank" rel="noopener">Открыть каталог</a>
+              <a class="button button--ghost" href="/delivery">Доставка</a>
             </div>
           </div>
-          <div class="hero-card glass-panel">
-            <p data-i18n="index.weekPick">Выбор недели</p>
-            <strong data-i18n="index.weekTitle">Тихий мерч для повседневной жизни</strong>
-            <span data-i18n="index.weekLead">Белый, чёрный, пастельные акценты и мягкий тактильный объём.</span>
-          </div>
-        </section>
-
-        <section class="section">
-          <div class="section-head">
-            <p class="eyebrow" data-i18n="index.selection">Подборка</p>
-            <h2 data-i18n="index.essentials">Основные вещи</h2>
-          </div>
-          <div class="featured-grid" data-featured-products></div>
-        </section>
-
-        <section class="section story-strip">
-          <div class="glass-panel story-card">
-            <p class="eyebrow" data-i18n="index.story1eyebrow">Философия</p>
-            <h2 data-i18n="index.story1title">Красота без перегруза</h2>
-            <p data-i18n="index.story1text">
-              Простые формы, пастельный воздух, тёплая пластика интерфейса и аккуратные отклики на каждом
-              касании.
-            </p>
-          </div>
-          <div class="glass-panel story-card">
-            <p class="eyebrow" data-i18n="index.story2eyebrow">Деталь</p>
-            <h2 data-i18n="index.story2title">Тихий знак</h2>
-            <p data-i18n="index.story2text">
-              Крест встроен в систему сайта и мерча как сдержанный символ, а не декоративный шум.
-            </p>
+          <div class="home-focus__image" aria-label="Область для изображения">
+            <p>Здесь будет ваше изображение</p>
           </div>
         </section>
       </main>
-
-      <footer class="site-footer">
-        <p data-i18n="index.footer">Лаконичный магазин мерча с мягкими откликами и заказом через Telegram.</p>
-        <div class="footer-links">
-          <a href="https://t.me/" target="_blank" rel="noreferrer" data-i18n="common.telegram">Telegram</a>
-          <a href="https://www.youtube.com/" target="_blank" rel="noreferrer" data-i18n="common.youtube">YouTube</a>
-          <a href="/admin" data-i18n="common.admin">Админ-панель</a>
-        </div>
-      </footer>
     </div>
-
-    <aside class="cart-drawer" data-cart-drawer aria-hidden="true">
-      <div class="cart-backdrop" data-cart-close></div>
-      <div class="cart-panel glass-panel">
-        <div class="cart-head">
-          <div>
-            <p class="eyebrow">Корзина</p>
-            <h2>Оформление без регистрации</h2>
-          </div>
-          <button class="icon-button" type="button" data-cart-close aria-label="Закрыть корзину">×</button>
-        </div>
-        <div class="cart-items" data-cart-items></div>
-        <form class="checkout-form" data-checkout-form>
-          <label>
-            <span data-i18n="checkout.fullName">ФИО</span>
-            <input name="fullName" type="text" placeholder="Иванов Иван Иванович" data-i18n-placeholder="checkout.fullNamePlaceholder" required />
-          </label>
-          <label>
-            <span data-i18n="checkout.phone">Телефон</span>
-            <input name="phone" type="tel" placeholder="+7 999 123-45-67" data-i18n-placeholder="checkout.phonePlaceholder" required />
-          </label>
-          <label>
-            <span data-i18n="checkout.address">Адрес</span>
-            <textarea name="address" rows="3" placeholder="Город, улица, дом, квартира" data-i18n-placeholder="checkout.addressPlaceholder" required></textarea>
-          </label>
-          <label>
-            <span data-i18n="checkout.telegram">Ник в Telegram</span>
-            <input name="telegram" type="text" placeholder="@username" data-i18n-placeholder="checkout.telegramPlaceholder" />
-          </label>
-          <div class="checkout-summary">
-            <span data-i18n="checkout.total">Итого</span>
-            <strong data-cart-total>0 ₽</strong>
-          </div>
-          <button class="button button--solid button--full" type="submit" data-i18n="checkout.submit">Отправить заказ</button>
-          <p class="form-status" data-checkout-status></p>
-        </form>
-      </div>
-    </aside>
 
     <script type="module" src="/main.js"></script>
   </body>

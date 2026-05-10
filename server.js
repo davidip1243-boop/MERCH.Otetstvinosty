@@ -3,6 +3,7 @@ import express from "express";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
+import { randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
 import multer from "multer";
 
 dotenv.config();
@@ -13,6 +14,7 @@ const publicDir = path.join(__dirname, "public");
 const dataDir = path.join(__dirname, "data");
 const uploadDir = path.join(publicDir, "uploads");
 const productsPath = path.join(dataDir, "products.json");
+const usersPath = path.join(dataDir, "users.json");
 const port = Number(process.env.PORT) || 3000;
 
 const app = express();
@@ -55,6 +57,12 @@ async function ensureStorage() {
   } catch {
     await fs.writeFile(productsPath, "[]\n", "utf8");
   }
+
+  try {
+    await fs.access(usersPath);
+  } catch {
+    await fs.writeFile(usersPath, "[]\n", "utf8");
+  }
 }
 
 async function readProducts() {
@@ -65,6 +73,67 @@ async function readProducts() {
 async function writeProducts(products) {
   await fs.writeFile(productsPath, JSON.stringify(products, null, 2), "utf8");
 }
+
+async function readUsers() {
+  const raw = await fs.readFile(usersPath, "utf8");
+  return JSON.parse(raw);
+}
+
+async function writeUsers(users) {
+  await fs.writeFile(usersPath, JSON.stringify(users, null, 2), "utf8");
+}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function validEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+}
+
+function hashPassword(password) {
+  const salt = randomBytes(16).toString("hex");
+  const hash = scryptSync(password, salt, 64).toString("hex");
+  return `${salt}:${hash}`;
+}
+
+function verifyPassword(password, digest) {
+  const [salt, expected] = String(digest || "").split(":");
+  if (!salt || !expected) {
+    return false;
+  }
+
+  const actual = scryptSync(password, salt, 64);
+  const expectedBuffer = Buffer.from(expected, "hex");
+  if (expectedBuffer.length !== actual.length) {
+    return false;
+  }
+
+  return timingSafeEqual(actual, expectedBuffer);
+}
+
+function createSessionToken() {
+  return `${randomUUID()}-${randomBytes(24).toString("hex")}`;
+}
+
+function sanitizeUser(user) {
+  return {
+    id: user.id,
+    name: user.name || "",
+    email: user.email,
+    createdAt: user.createdAt
+  };
+}
+
+function getBearerToken(req) {
+  const auth = req.get("authorization") || "";
+  if (auth.startsWith("Bearer ")) {
+    return auth.slice(7).trim();
+  }
+
+  return "";
+}
+
 
 function adminAuthorized(req) {
   const expected = process.env.ADMIN_PASSWORD;
@@ -211,6 +280,126 @@ app.post("/api/admin/login", (req, res) => {
   }
 
   return res.status(401).json({ error: "Неверный пароль администратора." });
+});
+
+app.post("/api/auth/register", async (req, res, next) => {
+  try {
+    const email = normalizeEmail(req.body?.email);
+    const password = String(req.body?.password || "");
+    const name = String(req.body?.name || "").trim();
+
+    if (!validEmail(email)) {
+      return res.status(400).json({ error: "Введите корректный email." });
+    }
+
+    if (password.length < 8) {
+      return res.status(400).json({ error: "Пароль должен содержать минимум 8 символов." });
+    }
+
+    const users = await readUsers();
+    const exists = users.some((user) => user.email === email);
+    if (exists) {
+      return res.status(409).json({ error: "Аккаунт с таким email уже существует." });
+    }
+
+    const token = createSessionToken();
+    const now = new Date().toISOString();
+    const user = {
+      id: randomUUID(),
+      name,
+      email,
+      passwordHash: hashPassword(password),
+      sessions: [{ token, createdAt: now }],
+      createdAt: now
+    };
+
+    users.push(user);
+    await writeUsers(users);
+
+    return res.status(201).json({
+      token,
+      user: sanitizeUser(user)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/auth/login", async (req, res, next) => {
+  try {
+    const email = normalizeEmail(req.body?.email);
+    const password = String(req.body?.password || "");
+    const users = await readUsers();
+    const user = users.find((item) => item.email === email);
+
+    if (!user || !verifyPassword(password, user.passwordHash)) {
+      return res.status(401).json({ error: "Неверный email или пароль." });
+    }
+
+    const token = createSessionToken();
+    user.sessions = Array.isArray(user.sessions) ? user.sessions : [];
+    user.sessions.push({ token, createdAt: new Date().toISOString() });
+    if (user.sessions.length > 10) {
+      user.sessions = user.sessions.slice(-10);
+    }
+    await writeUsers(users);
+
+    return res.json({
+      token,
+      user: sanitizeUser(user)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.get("/api/auth/me", async (req, res, next) => {
+  try {
+    const token = getBearerToken(req);
+    if (!token) {
+      return res.status(401).json({ error: "Требуется авторизация." });
+    }
+
+    const users = await readUsers();
+    const user = users.find((item) => (item.sessions || []).some((session) => session.token === token));
+    if (!user) {
+      return res.status(401).json({ error: "Сессия не найдена." });
+    }
+
+    return res.json({
+      user: sanitizeUser(user)
+    });
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post("/api/auth/logout", async (req, res, next) => {
+  try {
+    const token = getBearerToken(req);
+    if (!token) {
+      return res.status(204).end();
+    }
+
+    const users = await readUsers();
+    let changed = false;
+    for (const user of users) {
+      const sessions = Array.isArray(user.sessions) ? user.sessions : [];
+      const nextSessions = sessions.filter((session) => session.token !== token);
+      if (nextSessions.length !== sessions.length) {
+        user.sessions = nextSessions;
+        changed = true;
+      }
+    }
+
+    if (changed) {
+      await writeUsers(users);
+    }
+
+    return res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
 });
 
 app.get("/api/products", async (_req, res, next) => {

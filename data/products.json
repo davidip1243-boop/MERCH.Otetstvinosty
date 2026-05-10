@@ -55,5 +55,43 @@
       "/assets/images/tote-detail.svg",
       "/assets/images/tote-model.svg"
     ]
+  },
+  {
+    "id": "candle-molitva",
+    "title": "Свеча «Молитва»",
+    "price": 1200,
+    "category": "Свечи",
+    "summary": "Натуральная восковая свеча для дома и молитвенного уголка.",
+    "description": "Горит ровно, без резкого запаха. Подходит для ежедневной домашней молитвы и спокойного вечернего света.",
+    "accent": "#f3d7a7",
+    "details": [
+      "Натуральный воск",
+      "Время горения до 24 часов",
+      "Спокойный тёплый свет"
+    ],
+    "images": [
+      "/assets/images/candle-angle.svg",
+      "/assets/images/candle-detail.svg",
+      "/assets/images/candle-model.svg"
+    ]
+  },
+  {
+    "id": "cross-silver",
+    "title": "Крест нательный «Свет веры»",
+    "price": 3400,
+    "category": "Кресты",
+    "summary": "Минималистичный нательный крест для повседневного ношения.",
+    "description": "Лёгкий и аккуратный крест с чистой геометрией, созданный для ежедневной носки и спокойного внешнего вида.",
+    "accent": "#d6dbe4",
+    "details": [
+      "Гипоаллергенный сплав",
+      "Надёжное крепление",
+      "Подходит для ежедневного ношения"
+    ],
+    "images": [
+      "/assets/images/cross-angle.svg",
+      "/assets/images/cross-detail.svg",
+      "/assets/images/cross-model.svg"
+    ]
   }
 ]
