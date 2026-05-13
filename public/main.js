@@ -3,6 +3,7 @@ const CUSTOMER_KEY = "merch-customer";
 const LANG_KEY = "merch-lang";
 const SESSION_DRAFT_KEY = "merch-session-draft";
 const SESSION_HISTORY_KEY = "merch-session-history";
+const DELETED_PRODUCTS_KEY = "merch-deleted-products";
 
 const translations = {
   ru: {
@@ -253,7 +254,7 @@ async function init() {
   setupGuestSessionPersistence();
   setupLanguageSwitcher();
   state.settings = await fetchJson("/api/settings");
-  state.products = await fetchJson("/api/products");
+  state.products = applyDeletedFilter(await fetchJson("/api/products"));
   renderFeatured();
   renderCatalog();
   setupCatalogFilters();
@@ -407,6 +408,37 @@ function setupLanguageSwitcher() {
 
 function saveJson(key, value) {
   localStorage.setItem(key, JSON.stringify(value));
+}
+
+function getDeletedProductIds() {
+  return new Set(loadJson(DELETED_PRODUCTS_KEY, []));
+}
+
+function saveDeletedProductIds(ids) {
+  saveJson(DELETED_PRODUCTS_KEY, Array.from(ids));
+}
+
+function markProductDeleted(productId) {
+  if (!productId) {
+    return;
+  }
+  const ids = getDeletedProductIds();
+  ids.add(productId);
+  saveDeletedProductIds(ids);
+}
+
+function clearProductDeletedMark(productId) {
+  if (!productId) {
+    return;
+  }
+  const ids = getDeletedProductIds();
+  ids.delete(productId);
+  saveDeletedProductIds(ids);
+}
+
+function applyDeletedFilter(products) {
+  const ids = getDeletedProductIds();
+  return (Array.isArray(products) ? products : []).filter((product) => !ids.has(product.id));
 }
 
 function escapeHtml(value) {
@@ -876,7 +908,11 @@ function setupAdmin() {
 
       formStatus.textContent = t("ui.adminSaved");
       resetAdminForm();
-      state.products = await fetchJson("/api/products");
+      const savedProductId = state.editingProduct?.id || String(formData.get("id") || "");
+      if (savedProductId) {
+        clearProductDeletedMark(savedProductId);
+      }
+      state.products = applyDeletedFilter(await fetchJson("/api/products"));
       renderCatalog();
       renderFeatured();
       renderAdminProducts();
@@ -950,7 +986,8 @@ function renderAdminProducts() {
           }
         });
 
-        state.products = await fetchJson("/api/products");
+        markProductDeleted(button.dataset.adminDelete || "");
+        state.products = applyDeletedFilter(await fetchJson("/api/products"));
         renderCatalog();
         renderFeatured();
         renderAdminProducts();
