@@ -568,8 +568,9 @@ app.put("/api/products/:id", requireAdmin, upload.array("images", 12), async (re
 
     const current = parseProductRow(row);
     const uploadedImages = (req.files || []).map((file) => `/uploads/${file.filename}`);
-    const existingImages = normalizeImages(req.body.existingImages);
-    const mergedImages = [...existingImages, ...uploadedImages];
+    const requestedExistingImages = normalizeImages(req.body.existingImages);
+    const existingImages = requestedExistingImages.filter((imagePath) => current.images.includes(imagePath));
+    const mergedImages = [...new Set([...existingImages, ...uploadedImages])];
 
     if (mergedImages.length < 3) {
       return res.status(400).json({ error: "У товара должно остаться минимум 3 изображения." });
