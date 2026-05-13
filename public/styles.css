@@ -549,10 +549,23 @@ body[data-page="home"] .site-shell {
   font-size: clamp(1.2rem, 2vw, 1.6rem);
 }
 
-.product-detail-gallery {
+.product-gallery-viewer {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 12px;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  gap: 10px;
+  align-items: center;
+}
+
+.product-gallery-arrow {
+  width: 44px;
+  height: 44px;
+  border-radius: 999px;
+}
+
+.product-gallery-meta {
+  margin: -6px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
 }
 
 .product-detail-image {
@@ -903,8 +916,7 @@ body[data-page="home"] .site-shell {
   .info-grid,
   .story-strip,
   .admin-form__grid,
-  .image-input-grid,
-  .product-detail-gallery {
+  .image-input-grid {
     grid-template-columns: 1fr;
   }
 

@@ -643,15 +643,8 @@ function renderProductPage() {
   }
 
   const details = product.details.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
-  const images = product.images
-    .map(
-      (image, index) => `
-        <figure class="product-detail-image">
-          <img src="${image}" alt="${escapeHtml(product.title)} ${index + 1}" />
-        </figure>
-      `
-    )
-    .join("");
+  const mainImage = product.images[0] || "";
+  const hasManyImages = product.images.length > 1;
 
   container.innerHTML = `
     <article class="product-detail glass-panel">
@@ -664,14 +657,54 @@ function renderProductPage() {
         <a class="button button--ghost" href="/catalog">${t("product.backCatalog")}</a>
         <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
       </div>
+      <div class="product-gallery-viewer">
+        <button class="icon-button product-gallery-arrow" type="button" data-gallery-prev aria-label="Previous image" ${hasManyImages ? "" : "disabled"}>←</button>
+        <figure class="product-detail-image">
+          <img data-product-detail-main src="${mainImage}" alt="${escapeHtml(product.title)} 1" />
+        </figure>
+        <button class="icon-button product-gallery-arrow" type="button" data-gallery-next aria-label="Next image" ${hasManyImages ? "" : "disabled"}>→</button>
+      </div>
+      <p class="product-gallery-meta" data-gallery-meta>${product.images.length ? `1 / ${product.images.length}` : ""}</p>
       <h2>${t("product.details")}</h2>
       <ul class="product-details">${details}</ul>
-      <div class="product-detail-gallery">${images}</div>
     </article>
   `;
 
   const addButton = container.querySelector("[data-add-to-cart]");
   addButton?.addEventListener("click", () => addToCart(product.id));
+
+  if (!product.images.length) {
+    return;
+  }
+
+  const mainImageNode = container.querySelector("[data-product-detail-main]");
+  const metaNode = container.querySelector("[data-gallery-meta]");
+  const prevButton = container.querySelector("[data-gallery-prev]");
+  const nextButton = container.querySelector("[data-gallery-next]");
+  let activeIndex = 0;
+
+  const renderGalleryImage = () => {
+    if (!mainImageNode) {
+      return;
+    }
+
+    const src = product.images[activeIndex];
+    mainImageNode.src = src;
+    mainImageNode.alt = `${product.title} ${activeIndex + 1}`;
+    if (metaNode) {
+      metaNode.textContent = `${activeIndex + 1} / ${product.images.length}`;
+    }
+  };
+
+  prevButton?.addEventListener("click", () => {
+    activeIndex = (activeIndex - 1 + product.images.length) % product.images.length;
+    renderGalleryImage();
+  });
+
+  nextButton?.addEventListener("click", () => {
+    activeIndex = (activeIndex + 1) % product.images.length;
+    renderGalleryImage();
+  });
 }
 
 function addToCart(productId) {
