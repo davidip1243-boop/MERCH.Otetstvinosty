@@ -4,6 +4,7 @@ const LANG_KEY = "merch-lang";
 const SESSION_DRAFT_KEY = "merch-session-draft";
 const SESSION_HISTORY_KEY = "merch-session-history";
 const DELETED_PRODUCTS_KEY = "merch-deleted-products";
+const FORCE_RESTORED_PRODUCT_IDS = ["candle-molitva"];
 
 const translations = {
   ru: {
@@ -253,6 +254,7 @@ init().catch((error) => {
 async function init() {
   setupGuestSessionPersistence();
   setupLanguageSwitcher();
+  restoreForcedProducts();
   state.settings = await fetchJson("/api/settings");
   state.products = applyDeletedFilter(await fetchJson("/api/products"));
   renderFeatured();
@@ -434,6 +436,12 @@ function clearProductDeletedMark(productId) {
   const ids = getDeletedProductIds();
   ids.delete(productId);
   saveDeletedProductIds(ids);
+}
+
+function restoreForcedProducts() {
+  for (const productId of FORCE_RESTORED_PRODUCT_IDS) {
+    clearProductDeletedMark(productId);
+  }
 }
 
 function applyDeletedFilter(products) {
