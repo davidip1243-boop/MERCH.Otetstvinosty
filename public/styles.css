@@ -25,6 +25,7 @@
 
 html {
   scroll-behavior: smooth;
+  background: #000000;
 }
 
 body {
@@ -32,9 +33,24 @@ body {
   min-height: 100vh;
   font-family: var(--font-body);
   color: var(--text);
-  background:
-    radial-gradient(circle at 50% -15%, #ffffff 0%, rgba(255, 255, 255, 0) 48%),
-    linear-gradient(180deg, #fbfbfd 0%, var(--bg) 100%);
+  background: transparent;
+  position: relative;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: url("/assets/images/home-bg.JPG") center / cover no-repeat;
+  z-index: -2;
+}
+
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  background: linear-gradient(180deg, rgba(10, 10, 12, 0.46), rgba(10, 10, 12, 0.28));
+  z-index: -1;
 }
 
 img {
@@ -61,6 +77,12 @@ button {
   width: min(1260px, calc(100% - 32px));
   margin: 0 auto;
   padding: 12px 0 56px;
+}
+
+body[data-page="home"] .site-shell {
+  min-height: auto;
+  display: block;
+  padding-bottom: 56px;
 }
 
 .topbar {
@@ -649,6 +671,27 @@ button {
   gap: 12px;
 }
 
+.image-input-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.image-input-box {
+  display: grid;
+  gap: 6px;
+  padding: 10px;
+  border: 1px solid var(--stroke);
+  border-radius: var(--radius-md);
+  background: var(--surface-soft);
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.image-input-box input[type="file"] {
+  width: 100%;
+}
+
 .existing-image {
   position: relative;
   width: 94px;
@@ -699,105 +742,12 @@ button {
   font-size: clamp(2.2rem, 7vw, 4.6rem);
 }
 
-.account-trigger {
-  max-width: 220px;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
-}
-
-.auth-modal {
-  position: fixed;
-  inset: 0;
-  z-index: 95;
-  display: grid;
-  place-items: center;
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 180ms ease;
-}
-
-.auth-modal.is-open {
-  opacity: 1;
-  pointer-events: auto;
-}
-
-.auth-modal__backdrop {
-  position: absolute;
-  inset: 0;
-  background: rgba(20, 20, 24, 0.4);
-}
-
-.auth-modal__panel {
-  position: relative;
-  width: min(520px, calc(100vw - 24px));
-  border-radius: 24px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
-  background: #ffffff;
-  box-shadow: var(--shadow-card);
-  padding: 22px;
-}
-
-.auth-close {
-  position: absolute;
-  top: 14px;
-  right: 14px;
-}
-
-.auth-content {
-  display: grid;
-  gap: 14px;
-  margin-top: 6px;
-}
-
-.auth-content h2 {
-  margin: 0;
-  font-size: 1.45rem;
-  line-height: 1.2;
-  letter-spacing: -0.02em;
-}
-
-.auth-email {
-  margin: 0;
-  padding: 12px 14px;
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius-md);
-  background: var(--surface-soft);
-  overflow-wrap: anywhere;
-}
-
-.auth-form {
-  display: grid;
-  gap: 10px;
-}
-
-.auth-form label {
-  display: grid;
-  gap: 6px;
-  color: var(--text-secondary);
-}
-
-.auth-form input {
-  width: 100%;
-  padding: 12px 14px;
-  border: 1px solid var(--stroke);
-  border-radius: var(--radius-md);
-  background: #ffffff;
-  color: var(--text);
-}
-
-.auth-form input:focus {
-  outline: none;
-  border-color: #8ab4f8;
-  box-shadow: 0 0 0 4px rgba(0, 102, 204, 0.14);
-}
-
 .home-focus {
-  min-height: calc(100vh - 32px);
+  min-height: 0;
   display: grid;
   grid-template-columns: 1fr;
   gap: 24px;
-  align-items: stretch;
+  align-items: start;
 }
 
 .home-focus__copy,
@@ -810,11 +760,11 @@ button {
 
 .home-focus__copy {
   display: grid;
-  place-content: center;
-  justify-items: center;
+  place-content: start;
+  justify-items: start;
   gap: 18px;
   padding: clamp(28px, 5vw, 56px);
-  text-align: center;
+  text-align: left;
 }
 
 .home-focus__copy h1 {
@@ -837,23 +787,8 @@ button {
   place-items: center;
   min-height: 56vh;
   padding: 22px;
-  background:
-    linear-gradient(180deg, rgba(255, 255, 255, 0.98), rgba(245, 247, 252, 0.92)),
-    repeating-linear-gradient(
-      45deg,
-      rgba(0, 0, 0, 0.03) 0,
-      rgba(0, 0, 0, 0.03) 10px,
-      rgba(0, 0, 0, 0.015) 10px,
-      rgba(0, 0, 0, 0.015) 20px
-    );
-}
-
-.home-focus__image p {
-  margin: 0;
-  color: var(--text-secondary);
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  font-size: 0.82rem;
+  background: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(2px);
 }
 
 @media (max-width: 1080px) {
@@ -904,15 +839,12 @@ button {
     width: 100%;
   }
 
-  .account-trigger {
-    max-width: none;
-  }
-
   .featured-grid,
   .catalog-grid,
   .info-grid,
   .story-strip,
-  .admin-form__grid {
+  .admin-form__grid,
+  .image-input-grid {
     grid-template-columns: 1fr;
   }
 

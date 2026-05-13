@@ -3,7 +3,8 @@ import express from "express";
 import fs from "node:fs/promises";
 import path from "node:path";
 import { fileURLToPath } from "node:url";
-import { randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
+import { createHash, randomBytes, randomUUID, scryptSync, timingSafeEqual } from "node:crypto";
+import { DatabaseSync } from "node:sqlite";
 import multer from "multer";
 
 dotenv.config();
@@ -11,13 +12,25 @@ dotenv.config();
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const publicDir = path.join(__dirname, "public");
-const dataDir = path.join(__dirname, "data");
-const uploadDir = path.join(publicDir, "uploads");
-const productsPath = path.join(dataDir, "products.json");
-const usersPath = path.join(dataDir, "users.json");
+const sourceDataDir = path.join(__dirname, "data");
+const runtimeDataDir = process.env.VERCEL ? path.join("/tmp", "orthodox-merch-shop") : sourceDataDir;
+const uploadDir = process.env.VERCEL
+  ? path.join("/tmp", "orthodox-merch-shop", "uploads")
+  : path.join(publicDir, "uploads");
+const productsPath = path.join(sourceDataDir, "products.json");
+const usersPath = path.join(sourceDataDir, "users.json");
+const dbPath = path.join(runtimeDataDir, "app.db");
+
 const port = Number(process.env.PORT) || 3000;
+const host = process.env.HOST || "0.0.0.0";
+const isProduction = process.env.NODE_ENV === "production";
+const SESSION_COOKIE_NAME = "merch_session";
+const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 30;
+const SESSION_ROTATION_LIMIT = 10;
+const securityRateBuckets = new Map();
 
 const app = express();
+let db;
 
 const storage = multer.diskStorage({
   destination: (_req, _file, callback) => callback(null, uploadDir),
@@ -43,52 +56,33 @@ const staticPages = new Map([
   ["/admin", "admin.html"]
 ]);
 
+app.disable("x-powered-by");
+app.set("trust proxy", 1);
+
+app.use((req, res, next) => {
+  res.setHeader("X-Frame-Options", "DENY");
+  res.setHeader("X-Content-Type-Options", "nosniff");
+  res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
+  res.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
+  res.setHeader("Cross-Origin-Opener-Policy", "same-origin");
+  res.setHeader(
+    "Content-Security-Policy",
+    "default-src 'self'; img-src 'self' data: https:; style-src 'self' 'unsafe-inline'; script-src 'self'; connect-src 'self' https://api.telegram.org; frame-ancestors 'none'; base-uri 'self'; form-action 'self'"
+  );
+  if (isProduction) {
+    res.setHeader("Strict-Transport-Security", "max-age=31536000; includeSubDomains");
+  }
+  next();
+});
+
 app.use(express.json({ limit: "2mb" }));
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static(publicDir));
 app.use("/uploads", express.static(uploadDir));
 
 async function ensureStorage() {
-  await fs.mkdir(dataDir, { recursive: true });
+  await fs.mkdir(runtimeDataDir, { recursive: true });
   await fs.mkdir(uploadDir, { recursive: true });
-
-  try {
-    await fs.access(productsPath);
-  } catch {
-    await fs.writeFile(productsPath, "[]\n", "utf8");
-  }
-
-  try {
-    await fs.access(usersPath);
-  } catch {
-    await fs.writeFile(usersPath, "[]\n", "utf8");
-  }
-}
-
-async function readProducts() {
-  const raw = await fs.readFile(productsPath, "utf8");
-  return JSON.parse(raw);
-}
-
-async function writeProducts(products) {
-  await fs.writeFile(productsPath, JSON.stringify(products, null, 2), "utf8");
-}
-
-async function readUsers() {
-  const raw = await fs.readFile(usersPath, "utf8");
-  return JSON.parse(raw);
-}
-
-async function writeUsers(users) {
-  await fs.writeFile(usersPath, JSON.stringify(users, null, 2), "utf8");
-}
-
-function normalizeEmail(email) {
-  return String(email || "").trim().toLowerCase();
-}
-
-function validEmail(email) {
-  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 }
 
 function hashPassword(password) {
@@ -116,12 +110,24 @@ function createSessionToken() {
   return `${randomUUID()}-${randomBytes(24).toString("hex")}`;
 }
 
+function hashSessionToken(token) {
+  return createHash("sha256").update(String(token)).digest("hex");
+}
+
+function normalizeEmail(email) {
+  return String(email || "").trim().toLowerCase();
+}
+
+function validEmail(email) {
+  return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email) && email.length <= 254;
+}
+
 function sanitizeUser(user) {
   return {
     id: user.id,
     name: user.name || "",
     email: user.email,
-    createdAt: user.createdAt
+    createdAt: user.created_at || user.createdAt
   };
 }
 
@@ -134,11 +140,81 @@ function getBearerToken(req) {
   return "";
 }
 
+function parseCookies(req) {
+  const raw = req.get("cookie") || "";
+  if (!raw) {
+    return {};
+  }
+
+  return raw.split(";").reduce((acc, part) => {
+    const [key, ...valueParts] = part.trim().split("=");
+    if (!key) {
+      return acc;
+    }
+
+    acc[key] = decodeURIComponent(valueParts.join("="));
+    return acc;
+  }, {});
+}
+
+function getSessionToken(req) {
+  const bearer = getBearerToken(req);
+  if (bearer) {
+    return bearer;
+  }
+
+  const cookies = parseCookies(req);
+  return cookies[SESSION_COOKIE_NAME] || "";
+}
+
+function setSessionCookie(req, res, token) {
+  const isSecure = isProduction || req.protocol === "https" || req.get("x-forwarded-proto") === "https";
+  res.cookie(SESSION_COOKIE_NAME, token, {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: isSecure,
+    path: "/",
+    maxAge: SESSION_MAX_AGE_MS
+  });
+}
+
+function clearSessionCookie(req, res) {
+  const isSecure = isProduction || req.protocol === "https" || req.get("x-forwarded-proto") === "https";
+  res.clearCookie(SESSION_COOKIE_NAME, {
+    httpOnly: true,
+    sameSite: "strict",
+    secure: isSecure,
+    path: "/"
+  });
+}
+
+function rateLimit({ keyPrefix, windowMs, max }) {
+  return (req, res, next) => {
+    const ip = req.ip || req.socket.remoteAddress || "unknown";
+    const key = `${keyPrefix}:${ip}`;
+    const now = Date.now();
+    const bucket = securityRateBuckets.get(key) || { count: 0, resetAt: now + windowMs };
+
+    if (now > bucket.resetAt) {
+      bucket.count = 0;
+      bucket.resetAt = now + windowMs;
+    }
+
+    bucket.count += 1;
+    securityRateBuckets.set(key, bucket);
+
+    if (bucket.count > max) {
+      return res.status(429).json({ error: "Too many requests. Please try again later." });
+    }
+
+    return next();
+  };
+}
 
 function adminAuthorized(req) {
-  const expected = process.env.ADMIN_PASSWORD;
+  const expected = String(process.env.ADMIN_PASSWORD || "");
   if (!expected) {
-    return true;
+    return false;
   }
 
   const headerPassword = req.get("x-admin-password");
@@ -203,6 +279,143 @@ function escapeHtml(value) {
     .replaceAll("&", "&amp;")
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;");
+}
+
+function parseProductRow(row) {
+  return {
+    id: row.id,
+    title: row.title,
+    price: row.price,
+    category: row.category,
+    summary: row.summary,
+    description: row.description,
+    accent: row.accent,
+    details: JSON.parse(row.details_json || "[]"),
+    images: JSON.parse(row.images_json || "[]")
+  };
+}
+
+function cleanupExpiredSessions() {
+  const now = new Date().toISOString();
+  db.prepare("DELETE FROM sessions WHERE expires_at <= ?").run(now);
+}
+
+async function migrateJsonToSql() {
+  const productCount = db.prepare("SELECT COUNT(*) AS count FROM products").get().count;
+  const userCount = db.prepare("SELECT COUNT(*) AS count FROM users").get().count;
+
+  if (productCount === 0) {
+    try {
+      const raw = await fs.readFile(productsPath, "utf8");
+      const products = JSON.parse(raw);
+      const stmt = db.prepare(`
+        INSERT INTO products (id, title, price, category, summary, description, accent, details_json, images_json, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+      `);
+      const now = new Date().toISOString();
+      for (const p of Array.isArray(products) ? products : []) {
+        stmt.run(
+          String(p.id || randomUUID()),
+          String(p.title || ""),
+          Number(p.price) || 0,
+          String(p.category || "Мерч"),
+          String(p.summary || ""),
+          String(p.description || ""),
+          String(p.accent || "#e9e3db"),
+          JSON.stringify(Array.isArray(p.details) ? p.details : []),
+          JSON.stringify(Array.isArray(p.images) ? p.images : []),
+          now
+        );
+      }
+    } catch (error) {
+      console.warn("Product JSON->SQL migration skipped:", error.message);
+    }
+  }
+
+  if (userCount === 0) {
+    try {
+      const raw = await fs.readFile(usersPath, "utf8");
+      const users = JSON.parse(raw);
+
+      const insertUser = db.prepare(`
+        INSERT INTO users (id, name, email, password_hash, created_at)
+        VALUES (?, ?, ?, ?, ?)
+      `);
+      const insertSession = db.prepare(`
+        INSERT INTO sessions (token_hash, user_id, created_at, expires_at)
+        VALUES (?, ?, ?, ?)
+      `);
+
+      for (const u of Array.isArray(users) ? users : []) {
+        const userId = String(u.id || randomUUID());
+        const createdAt = String(u.createdAt || new Date().toISOString());
+        insertUser.run(
+          userId,
+          String(u.name || ""),
+          normalizeEmail(u.email),
+          String(u.passwordHash || ""),
+          createdAt
+        );
+
+        const sessions = Array.isArray(u.sessions) ? u.sessions : [];
+        for (const s of sessions) {
+          const tokenHash = s.tokenHash || (s.token ? hashSessionToken(String(s.token)) : "");
+          if (!tokenHash) {
+            continue;
+          }
+          const sessionCreatedAt = String(s.createdAt || createdAt);
+          const expiresAt = new Date(Date.parse(sessionCreatedAt) + SESSION_MAX_AGE_MS).toISOString();
+          insertSession.run(tokenHash, userId, sessionCreatedAt, expiresAt);
+        }
+      }
+    } catch (error) {
+      console.warn("User JSON->SQL migration skipped:", error.message);
+    }
+  }
+}
+
+async function initDb() {
+  db = new DatabaseSync(dbPath);
+  db.exec("PRAGMA journal_mode = WAL");
+  db.exec("PRAGMA foreign_keys = ON");
+
+  db.exec(`
+    CREATE TABLE IF NOT EXISTS products (
+      id TEXT PRIMARY KEY,
+      title TEXT NOT NULL,
+      price INTEGER NOT NULL,
+      category TEXT NOT NULL,
+      summary TEXT NOT NULL,
+      description TEXT NOT NULL,
+      accent TEXT NOT NULL,
+      details_json TEXT NOT NULL,
+      images_json TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS users (
+      id TEXT PRIMARY KEY,
+      name TEXT NOT NULL,
+      email TEXT NOT NULL UNIQUE,
+      password_hash TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
+    CREATE TABLE IF NOT EXISTS sessions (
+      token_hash TEXT PRIMARY KEY,
+      user_id TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      expires_at TEXT NOT NULL,
+      FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
+    );
+
+    CREATE INDEX IF NOT EXISTS idx_products_created_at ON products(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
+    CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
+  `);
+
+  await migrateJsonToSql();
+  cleanupExpiredSessions();
 }
 
 async function sendTelegramOrder(order) {
@@ -270,11 +483,15 @@ async function sendTelegramOrder(order) {
 
 app.get("/api/settings", (_req, res) => {
   res.json({
-    adminProtected: Boolean(process.env.ADMIN_PASSWORD)
+    adminProtected: true
   });
 });
 
 app.post("/api/admin/login", (req, res) => {
+  if (!process.env.ADMIN_PASSWORD) {
+    return res.status(401).json({ error: "Admin access is disabled: ADMIN_PASSWORD is not set." });
+  }
+
   if (adminAuthorized(req)) {
     return res.json({ ok: true });
   }
@@ -282,130 +499,10 @@ app.post("/api/admin/login", (req, res) => {
   return res.status(401).json({ error: "Неверный пароль администратора." });
 });
 
-app.post("/api/auth/register", async (req, res, next) => {
-  try {
-    const email = normalizeEmail(req.body?.email);
-    const password = String(req.body?.password || "");
-    const name = String(req.body?.name || "").trim();
-
-    if (!validEmail(email)) {
-      return res.status(400).json({ error: "Введите корректный email." });
-    }
-
-    if (password.length < 8) {
-      return res.status(400).json({ error: "Пароль должен содержать минимум 8 символов." });
-    }
-
-    const users = await readUsers();
-    const exists = users.some((user) => user.email === email);
-    if (exists) {
-      return res.status(409).json({ error: "Аккаунт с таким email уже существует." });
-    }
-
-    const token = createSessionToken();
-    const now = new Date().toISOString();
-    const user = {
-      id: randomUUID(),
-      name,
-      email,
-      passwordHash: hashPassword(password),
-      sessions: [{ token, createdAt: now }],
-      createdAt: now
-    };
-
-    users.push(user);
-    await writeUsers(users);
-
-    return res.status(201).json({
-      token,
-      user: sanitizeUser(user)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/auth/login", async (req, res, next) => {
-  try {
-    const email = normalizeEmail(req.body?.email);
-    const password = String(req.body?.password || "");
-    const users = await readUsers();
-    const user = users.find((item) => item.email === email);
-
-    if (!user || !verifyPassword(password, user.passwordHash)) {
-      return res.status(401).json({ error: "Неверный email или пароль." });
-    }
-
-    const token = createSessionToken();
-    user.sessions = Array.isArray(user.sessions) ? user.sessions : [];
-    user.sessions.push({ token, createdAt: new Date().toISOString() });
-    if (user.sessions.length > 10) {
-      user.sessions = user.sessions.slice(-10);
-    }
-    await writeUsers(users);
-
-    return res.json({
-      token,
-      user: sanitizeUser(user)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.get("/api/auth/me", async (req, res, next) => {
-  try {
-    const token = getBearerToken(req);
-    if (!token) {
-      return res.status(401).json({ error: "Требуется авторизация." });
-    }
-
-    const users = await readUsers();
-    const user = users.find((item) => (item.sessions || []).some((session) => session.token === token));
-    if (!user) {
-      return res.status(401).json({ error: "Сессия не найдена." });
-    }
-
-    return res.json({
-      user: sanitizeUser(user)
-    });
-  } catch (error) {
-    next(error);
-  }
-});
-
-app.post("/api/auth/logout", async (req, res, next) => {
-  try {
-    const token = getBearerToken(req);
-    if (!token) {
-      return res.status(204).end();
-    }
-
-    const users = await readUsers();
-    let changed = false;
-    for (const user of users) {
-      const sessions = Array.isArray(user.sessions) ? user.sessions : [];
-      const nextSessions = sessions.filter((session) => session.token !== token);
-      if (nextSessions.length !== sessions.length) {
-        user.sessions = nextSessions;
-        changed = true;
-      }
-    }
-
-    if (changed) {
-      await writeUsers(users);
-    }
-
-    return res.status(204).end();
-  } catch (error) {
-    next(error);
-  }
-});
-
 app.get("/api/products", async (_req, res, next) => {
   try {
-    const products = await readProducts();
-    res.json(products);
+    const rows = db.prepare("SELECT * FROM products ORDER BY created_at DESC").all();
+    res.json(rows.map(parseProductRow));
   } catch (error) {
     next(error);
   }
@@ -413,7 +510,6 @@ app.get("/api/products", async (_req, res, next) => {
 
 app.post("/api/products", requireAdmin, upload.array("images", 12), async (req, res, next) => {
   try {
-    const products = await readProducts();
     const images = (req.files || []).map((file) => `/uploads/${file.filename}`);
     const productId =
       req.body.id?.trim() ||
@@ -425,22 +521,37 @@ app.post("/api/products", requireAdmin, upload.array("images", 12), async (req, 
 
     const product = {
       id: productId,
-      title: req.body.title?.trim(),
+      title: String(req.body.title || "").trim().slice(0, 140),
       price: Number(req.body.price),
-      category: req.body.category?.trim() || "Мерч",
-      summary: req.body.summary?.trim() || "",
-      description: req.body.description?.trim() || "",
-      accent: req.body.accent?.trim() || "#e9e3db",
+      category: String(req.body.category || "Мерч").trim().slice(0, 80),
+      summary: String(req.body.summary || "").trim().slice(0, 280),
+      description: String(req.body.description || "").trim().slice(0, 2000),
+      accent: String(req.body.accent || "#e9e3db").trim().slice(0, 20),
       details: normalizeDetails(req.body.details),
       images
     };
 
-    if (!product.title || !product.price) {
+    if (!product.title || !Number.isFinite(product.price) || product.price <= 0) {
       return res.status(400).json({ error: "Заполните название и цену товара." });
     }
 
-    products.unshift(product);
-    await writeProducts(products);
+    const now = new Date().toISOString();
+    db.prepare(
+      `INSERT INTO products (id, title, price, category, summary, description, accent, details_json, images_json, created_at)
+       VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`
+    ).run(
+      product.id,
+      product.title,
+      Math.round(product.price),
+      product.category,
+      product.summary,
+      product.description,
+      product.accent,
+      JSON.stringify(product.details),
+      JSON.stringify(product.images),
+      now
+    );
+
     return res.status(201).json(product);
   } catch (error) {
     next(error);
@@ -449,13 +560,13 @@ app.post("/api/products", requireAdmin, upload.array("images", 12), async (req, 
 
 app.put("/api/products/:id", requireAdmin, upload.array("images", 12), async (req, res, next) => {
   try {
-    const products = await readProducts();
-    const index = products.findIndex((product) => product.id === req.params.id);
+    const row = db.prepare("SELECT * FROM products WHERE id = ?").get(req.params.id);
 
-    if (index === -1) {
+    if (!row) {
       return res.status(404).json({ error: "Товар не найден." });
     }
 
+    const current = parseProductRow(row);
     const uploadedImages = (req.files || []).map((file) => `/uploads/${file.filename}`);
     const existingImages = normalizeImages(req.body.existingImages);
     const mergedImages = [...existingImages, ...uploadedImages];
@@ -464,27 +575,39 @@ app.put("/api/products/:id", requireAdmin, upload.array("images", 12), async (re
       return res.status(400).json({ error: "У товара должно остаться минимум 3 изображения." });
     }
 
-    const current = products[index];
     const nextProduct = {
       ...current,
-      title: req.body.title?.trim() || current.title,
+      title: String(req.body.title || "").trim() || current.title,
       price: Number(req.body.price) || current.price,
-      category: req.body.category?.trim() || current.category,
-      summary: req.body.summary?.trim() || current.summary,
-      description: req.body.description?.trim() || current.description,
-      accent: req.body.accent?.trim() || current.accent,
+      category: String(req.body.category || "").trim() || current.category,
+      summary: String(req.body.summary || "").trim() || current.summary,
+      description: String(req.body.description || "").trim() || current.description,
+      accent: String(req.body.accent || "").trim() || current.accent,
       details: normalizeDetails(req.body.details),
       images: mergedImages
     };
 
-    products[index] = nextProduct;
-    await writeProducts(products);
+    db.prepare(
+      `UPDATE products
+       SET title = ?, price = ?, category = ?, summary = ?, description = ?, accent = ?, details_json = ?, images_json = ?
+       WHERE id = ?`
+    ).run(
+      nextProduct.title.slice(0, 140),
+      Math.round(Number(nextProduct.price) || 0),
+      nextProduct.category.slice(0, 80),
+      nextProduct.summary.slice(0, 280),
+      nextProduct.description.slice(0, 2000),
+      nextProduct.accent.slice(0, 20),
+      JSON.stringify(nextProduct.details),
+      JSON.stringify(nextProduct.images),
+      req.params.id
+    );
 
     const removedImages = current.images.filter((imagePath) => !mergedImages.includes(imagePath));
     await Promise.all(
       removedImages
         .filter((imagePath) => imagePath.startsWith("/uploads/"))
-        .map((imagePath) => fs.rm(path.join(publicDir, imagePath), { force: true }))
+        .map((imagePath) => fs.rm(path.join(uploadDir, path.basename(imagePath)), { force: true }))
     );
 
     return res.json(nextProduct);
@@ -495,20 +618,19 @@ app.put("/api/products/:id", requireAdmin, upload.array("images", 12), async (re
 
 app.delete("/api/products/:id", requireAdmin, async (req, res, next) => {
   try {
-    const products = await readProducts();
-    const product = products.find((item) => item.id === req.params.id);
+    const row = db.prepare("SELECT * FROM products WHERE id = ?").get(req.params.id);
 
-    if (!product) {
+    if (!row) {
       return res.status(404).json({ error: "Товар не найден." });
     }
 
-    const nextProducts = products.filter((item) => item.id !== req.params.id);
-    await writeProducts(nextProducts);
+    const product = parseProductRow(row);
+    db.prepare("DELETE FROM products WHERE id = ?").run(req.params.id);
 
     await Promise.all(
       product.images
         .filter((imagePath) => imagePath.startsWith("/uploads/"))
-        .map((imagePath) => fs.rm(path.join(publicDir, imagePath), { force: true }))
+        .map((imagePath) => fs.rm(path.join(uploadDir, path.basename(imagePath)), { force: true }))
     );
 
     return res.status(204).end();
@@ -517,26 +639,30 @@ app.delete("/api/products/:id", requireAdmin, async (req, res, next) => {
   }
 });
 
-app.post("/api/orders", async (req, res, next) => {
-  try {
-    const { customer, items, total } = req.body;
+app.post(
+  "/api/orders",
+  rateLimit({ keyPrefix: "orders", windowMs: 10 * 60 * 1000, max: 25 }),
+  async (req, res, next) => {
+    try {
+      const { customer, items, total } = req.body;
 
-    if (
-      !customer?.fullName ||
-      !customer?.phone ||
-      !customer?.address ||
-      !Array.isArray(items) ||
-      !items.length
-    ) {
-      return res.status(400).json({ error: "Заполните данные клиента и добавьте товары в корзину." });
+      if (
+        !customer?.fullName ||
+        !customer?.phone ||
+        !customer?.address ||
+        !Array.isArray(items) ||
+        !items.length
+      ) {
+        return res.status(400).json({ error: "Заполните данные клиента и добавьте товары в корзину." });
+      }
+
+      await sendTelegramOrder({ customer, items, total });
+      return res.status(201).json({ ok: true });
+    } catch (error) {
+      next(error);
     }
-
-    await sendTelegramOrder({ customer, items, total });
-    return res.status(201).json({ ok: true });
-  } catch (error) {
-    next(error);
   }
-});
+);
 
 for (const [route, fileName] of staticPages.entries()) {
   app.get(route, (_req, res) => {
@@ -564,9 +690,15 @@ app.use((error, _req, res, _next) => {
 });
 
 ensureStorage()
+  .then(initDb)
   .then(() => {
-    app.listen(port, () => {
+    if (!process.env.ADMIN_PASSWORD && !process.env.VERCEL) {
+      throw new Error("ADMIN_PASSWORD is required. Refusing to start without admin protection.");
+    }
+
+    app.listen(port, host, () => {
       console.log(`Storefront is running on http://localhost:${port}`);
+      console.log(`Storefront is running on http://${host}:${port}`);
     });
   })
   .catch((error) => {

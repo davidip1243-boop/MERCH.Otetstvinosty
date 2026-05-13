@@ -13,9 +13,9 @@
       "Вышивка креста в тон"
     ],
     "images": [
-      "/assets/images/hoodie-angle.svg",
       "/assets/images/hoodie-detail.svg",
-      "/assets/images/hoodie-model.svg"
+      "/uploads/1778698429625-quillbot-generated-image-1.png",
+      "/uploads/1778698455195-quillbot-generated-image-2.png"
     ]
   },
   {
@@ -77,7 +77,7 @@
   },
   {
     "id": "cross-silver",
-    "title": "Крест нательный «Свет веры»",
+    "title": "Смирновский Крест",
     "price": 3400,
     "category": "Кресты",
     "summary": "Минималистичный нательный крест для повседневного ношения.",
