@@ -22,7 +22,6 @@
         <nav class="topnav" aria-label="Основная навигация">
           <a href="/" data-i18n="nav.home">Главная</a>
           <a href="/catalog" aria-current="page" data-i18n="nav.catalog">Каталог</a>
-          <a href="/delivery" data-i18n="nav.delivery">Доставка</a>
         </nav>
         <label class="lang-switch">
           <span data-i18n="lang.label">Язык</span>
@@ -57,44 +56,6 @@
         </div>
       </footer>
     </div>
-
-    <aside class="cart-drawer" data-cart-drawer aria-hidden="true">
-      <div class="cart-backdrop" data-cart-close></div>
-      <div class="cart-panel glass-panel">
-        <div class="cart-head">
-          <div>
-            <p class="eyebrow">Корзина</p>
-            <h2>Оформление без регистрации</h2>
-          </div>
-          <button class="icon-button" type="button" data-cart-close aria-label="Закрыть корзину">×</button>
-        </div>
-        <div class="cart-items" data-cart-items></div>
-        <form class="checkout-form" data-checkout-form>
-          <label>
-            <span data-i18n="checkout.fullName">ФИО</span>
-            <input name="fullName" type="text" placeholder="Иванов Иван Иванович" data-i18n-placeholder="checkout.fullNamePlaceholder" required />
-          </label>
-          <label>
-            <span data-i18n="checkout.phone">Телефон</span>
-            <input name="phone" type="tel" placeholder="+7 999 123-45-67" data-i18n-placeholder="checkout.phonePlaceholder" required />
-          </label>
-          <label>
-            <span data-i18n="checkout.address">Адрес</span>
-            <textarea name="address" rows="3" placeholder="Город, улица, дом, квартира" data-i18n-placeholder="checkout.addressPlaceholder" required></textarea>
-          </label>
-          <label>
-            <span data-i18n="checkout.telegram">Ник в Telegram</span>
-            <input name="telegram" type="text" placeholder="@username" data-i18n-placeholder="checkout.telegramPlaceholder" />
-          </label>
-          <div class="checkout-summary">
-            <span data-i18n="checkout.total">Итого</span>
-            <strong data-cart-total>0 ₽</strong>
-          </div>
-          <button class="button button--solid button--full" type="submit" data-i18n="checkout.submit">Отправить заказ</button>
-          <p class="form-status" data-checkout-status></p>
-        </form>
-      </div>
-    </aside>
 
     <script type="module" src="/main.js"></script>
   </body>
