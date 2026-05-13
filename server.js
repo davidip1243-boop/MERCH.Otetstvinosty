@@ -51,6 +51,7 @@ const upload = multer({
 const staticPages = new Map([
   ["/", "index.html"],
   ["/catalog", "catalog.html"],
+  ["/item", "product.html"],
   ["/cart", "cart.html"],
   ["/delivery", "delivery.html"],
   ["/admin", "admin.html"]
@@ -670,6 +671,10 @@ for (const [route, fileName] of staticPages.entries()) {
     res.sendFile(path.join(publicDir, fileName));
   });
 }
+
+app.get("/item/:id", (_req, res) => {
+  res.sendFile(path.join(publicDir, "product.html"));
+});
 
 app.use("/api", (_req, res) => {
   res.status(404).json({ error: "API route not found" });

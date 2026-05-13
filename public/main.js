@@ -105,6 +105,10 @@ const translations = {
     "ui.adminDelete": "Удалить",
     "ui.adminKeep": "оставить",
     "ui.adminDeleteConfirm": "Удалить товар из каталога?",
+    "ui.openDetails": "Открыть",
+    "product.backCatalog": "Назад в каталог",
+    "product.notFound": "Товар не найден",
+    "product.details": "Детали",
     "404.title": "Страница не найдена",
     "404.eyebrow": "404",
     "404.main": "Страница не найдена. Но, возможно, ты найдешь себя!",
@@ -209,6 +213,10 @@ const translations = {
     "ui.adminDelete": "Delete",
     "ui.adminKeep": "keep",
     "ui.adminDeleteConfirm": "Delete this product from the catalog?",
+    "ui.openDetails": "Open",
+    "product.backCatalog": "Back to shop",
+    "product.notFound": "Product not found",
+    "product.details": "Details",
     "404.title": "Page Not Found",
     "404.eyebrow": "404",
     "404.main": "Page not found. But maybe you'll find yourself.",
@@ -253,6 +261,7 @@ async function init() {
   openCartFromQuery();
   setupCheckoutForm();
   setupAdmin();
+  renderProductPage();
 }
 
 function createSessionId() {
@@ -390,6 +399,7 @@ function setupLanguageSwitcher() {
       renderCatalog();
       renderAdminProducts();
       updateCartUi();
+      renderProductPage();
     });
   });
 }
@@ -496,7 +506,7 @@ function matchesCatalogFilter(product, filter) {
 
 function buildProductCard(product, compact = false) {
   return `
-    <article class="${compact ? "featured-card" : "product-card"}">
+    <article class="${compact ? "featured-card" : "product-card"}" data-open-product="${product.id}">
       <div class="product-image">
         <span class="product-accent" style="background:${product.accent}"></span>
         <img src="${product.images[0]}" alt="${product.title}" />
@@ -522,7 +532,10 @@ function buildProductCard(product, compact = false) {
         ${compact ? "" : `<ul class="product-details">${product.details.map((item) => `<li>${item}</li>`).join("")}</ul>`}
         <div class="cart-head">
           <strong class="product-price">${formatPrice(product.price)} ₽</strong>
-          <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
+          <div class="product-actions">
+            <button class="button button--ghost" type="button" data-open-product-button="${product.id}">${t("ui.openDetails")}</button>
+            <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
+          </div>
         </div>
       </div>
     </article>
@@ -548,6 +561,85 @@ function bindProductActions(container) {
       }
     });
   });
+
+  container.querySelectorAll("[data-open-product-button]").forEach((button) => {
+    button.addEventListener("click", () => {
+      openProductPage(button.dataset.openProductButton);
+    });
+  });
+
+  container.querySelectorAll("[data-open-product]").forEach((card) => {
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("button, a, input, textarea, select, label")) {
+        return;
+      }
+
+      openProductPage(card.dataset.openProduct);
+    });
+  });
+}
+
+function openProductPage(productId) {
+  if (!productId) {
+    return;
+  }
+
+  const safeId = encodeURIComponent(productId);
+  window.open(`/item/${safeId}`, "_blank", "noopener");
+}
+
+function getProductIdFromPath() {
+  if (document.body.dataset.page !== "product") {
+    return "";
+  }
+
+  const match = window.location.pathname.match(/^\/item\/([^/]+)$/);
+  return match ? decodeURIComponent(match[1]) : "";
+}
+
+function renderProductPage() {
+  const container = document.querySelector("[data-product-page]");
+  if (!container) {
+    return;
+  }
+
+  const productId = getProductIdFromPath();
+  const product = state.products.find((item) => item.id === productId);
+  if (!product) {
+    container.innerHTML = `<p class="empty-state">${t("product.notFound")}</p>`;
+    return;
+  }
+
+  const details = product.details.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  const images = product.images
+    .map(
+      (image, index) => `
+        <figure class="product-detail-image">
+          <img src="${image}" alt="${escapeHtml(product.title)} ${index + 1}" />
+        </figure>
+      `
+    )
+    .join("");
+
+  container.innerHTML = `
+    <article class="product-detail glass-panel">
+      <p class="product-meta">${escapeHtml(product.category)}</p>
+      <h1>${escapeHtml(product.title)}</h1>
+      <p class="product-detail-summary">${escapeHtml(product.summary)}</p>
+      <p class="product-detail-description">${escapeHtml(product.description)}</p>
+      <strong class="product-price product-detail-price">${formatPrice(product.price)} ₽</strong>
+      <div class="product-actions">
+        <a class="button button--ghost" href="/catalog">${t("product.backCatalog")}</a>
+        <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
+      </div>
+      <h2>${t("product.details")}</h2>
+      <ul class="product-details">${details}</ul>
+      <div class="product-detail-gallery">${images}</div>
+    </article>
+  `;
+
+  const addButton = container.querySelector("[data-add-to-cart]");
+  addButton?.addEventListener("click", () => addToCart(product.id));
 }
 
 function addToCart(productId) {
