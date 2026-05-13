@@ -589,7 +589,7 @@ body[data-page="catalog"] .catalog-grid .product-image img {
 
 .product-detail-image img {
   width: 100%;
-  height: clamp(240px, 36vw, 480px);
+  height: clamp(360px, 52vw, 720px);
   object-fit: cover;
 }
 
