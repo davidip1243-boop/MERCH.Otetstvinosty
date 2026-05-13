@@ -451,6 +451,17 @@ body[data-page="home"] .site-shell {
   object-fit: cover;
 }
 
+/* Catalog should show full product images without top/bottom clipping. */
+body[data-page="catalog"] .catalog-grid .product-image {
+  aspect-ratio: 4 / 5;
+  background: #ffffff;
+}
+
+body[data-page="catalog"] .catalog-grid .product-image img {
+  object-fit: contain;
+  object-position: center;
+}
+
 .product-accent {
   position: absolute;
   inset: 16px auto auto 16px;
