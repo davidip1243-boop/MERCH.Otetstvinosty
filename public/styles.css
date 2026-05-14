@@ -584,13 +584,14 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   overflow: hidden;
   border-radius: var(--radius-lg);
   border: 1px solid rgba(0, 0, 0, 0.07);
-  background: #ffffff;
+  background: #f7f7f9;
 }
 
 .product-detail-image img {
   width: 100%;
   height: clamp(360px, 52vw, 720px);
-  object-fit: cover;
+  object-fit: contain;
+  object-position: center;
 }
 
 .site-footer {
