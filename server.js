@@ -262,6 +262,32 @@ function isBotActivated() {
   return Date.now() < getBotActivatedUntilMs();
 }
 
+function getTelegramOrderChatId() {
+  const configuredChatId = String(process.env.TELEGRAM_CHAT_ID || "").trim();
+  if (configuredChatId) {
+    return configuredChatId;
+  }
+
+  if (!db) {
+    return "";
+  }
+
+  const row = db.prepare("SELECT value FROM app_state WHERE key = ?").get("telegram_order_chat_id");
+  return String(row?.value || "").trim();
+}
+
+function setTelegramOrderChatId(chatId) {
+  if (!db || !chatId) {
+    return;
+  }
+
+  db.prepare(
+    `INSERT INTO app_state (key, value)
+     VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+  ).run("telegram_order_chat_id", String(chatId));
+}
+
 function requireAdmin(req, res, next) {
   if (adminAuthorized(req)) {
     return next();
@@ -507,7 +533,8 @@ async function sendTelegramOrder(order) {
     return;
   }
 
-  if (!process.env.TELEGRAM_BOT_TOKEN || !process.env.TELEGRAM_CHAT_ID) {
+  const orderChatId = getTelegramOrderChatId();
+  if (!process.env.TELEGRAM_BOT_TOKEN || !orderChatId) {
     throw new Error("Telegram env vars are not configured");
   }
 
@@ -519,7 +546,7 @@ async function sendTelegramOrder(order) {
         "Content-Type": "application/json"
       },
       body: JSON.stringify({
-        chat_id: process.env.TELEGRAM_CHAT_ID,
+        chat_id: orderChatId,
         text: message,
         parse_mode: "HTML"
       })
@@ -621,7 +648,7 @@ app.post(
     const message = req.body?.message;
     const chatId = String(message?.chat?.id || "");
     const text = String(message?.text || "").trim();
-    const configuredChatId = String(process.env.TELEGRAM_CHAT_ID || "");
+    const configuredChatId = getTelegramOrderChatId();
 
     if (!chatId || !text) {
       return res.status(200).json({ ok: true });
@@ -665,6 +692,7 @@ app.post(
 
       const activeUntilMs = Date.now() + BOT_ACTIVATION_TTL_MS;
       setBotActivatedUntilMs(activeUntilMs);
+      setTelegramOrderChatId(chatId);
       await sendTelegramText(chatId, `Бот активирован до ${new Date(activeUntilMs).toLocaleString("ru-RU")}`);
       return res.status(200).json({ ok: true });
     }
