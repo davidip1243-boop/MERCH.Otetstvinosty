@@ -28,9 +28,15 @@ const SESSION_COOKIE_NAME = "merch_session";
 const SESSION_MAX_AGE_MS = 1000 * 60 * 60 * 24 * 30;
 const SESSION_ROTATION_LIMIT = 10;
 const securityRateBuckets = new Map();
+const BOT_ACTIVATION_TTL_MS = 30 * 60 * 1000;
+const DEFAULT_BOT_ACTIVATION_PASSWORD = "BOT-rACQ6LgKcawbCElJ";
+const botActivationPassword = String(
+  process.env.BOT_ACTIVATION_PASSWORD || DEFAULT_BOT_ACTIVATION_PASSWORD
+);
 
 const app = express();
 let db;
+let botActivatedUntil = 0;
 
 const storage = multer.diskStorage({
   destination: (_req, _file, callback) => callback(null, uploadDir),
@@ -220,6 +226,19 @@ function adminAuthorized(req) {
 
   const headerPassword = req.get("x-admin-password");
   return headerPassword === expected;
+}
+
+function timingSafeEqualString(a, b) {
+  const left = Buffer.from(String(a || ""), "utf8");
+  const right = Buffer.from(String(b || ""), "utf8");
+  if (left.length !== right.length) {
+    return false;
+  }
+  return timingSafeEqual(left, right);
+}
+
+function isBotActivated() {
+  return Date.now() < botActivatedUntil;
 }
 
 function requireAdmin(req, res, next) {
@@ -484,7 +503,9 @@ async function sendTelegramOrder(order) {
 
 app.get("/api/settings", (_req, res) => {
   res.json({
-    adminProtected: true
+    adminProtected: true,
+    botActive: isBotActivated(),
+    botActivationTtlMs: BOT_ACTIVATION_TTL_MS
   });
 });
 
@@ -499,6 +520,27 @@ app.post("/api/admin/login", (req, res) => {
 
   return res.status(401).json({ error: "Неверный пароль администратора." });
 });
+
+app.post(
+  "/api/bot/activate",
+  rateLimit({ keyPrefix: "bot-activate", windowMs: 15 * 60 * 1000, max: 20 }),
+  (req, res) => {
+    if (!adminAuthorized(req)) {
+      return res.status(401).json({ error: "Admin authorization failed" });
+    }
+
+    const providedPassword = String(req.body?.password || "");
+    if (!timingSafeEqualString(providedPassword, botActivationPassword)) {
+      return res.status(401).json({ error: "Неверный пароль активации бота." });
+    }
+
+    botActivatedUntil = Date.now() + BOT_ACTIVATION_TTL_MS;
+    return res.json({
+      ok: true,
+      activeUntil: new Date(botActivatedUntil).toISOString()
+    });
+  }
+);
 
 app.get("/api/products", async (_req, res, next) => {
   try {
@@ -658,6 +700,10 @@ app.post(
         return res.status(400).json({ error: "Заполните данные клиента и добавьте товары в корзину." });
       }
 
+      if (!isBotActivated()) {
+        return res.status(403).json({ error: "Telegram-бот выключен. Активируйте его в админ-панели." });
+      }
+
       await sendTelegramOrder({ customer, items, total });
       return res.status(201).json({ ok: true });
     } catch (error) {
@@ -703,6 +749,11 @@ ensureStorage()
     }
 
     app.listen(port, host, () => {
+      if (!process.env.BOT_ACTIVATION_PASSWORD) {
+        console.warn(
+          `BOT_ACTIVATION_PASSWORD is not set. Temporary generated password in use: ${DEFAULT_BOT_ACTIVATION_PASSWORD}`
+        );
+      }
       console.log(`Storefront is running on http://localhost:${port}`);
       console.log(`Storefront is running on http://${host}:${port}`);
     });
