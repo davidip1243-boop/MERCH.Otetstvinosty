@@ -632,6 +632,21 @@ app.post(
       return res.status(200).json({ ok: true });
     }
 
+    if (text === "/start") {
+      await sendTelegramText(
+        chatId,
+        [
+          "Бот магазина подключен.",
+          "",
+          "Команды:",
+          "/activate <пароль>",
+          "/status",
+          "/deactivate"
+        ].join("\n")
+      );
+      return res.status(200).json({ ok: true });
+    }
+
     if (text === "/status") {
       const activeUntilMs = getBotActivatedUntilMs();
       const statusText = isBotActivated()
