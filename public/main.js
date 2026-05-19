@@ -880,9 +880,6 @@ function setupAdmin() {
   const loginStatus = document.querySelector("[data-admin-status]");
   const formStatus = document.querySelector("[data-admin-form-status]");
   const resetButton = document.querySelector("[data-admin-reset]");
-  const botActivationField = document.querySelector("[data-bot-activation-password]");
-  const botActivateButton = document.querySelector("[data-bot-activate]");
-  const botActivationStatus = document.querySelector("[data-bot-activation-status]");
 
   state.adminPassword = "";
   passwordField.value = "";
@@ -913,33 +910,6 @@ function setupAdmin() {
 
   loginButton.addEventListener("click", async () => {
     await unlockAdmin();
-  });
-
-  botActivateButton?.addEventListener("click", async () => {
-    if (!state.adminPassword) {
-      botActivationStatus.textContent = "Сначала разблокируйте админ-панель.";
-      return;
-    }
-
-    botActivationStatus.textContent = "Активируем бота…";
-    try {
-      const payload = await fetchJson("/api/bot/activate", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-admin-password": state.adminPassword
-        },
-        body: JSON.stringify({
-          password: String(botActivationField?.value || "").trim()
-        })
-      });
-      botActivationStatus.textContent = `Бот активирован до ${new Date(payload.activeUntil).toLocaleString()}.`;
-      if (botActivationField) {
-        botActivationField.value = "";
-      }
-    } catch (error) {
-      botActivationStatus.textContent = error.message;
-    }
   });
 
   resetButton.addEventListener("click", () => {

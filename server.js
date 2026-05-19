@@ -501,6 +501,23 @@ async function sendTelegramOrder(order) {
   }
 }
 
+async function sendTelegramText(chatId, text) {
+  if (!process.env.TELEGRAM_BOT_TOKEN) {
+    return;
+  }
+
+  await fetch(`https://api.telegram.org/bot${process.env.TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({
+      chat_id: chatId,
+      text
+    })
+  }).catch(() => {});
+}
+
 app.get("/api/settings", (_req, res) => {
   res.json({
     adminProtected: true,
@@ -522,23 +539,50 @@ app.post("/api/admin/login", (req, res) => {
 });
 
 app.post(
-  "/api/bot/activate",
-  rateLimit({ keyPrefix: "bot-activate", windowMs: 15 * 60 * 1000, max: 20 }),
-  (req, res) => {
-    if (!adminAuthorized(req)) {
-      return res.status(401).json({ error: "Admin authorization failed" });
+  "/api/telegram/webhook",
+  rateLimit({ keyPrefix: "telegram-webhook", windowMs: 5 * 60 * 1000, max: 300 }),
+  async (req, res) => {
+    const secretExpected = String(process.env.TELEGRAM_WEBHOOK_SECRET || "");
+    const secretHeader = String(req.get("x-telegram-bot-api-secret-token") || "");
+    if (secretExpected && !timingSafeEqualString(secretExpected, secretHeader)) {
+      return res.status(401).json({ error: "Invalid Telegram webhook secret." });
     }
 
-    const providedPassword = String(req.body?.password || "");
-    if (!timingSafeEqualString(providedPassword, botActivationPassword)) {
-      return res.status(401).json({ error: "Неверный пароль активации бота." });
+    const message = req.body?.message;
+    const chatId = String(message?.chat?.id || "");
+    const text = String(message?.text || "").trim();
+    const configuredChatId = String(process.env.TELEGRAM_CHAT_ID || "");
+
+    if (!chatId || !text) {
+      return res.status(200).json({ ok: true });
     }
 
-    botActivatedUntil = Date.now() + BOT_ACTIVATION_TTL_MS;
-    return res.json({
-      ok: true,
-      activeUntil: new Date(botActivatedUntil).toISOString()
-    });
+    if (configuredChatId && chatId !== configuredChatId) {
+      await sendTelegramText(chatId, "Команда недоступна для этого чата.");
+      return res.status(200).json({ ok: true });
+    }
+
+    if (text === "/status") {
+      const statusText = isBotActivated()
+        ? `Бот активен до ${new Date(botActivatedUntil).toLocaleString("ru-RU")}`
+        : "Бот сейчас выключен для заказов.";
+      await sendTelegramText(chatId, statusText);
+      return res.status(200).json({ ok: true });
+    }
+
+    if (text.startsWith("/activate ")) {
+      const providedPassword = text.replace("/activate ", "").trim();
+      if (!timingSafeEqualString(providedPassword, botActivationPassword)) {
+        await sendTelegramText(chatId, "Неверный пароль активации.");
+        return res.status(200).json({ ok: true });
+      }
+
+      botActivatedUntil = Date.now() + BOT_ACTIVATION_TTL_MS;
+      await sendTelegramText(chatId, `Бот активирован до ${new Date(botActivatedUntil).toLocaleString("ru-RU")}`);
+      return res.status(200).json({ ok: true });
+    }
+
+    return res.status(200).json({ ok: true });
   }
 );
 
@@ -701,7 +745,7 @@ app.post(
       }
 
       if (!isBotActivated()) {
-        return res.status(403).json({ error: "Telegram-бот выключен. Активируйте его в админ-панели." });
+        return res.status(403).json({ error: "Telegram-бот выключен. Активируйте его командой /activate <пароль> в Telegram." });
       }
 
       await sendTelegramOrder({ customer, items, total });
