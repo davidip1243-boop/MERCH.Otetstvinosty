@@ -20,8 +20,7 @@ const translations = {
       "Минималистичный интернет-магазин мерча с лаконичной эстетикой, локальной корзиной и заказами в Telegram.",
     "index.eyebrow": "Минимализм. Тишина. Доверие.",
     "index.title": "Знаешь ли ты, кто мы?",
-    "index.lead":
-      "Мы делаем мерч без лишней декоративности: чистые формы, мягкая посадка и спокойные символы, которые не спорят с человеком.",
+    "index.lead": "",
     "index.openCatalog": "Открыть каталог",
     "index.delivery": "Доставка",
     "index.weekPick": "Выбор недели",
@@ -129,8 +128,7 @@ const translations = {
       "Minimal merch storefront with a clean aesthetic, local cart persistence, and Telegram order flow.",
     "index.eyebrow": "Minimal. Quiet. Trusted.",
     "index.title": "Do You Know Who We Are?",
-    "index.lead":
-      "We create merch without visual noise: clean forms, soft fit, and calm symbols that never overpower the person.",
+    "index.lead": "",
     "index.openCatalog": "Open Shop",
     "index.delivery": "Delivery",
     "index.weekPick": "Pick of the Week",
