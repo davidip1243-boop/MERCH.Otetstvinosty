@@ -549,6 +549,45 @@ async function sendTelegramText(chatId, text) {
   }).catch(() => {});
 }
 
+async function ensureTelegramWebhook() {
+  const token = String(process.env.TELEGRAM_BOT_TOKEN || "");
+  if (!token) {
+    return;
+  }
+
+  const baseUrl = String(process.env.PUBLIC_BASE_URL || "").trim()
+    || (process.env.VERCEL_URL ? `https://${process.env.VERCEL_URL}` : "");
+  if (!baseUrl) {
+    return;
+  }
+
+  const webhookUrl = `${baseUrl.replace(/\/+$/, "")}/api/telegram/webhook`;
+  const body = {
+    url: webhookUrl,
+    drop_pending_updates: false
+  };
+
+  if (process.env.TELEGRAM_WEBHOOK_SECRET) {
+    body.secret_token = String(process.env.TELEGRAM_WEBHOOK_SECRET);
+  }
+
+  const response = await fetch(`https://api.telegram.org/bot${token}/setWebhook`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(body)
+  });
+
+  if (!response.ok) {
+    const details = await response.text().catch(() => "");
+    console.warn(`Failed to set Telegram webhook: ${response.status} ${details}`);
+    return;
+  }
+
+  console.log(`Telegram webhook ensured at ${webhookUrl}`);
+}
+
 app.get("/api/settings", (_req, res) => {
   res.json({
     adminProtected: true,
@@ -826,6 +865,7 @@ app.use((error, _req, res, _next) => {
 
 ensureStorage()
   .then(initDb)
+  .then(ensureTelegramWebhook)
   .then(() => {
     if (!process.env.ADMIN_PASSWORD && !process.env.VERCEL) {
       throw new Error("ADMIN_PASSWORD is required. Refusing to start without admin protection.");
