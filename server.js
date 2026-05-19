@@ -36,7 +36,6 @@ const botActivationPassword = String(
 
 const app = express();
 let db;
-let botActivatedUntil = 0;
 
 const storage = multer.diskStorage({
   destination: (_req, _file, callback) => callback(null, uploadDir),
@@ -237,8 +236,30 @@ function timingSafeEqualString(a, b) {
   return timingSafeEqual(left, right);
 }
 
+function getBotActivatedUntilMs() {
+  if (!db) {
+    return 0;
+  }
+
+  const row = db.prepare("SELECT value FROM app_state WHERE key = ?").get("bot_activated_until_ms");
+  const value = Number(row?.value || 0);
+  return Number.isFinite(value) ? value : 0;
+}
+
+function setBotActivatedUntilMs(untilMs) {
+  if (!db) {
+    return;
+  }
+
+  db.prepare(
+    `INSERT INTO app_state (key, value)
+     VALUES (?, ?)
+     ON CONFLICT(key) DO UPDATE SET value = excluded.value`
+  ).run("bot_activated_until_ms", String(Math.max(0, Math.floor(Number(untilMs) || 0))));
+}
+
 function isBotActivated() {
-  return Date.now() < botActivatedUntil;
+  return Date.now() < getBotActivatedUntilMs();
 }
 
 function requireAdmin(req, res, next) {
@@ -429,6 +450,11 @@ async function initDb() {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS app_state (
+      key TEXT PRIMARY KEY,
+      value TEXT NOT NULL
+    );
+
     CREATE INDEX IF NOT EXISTS idx_products_created_at ON products(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
@@ -436,6 +462,11 @@ async function initDb() {
 
   await migrateJsonToSql();
   cleanupExpiredSessions();
+
+  const existingState = db.prepare("SELECT 1 FROM app_state WHERE key = ?").get("bot_activated_until_ms");
+  if (!existingState) {
+    db.prepare("INSERT INTO app_state (key, value) VALUES (?, ?)").run("bot_activated_until_ms", "0");
+  }
 }
 
 async function sendTelegramOrder(order) {
@@ -563,8 +594,9 @@ app.post(
     }
 
     if (text === "/status") {
+      const activeUntilMs = getBotActivatedUntilMs();
       const statusText = isBotActivated()
-        ? `Бот активен до ${new Date(botActivatedUntil).toLocaleString("ru-RU")}`
+        ? `Бот активен до ${new Date(activeUntilMs).toLocaleString("ru-RU")}`
         : "Бот сейчас выключен для заказов.";
       await sendTelegramText(chatId, statusText);
       return res.status(200).json({ ok: true });
@@ -577,8 +609,15 @@ app.post(
         return res.status(200).json({ ok: true });
       }
 
-      botActivatedUntil = Date.now() + BOT_ACTIVATION_TTL_MS;
-      await sendTelegramText(chatId, `Бот активирован до ${new Date(botActivatedUntil).toLocaleString("ru-RU")}`);
+      const activeUntilMs = Date.now() + BOT_ACTIVATION_TTL_MS;
+      setBotActivatedUntilMs(activeUntilMs);
+      await sendTelegramText(chatId, `Бот активирован до ${new Date(activeUntilMs).toLocaleString("ru-RU")}`);
+      return res.status(200).json({ ok: true });
+    }
+
+    if (text === "/deactivate") {
+      setBotActivatedUntilMs(0);
+      await sendTelegramText(chatId, "Бот выключен.");
       return res.status(200).json({ ok: true });
     }
 
