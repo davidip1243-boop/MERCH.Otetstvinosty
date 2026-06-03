@@ -829,6 +829,11 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   display: none;
 }
 
+.checkout-form__head {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .checkout-form label,
 .admin-form label,
 .admin-lock label {

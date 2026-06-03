@@ -976,6 +976,7 @@ function setupCheckoutForm() {
   }
 
   const checkoutStart = document.querySelector("[data-checkout-start]");
+  const checkoutBack = document.querySelector("[data-checkout-back]");
   const checkoutGate = document.querySelector("[data-checkout-gate]");
 
   checkoutStart?.addEventListener("click", () => {
@@ -989,6 +990,15 @@ function setupCheckoutForm() {
       checkoutGate.hidden = true;
     }
     form.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
+  checkoutBack?.addEventListener("click", () => {
+    form.hidden = true;
+    document.querySelector("[data-checkout-panel]")?.classList.remove("is-checkout-open");
+    if (checkoutGate) {
+      checkoutGate.hidden = getSelectedCartItems().length === 0;
+    }
+    document.querySelector("[data-cart-items]")?.scrollIntoView({ behavior: "smooth", block: "start" });
   });
 
   for (const [key, value] of Object.entries(state.customer)) {
