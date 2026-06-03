@@ -171,7 +171,7 @@ body[data-page="home"] .site-shell {
   flex-wrap: wrap;
   justify-content: center;
   gap: 4px;
-  margin-left: auto;
+  margin-left: 8px;
   padding: 4px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.035);
@@ -232,6 +232,7 @@ body[data-page="home"] .site-shell {
   display: inline-flex;
   align-items: center;
   gap: 8px;
+  margin-left: auto;
   min-height: 42px;
   padding: 8px 10px 8px 14px;
   border: 1px solid rgba(0, 0, 0, 0.06);
