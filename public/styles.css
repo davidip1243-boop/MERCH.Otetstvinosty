@@ -941,7 +941,12 @@ body[data-page="catalog"] .catalog-grid .product-image img {
 }
 
 .checkout-page__panel.is-checkout-open {
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.65fr);
+  grid-template-columns: minmax(0, 720px);
+  justify-content: center;
+}
+
+.checkout-page__panel.is-checkout-open .cart-order-list {
+  display: none;
 }
 
 .not-found {
