@@ -4,7 +4,7 @@ const LANG_KEY = "merch-lang";
 const SESSION_DRAFT_KEY = "merch-session-draft";
 const SESSION_HISTORY_KEY = "merch-session-history";
 const DELETED_PRODUCTS_KEY = "merch-deleted-products";
-const CART_PROMPT_DISABLED_KEY = "merch-cart-prompt-disabled-v2";
+const CART_PROMPT_CHOICE_KEY = "merch-cart-prompt-choice-v1";
 const FORCE_RESTORED_PRODUCT_IDS = ["candle-molitva"];
 
 const translations = {
@@ -100,7 +100,7 @@ const translations = {
     "ui.cartPromptText": "Перейти в корзину?",
     "ui.cartPromptYes": "Да",
     "ui.cartPromptNo": "Нет",
-    "ui.cartPromptDontAsk": "Больше не спрашивать",
+    "ui.cartPromptDontAsk": "Запомнить выбор",
     "ui.cartEmpty": "Корзина пока пуста. Добавьте товар из каталога.",
     "ui.checkoutNeedItem": "Добавьте хотя бы один товар перед оформлением.",
     "ui.checkoutSending": "Отправляем заказ…",
@@ -212,7 +212,7 @@ const translations = {
     "ui.cartPromptText": "Go to cart?",
     "ui.cartPromptYes": "Yes",
     "ui.cartPromptNo": "No",
-    "ui.cartPromptDontAsk": "Don't ask again",
+    "ui.cartPromptDontAsk": "Remember choice",
     "ui.cartEmpty": "Your cart is empty. Add a product from the shop.",
     "ui.checkoutNeedItem": "Add at least one product before checkout.",
     "ui.checkoutSending": "Sending order…",
@@ -767,8 +767,13 @@ function addToCart(productId) {
 
   persistCart();
   updateCartUi();
-  if (window.location.pathname !== "/cart" && localStorage.getItem(CART_PROMPT_DISABLED_KEY) !== "true") {
-    showCartPrompt();
+  if (window.location.pathname !== "/cart") {
+    const promptChoice = localStorage.getItem(CART_PROMPT_CHOICE_KEY);
+    if (promptChoice === "open") {
+      window.location.assign("/cart");
+    } else if (promptChoice !== "stay") {
+      showCartPrompt();
+    }
   }
 }
 
@@ -784,7 +789,7 @@ function showCartPrompt() {
       <p>${t("ui.cartPromptText")}</p>
     </div>
     <label class="cart-prompt__check">
-      <input type="checkbox" data-cart-prompt-disable />
+      <input type="checkbox" data-cart-prompt-remember />
       <span>${t("ui.cartPromptDontAsk")}</span>
     </label>
     <div class="cart-prompt__actions">
@@ -795,18 +800,18 @@ function showCartPrompt() {
 
   document.body.append(prompt);
 
-  const disableCheckbox = prompt.querySelector("[data-cart-prompt-disable]");
+  const rememberCheckbox = prompt.querySelector("[data-cart-prompt-remember]");
   const closePrompt = () => {
-    if (disableCheckbox?.checked) {
-      localStorage.setItem(CART_PROMPT_DISABLED_KEY, "true");
+    if (rememberCheckbox?.checked) {
+      localStorage.setItem(CART_PROMPT_CHOICE_KEY, "stay");
     }
     prompt.remove();
   };
 
   prompt.querySelector("[data-cart-prompt-no]")?.addEventListener("click", closePrompt);
   prompt.querySelector("[data-cart-prompt-yes]")?.addEventListener("click", () => {
-    if (disableCheckbox?.checked) {
-      localStorage.setItem(CART_PROMPT_DISABLED_KEY, "true");
+    if (rememberCheckbox?.checked) {
+      localStorage.setItem(CART_PROMPT_CHOICE_KEY, "open");
     }
     window.location.assign("/cart");
   });
