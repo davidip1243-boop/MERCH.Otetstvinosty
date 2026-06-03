@@ -29,9 +29,18 @@
 
       <main>
         <section class="section checkout-page">
-          <div class="glass-panel checkout-page__panel">
-            <div class="cart-items" data-cart-items></div>
-            <form class="checkout-form" data-checkout-form>
+          <div class="glass-panel checkout-page__panel" data-checkout-panel>
+            <div class="cart-order-list">
+              <div class="cart-items" data-cart-items></div>
+              <div class="cart-checkout-gate" data-checkout-gate hidden>
+                <div class="checkout-summary">
+                  <span>Выбрано</span>
+                  <strong data-selected-cart-total>0 ₽</strong>
+                </div>
+                <button class="button button--solid" type="button" data-checkout-start>Оформить</button>
+              </div>
+            </div>
+            <form class="checkout-form" data-checkout-form hidden>
               <label>
                 ФИО
                 <input name="fullName" type="text" placeholder="Иванов Иван Иванович" required />

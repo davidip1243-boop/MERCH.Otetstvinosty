@@ -242,7 +242,8 @@ const state = {
   sessionId: "",
   sessionStartedAt: "",
   sessionFinalized: false,
-  editingProduct: null
+  editingProduct: null,
+  selectedCartIds: new Set()
 };
 
 init().catch((error) => {
@@ -765,21 +766,39 @@ function setupCart() {
 }
 
 function updateCartUi() {
+  const validCartIds = new Set(state.cart.map((item) => item.id));
+  state.selectedCartIds = new Set([...state.selectedCartIds].filter((id) => validCartIds.has(id)));
   const totalCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
   const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
+  const selectedItems = getSelectedCartItems();
+  const selectedTotal = selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0);
   const containers = document.querySelectorAll("[data-cart-items]");
+  const checkoutGate = document.querySelector("[data-checkout-gate]");
+  const checkoutForm = document.querySelector("[data-checkout-form]");
+  const checkoutPanel = document.querySelector("[data-checkout-panel]");
 
   document.querySelectorAll("[data-cart-count]").forEach((badge) => {
     badge.textContent = String(totalCount);
   });
 
   document.querySelectorAll("[data-cart-total]").forEach((node) => {
-    node.textContent = `${formatPrice(total)} ₽`;
+    node.textContent = `${formatPrice(selectedTotal || total)} ₽`;
+  });
+
+  document.querySelectorAll("[data-selected-cart-total]").forEach((node) => {
+    node.textContent = `${formatPrice(selectedTotal)} ₽`;
   });
 
   containers.forEach((container) => {
     if (!state.cart.length) {
       container.innerHTML = `<p class="empty-state">${t("ui.cartEmpty")}</p>`;
+      if (checkoutGate) {
+        checkoutGate.hidden = true;
+      }
+      if (checkoutForm) {
+        checkoutForm.hidden = true;
+      }
+      checkoutPanel?.classList.remove("is-checkout-open");
       return;
     }
 
@@ -787,6 +806,9 @@ function updateCartUi() {
       .map(
         (item) => `
           <div class="cart-row">
+            <label class="cart-row__select" aria-label="Выбрать товар">
+              <input type="checkbox" data-cart-select="${item.id}" ${state.selectedCartIds.has(item.id) ? "checked" : ""} />
+            </label>
             <a class="cart-row__image" href="/item/${encodeURIComponent(item.id)}" target="_blank" rel="noopener">
               <img src="${item.image}" alt="${escapeHtml(item.title)}" />
             </a>
@@ -814,6 +836,11 @@ function updateCartUi() {
       .join("");
   });
 
+  if (checkoutGate) {
+    checkoutGate.hidden = selectedItems.length === 0 || !checkoutForm?.hidden;
+  }
+  checkoutPanel?.classList.toggle("is-checkout-open", Boolean(checkoutForm && !checkoutForm.hidden));
+
   document.querySelectorAll("[data-qty-change]").forEach((button) => {
     button.addEventListener("click", () => {
       changeQuantity(button.dataset.qtyChange, Number(button.dataset.delta));
@@ -825,6 +852,29 @@ function updateCartUi() {
       removeFromCart(button.dataset.removeCart);
     });
   });
+
+  document.querySelectorAll("[data-cart-select]").forEach((checkbox) => {
+    checkbox.addEventListener("change", () => {
+      toggleCartSelection(checkbox.dataset.cartSelect, checkbox.checked);
+    });
+  });
+}
+
+function getSelectedCartItems() {
+  return state.cart.filter((item) => state.selectedCartIds.has(item.id));
+}
+
+function toggleCartSelection(productId, selected) {
+  if (!productId) {
+    return;
+  }
+
+  if (selected) {
+    state.selectedCartIds.add(productId);
+  } else {
+    state.selectedCartIds.delete(productId);
+  }
+  updateCartUi();
 }
 
 function changeQuantity(productId, delta) {
@@ -841,6 +891,7 @@ function changeQuantity(productId, delta) {
 
 function removeFromCart(productId) {
   state.cart = state.cart.filter((entry) => entry.id !== productId);
+  state.selectedCartIds.delete(productId);
   persistCart();
   updateCartUi();
 }
@@ -868,6 +919,22 @@ function setupCheckoutForm() {
     return;
   }
 
+  const checkoutStart = document.querySelector("[data-checkout-start]");
+  const checkoutGate = document.querySelector("[data-checkout-gate]");
+
+  checkoutStart?.addEventListener("click", () => {
+    if (!getSelectedCartItems().length) {
+      return;
+    }
+
+    form.hidden = false;
+    document.querySelector("[data-checkout-panel]")?.classList.add("is-checkout-open");
+    if (checkoutGate) {
+      checkoutGate.hidden = true;
+    }
+    form.scrollIntoView({ behavior: "smooth", block: "start" });
+  });
+
   for (const [key, value] of Object.entries(state.customer)) {
     const field = form.elements.namedItem(key);
     if (field) {
@@ -879,7 +946,8 @@ function setupCheckoutForm() {
     event.preventDefault();
     const status = document.querySelector("[data-checkout-status]");
 
-    if (!state.cart.length) {
+    const selectedItems = getSelectedCartItems();
+    if (!selectedItems.length) {
       status.textContent = t("ui.checkoutNeedItem");
       return;
     }
@@ -898,13 +966,16 @@ function setupCheckoutForm() {
         },
         body: JSON.stringify({
           customer: state.customer,
-          items: state.cart,
-          total: state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0)
+          items: selectedItems,
+          total: selectedItems.reduce((sum, item) => sum + item.price * item.quantity, 0)
         })
       });
 
       status.textContent = t("ui.checkoutSent");
-      state.cart = [];
+      state.cart = state.cart.filter((item) => !state.selectedCartIds.has(item.id));
+      state.selectedCartIds.clear();
+      form.hidden = true;
+      document.querySelector("[data-checkout-panel]")?.classList.remove("is-checkout-open");
       persistCart();
       updateCartUi();
     } catch (error) {

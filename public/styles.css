@@ -664,6 +664,7 @@ body[data-page="catalog"] .catalog-grid .product-image img {
 }
 
 .cart-items,
+.cart-order-list,
 .checkout-form,
 .admin-form,
 .admin-panel,
@@ -681,11 +682,22 @@ body[data-page="catalog"] .catalog-grid .product-image img {
 
 .cart-row {
   display: grid;
-  grid-template-columns: 96px minmax(0, 1fr) minmax(110px, 0.35fr) minmax(110px, 0.35fr) 34px;
+  grid-template-columns: 26px 96px minmax(0, 1fr) minmax(110px, 0.35fr) minmax(110px, 0.35fr) 34px;
   align-items: center;
   gap: 18px;
   padding: 20px 0;
   border-bottom: 1px solid var(--stroke);
+}
+
+.cart-row__select {
+  display: grid;
+  place-items: center;
+}
+
+.cart-row__select input {
+  width: 18px;
+  height: 18px;
+  accent-color: #1d1d1f;
 }
 
 .cart-row__image {
@@ -748,6 +760,17 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   border-radius: 50%;
   border: 1px solid var(--stroke);
   background: #ffffff;
+}
+
+.cart-checkout-gate {
+  display: grid;
+  gap: 12px;
+  padding-top: 18px;
+}
+
+.cart-checkout-gate[hidden],
+.checkout-form[hidden] {
+  display: none;
 }
 
 .checkout-form label,
@@ -856,9 +879,13 @@ body[data-page="catalog"] .catalog-grid .product-image img {
 
 .checkout-page__panel {
   display: grid;
-  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.65fr);
+  grid-template-columns: 1fr;
   gap: 28px;
   align-items: start;
+}
+
+.checkout-page__panel.is-checkout-open {
+  grid-template-columns: minmax(0, 1.25fr) minmax(320px, 0.65fr);
 }
 
 .not-found {
@@ -934,7 +961,8 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   }
 
   .admin-layout,
-  .checkout-page__panel {
+  .checkout-page__panel,
+  .checkout-page__panel.is-checkout-open {
     grid-template-columns: 1fr;
   }
 
@@ -943,7 +971,7 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   }
 
   .cart-row {
-    grid-template-columns: 84px minmax(0, 1fr) 34px;
+    grid-template-columns: 26px 84px minmax(0, 1fr) 34px;
     gap: 14px;
   }
 
@@ -954,11 +982,11 @@ body[data-page="catalog"] .catalog-grid .product-image img {
 
   .cart-row__qty,
   .cart-row__price {
-    grid-column: 2 / 3;
+    grid-column: 3 / 4;
   }
 
   .cart-row__remove {
-    grid-column: 3;
+    grid-column: 4;
     grid-row: 1;
   }
 }
@@ -1014,7 +1042,7 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   }
 
   .cart-row {
-    grid-template-columns: 72px minmax(0, 1fr) 32px;
+    grid-template-columns: 24px 72px minmax(0, 1fr) 32px;
     gap: 12px;
     padding: 16px 0;
   }
