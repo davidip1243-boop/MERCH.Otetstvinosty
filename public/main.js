@@ -4,7 +4,7 @@ const LANG_KEY = "merch-lang";
 const SESSION_DRAFT_KEY = "merch-session-draft";
 const SESSION_HISTORY_KEY = "merch-session-history";
 const DELETED_PRODUCTS_KEY = "merch-deleted-products";
-const CART_PROMPT_DISABLED_KEY = "merch-cart-prompt-disabled";
+const CART_PROMPT_DISABLED_KEY = "merch-cart-prompt-disabled-v2";
 const FORCE_RESTORED_PRODUCT_IDS = ["candle-molitva"];
 
 const translations = {
