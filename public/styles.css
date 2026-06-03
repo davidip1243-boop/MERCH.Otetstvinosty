@@ -91,10 +91,10 @@ body[data-page="home"] .site-shell {
   z-index: 60;
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 16px;
+  justify-content: flex-start;
+  gap: 10px;
   margin-bottom: 30px;
-  padding: 12px 18px;
+  padding: 10px 12px 10px 16px;
   border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 999px;
   background: rgba(255, 255, 255, 0.86);
@@ -107,6 +107,8 @@ body[data-page="home"] .site-shell {
   display: inline-flex;
   align-items: center;
   gap: 10px;
+  flex: 0 1 260px;
+  min-width: 0;
 }
 
 .brand--center {
@@ -168,7 +170,11 @@ body[data-page="home"] .site-shell {
   align-items: center;
   flex-wrap: wrap;
   justify-content: center;
-  gap: 2px;
+  gap: 4px;
+  margin-left: auto;
+  padding: 4px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.035);
 }
 
 .topnav a,
@@ -183,10 +189,12 @@ body[data-page="home"] .site-shell {
 }
 
 .topnav a {
-  padding: 8px 12px;
+  padding: 9px 14px;
   border-radius: 999px;
   color: var(--text-secondary);
   font-size: 0.86rem;
+  line-height: 1;
+  white-space: nowrap;
 }
 
 .topnav a:hover,
@@ -214,8 +222,34 @@ body[data-page="home"] .site-shell {
 }
 
 .cart-trigger {
+  flex: 0 0 auto;
+  min-width: 118px;
   color: #ffffff;
   background: #1d1d1f;
+}
+
+.lang-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 42px;
+  padding: 8px 10px 8px 14px;
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--text-secondary);
+  font-size: 0.82rem;
+  white-space: nowrap;
+}
+
+.lang-switch select {
+  min-height: 28px;
+  border: 0;
+  border-radius: 999px;
+  background: #ffffff;
+  color: var(--text);
+  font: inherit;
+  font-weight: 700;
 }
 
 .cart-trigger:hover,
@@ -1068,7 +1102,6 @@ body[data-page="catalog"] .catalog-grid .product-image img {
     border-radius: var(--radius-lg);
   }
 
-  .topbar,
   .site-footer,
   .hero-actions,
   .admin-actions,
@@ -1077,11 +1110,41 @@ body[data-page="catalog"] .catalog-grid .product-image img {
     align-items: stretch;
   }
 
+  .topbar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 10px;
+    padding: 14px;
+  }
+
+  .brand {
+    flex: none;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .brand-copy__tagline {
+    max-width: none;
+  }
+
   .topnav {
+    width: 100%;
+    margin-left: 0;
+    justify-content: stretch;
+  }
+
+  .topnav a {
+    flex: 1 1 0;
+    text-align: center;
+  }
+
+  .lang-switch {
     justify-content: space-between;
+    width: 100%;
   }
 
   .cart-trigger,
+  .topbar > .button,
   .button {
     width: 100%;
   }
