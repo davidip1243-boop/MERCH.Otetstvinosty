@@ -4,6 +4,7 @@ const LANG_KEY = "merch-lang";
 const SESSION_DRAFT_KEY = "merch-session-draft";
 const SESSION_HISTORY_KEY = "merch-session-history";
 const DELETED_PRODUCTS_KEY = "merch-deleted-products";
+const CART_PROMPT_DISABLED_KEY = "merch-cart-prompt-disabled";
 const FORCE_RESTORED_PRODUCT_IDS = ["candle-molitva"];
 
 const translations = {
@@ -95,6 +96,11 @@ const translations = {
     "checkout.total": "Итого",
     "checkout.submit": "Отправить заказ",
     "ui.addToCart": "В корзину",
+    "ui.cartPromptTitle": "Товар добавлен",
+    "ui.cartPromptText": "Перейти в корзину?",
+    "ui.cartPromptYes": "Да",
+    "ui.cartPromptNo": "Нет",
+    "ui.cartPromptDontAsk": "Больше не спрашивать",
     "ui.cartEmpty": "Корзина пока пуста. Добавьте товар из каталога.",
     "ui.checkoutNeedItem": "Добавьте хотя бы один товар перед оформлением.",
     "ui.checkoutSending": "Отправляем заказ…",
@@ -202,6 +208,11 @@ const translations = {
     "checkout.total": "Total",
     "checkout.submit": "Send order",
     "ui.addToCart": "Add to cart",
+    "ui.cartPromptTitle": "Item added",
+    "ui.cartPromptText": "Go to cart?",
+    "ui.cartPromptYes": "Yes",
+    "ui.cartPromptNo": "No",
+    "ui.cartPromptDontAsk": "Don't ask again",
     "ui.cartEmpty": "Your cart is empty. Add a product from the shop.",
     "ui.checkoutNeedItem": "Add at least one product before checkout.",
     "ui.checkoutSending": "Sending order…",
@@ -756,9 +767,49 @@ function addToCart(productId) {
 
   persistCart();
   updateCartUi();
-  if (window.location.pathname !== "/cart") {
-    window.location.assign("/cart");
+  if (window.location.pathname !== "/cart" && localStorage.getItem(CART_PROMPT_DISABLED_KEY) !== "true") {
+    showCartPrompt();
   }
+}
+
+function showCartPrompt() {
+  document.querySelector("[data-cart-prompt]")?.remove();
+
+  const prompt = document.createElement("aside");
+  prompt.className = "cart-prompt";
+  prompt.dataset.cartPrompt = "";
+  prompt.innerHTML = `
+    <div>
+      <strong>${t("ui.cartPromptTitle")}</strong>
+      <p>${t("ui.cartPromptText")}</p>
+    </div>
+    <label class="cart-prompt__check">
+      <input type="checkbox" data-cart-prompt-disable />
+      <span>${t("ui.cartPromptDontAsk")}</span>
+    </label>
+    <div class="cart-prompt__actions">
+      <button class="button button--ghost" type="button" data-cart-prompt-no>${t("ui.cartPromptNo")}</button>
+      <button class="button button--solid" type="button" data-cart-prompt-yes>${t("ui.cartPromptYes")}</button>
+    </div>
+  `;
+
+  document.body.append(prompt);
+
+  const disableCheckbox = prompt.querySelector("[data-cart-prompt-disable]");
+  const closePrompt = () => {
+    if (disableCheckbox?.checked) {
+      localStorage.setItem(CART_PROMPT_DISABLED_KEY, "true");
+    }
+    prompt.remove();
+  };
+
+  prompt.querySelector("[data-cart-prompt-no]")?.addEventListener("click", closePrompt);
+  prompt.querySelector("[data-cart-prompt-yes]")?.addEventListener("click", () => {
+    if (disableCheckbox?.checked) {
+      localStorage.setItem(CART_PROMPT_DISABLED_KEY, "true");
+    }
+    window.location.assign("/cart");
+  });
 }
 
 function setupCart() {
