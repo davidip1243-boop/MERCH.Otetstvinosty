@@ -255,6 +255,7 @@ async function init() {
   restoreForcedProducts();
   state.settings = await fetchJson("/api/settings");
   state.products = applyDeletedFilter(await fetchJson("/api/products"));
+  await hydrateCurrentProduct();
   renderFeatured();
   renderCatalog();
   setupCatalogFilters();
@@ -263,6 +264,20 @@ async function init() {
   setupCheckoutForm();
   setupAdmin();
   renderProductPage();
+}
+
+async function hydrateCurrentProduct() {
+  const productId = getProductIdFromPath();
+  if (!productId || state.products.some((product) => product.id === productId)) {
+    return;
+  }
+
+  try {
+    const product = await fetchJson(`/api/products/${encodeURIComponent(productId)}`);
+    state.products = [product, ...state.products.filter((item) => item.id !== product.id)];
+  } catch {
+    // The product page will render its not-found state below.
+  }
 }
 
 function createSessionId() {
@@ -644,7 +659,13 @@ function renderProductPage() {
   const productId = getProductIdFromPath();
   const product = state.products.find((item) => item.id === productId);
   if (!product) {
-    container.innerHTML = `<p class="empty-state">${t("product.notFound")}</p>`;
+    container.innerHTML = `
+      <article class="product-detail glass-panel">
+        <h1>${t("product.notFound")}</h1>
+        <p class="empty-state">Этот товар не найден или был удален из каталога.</p>
+        <a class="button button--solid" href="/catalog">${t("product.backCatalog")}</a>
+      </article>
+    `;
     return;
   }
 

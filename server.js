@@ -716,6 +716,19 @@ app.get("/api/products", async (_req, res, next) => {
   }
 });
 
+app.get("/api/products/:id", async (req, res, next) => {
+  try {
+    const row = db.prepare("SELECT * FROM products WHERE id = ?").get(req.params.id);
+    if (!row) {
+      return res.status(404).json({ error: "Товар не найден." });
+    }
+
+    return res.json(parseProductRow(row));
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post("/api/products", requireAdmin, upload.array("images", 12), async (req, res, next) => {
   try {
     const images = (req.files || []).map((file) => `/uploads/${file.filename}`);
