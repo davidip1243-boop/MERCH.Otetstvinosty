@@ -787,15 +787,27 @@ function updateCartUi() {
       .map(
         (item) => `
           <div class="cart-row">
-            <div>
-              <strong>${item.title}</strong>
-              <span>${formatPrice(item.price)} ₽</span>
+            <a class="cart-row__image" href="/item/${encodeURIComponent(item.id)}" target="_blank" rel="noopener">
+              <img src="${item.image}" alt="${escapeHtml(item.title)}" />
+            </a>
+            <div class="cart-row__main">
+              <a class="cart-row__title" href="/item/${encodeURIComponent(item.id)}" target="_blank" rel="noopener">${escapeHtml(item.title)}</a>
+              <span class="cart-row__meta">Цена за 1 шт.</span>
+              <strong class="cart-row__unit">${formatPrice(item.price)} ₽</strong>
             </div>
-            <div class="quantity-controls">
-              <button type="button" data-qty-change="${item.id}" data-delta="-1">−</button>
-              <span>${item.quantity}</span>
-              <button type="button" data-qty-change="${item.id}" data-delta="1">+</button>
+            <div class="cart-row__qty">
+              <span>Количество</span>
+              <div class="quantity-controls">
+                <button type="button" data-qty-change="${item.id}" data-delta="-1" aria-label="Уменьшить">−</button>
+                <strong>${item.quantity}</strong>
+                <button type="button" data-qty-change="${item.id}" data-delta="1" aria-label="Увеличить">+</button>
+              </div>
             </div>
+            <div class="cart-row__price">
+              <span>Сумма</span>
+              <strong>${formatPrice(item.price * item.quantity)} ₽</strong>
+            </div>
+            <button class="icon-button cart-row__remove" type="button" data-remove-cart="${item.id}" aria-label="Удалить">×</button>
           </div>
         `
       )
@@ -805,6 +817,12 @@ function updateCartUi() {
   document.querySelectorAll("[data-qty-change]").forEach((button) => {
     button.addEventListener("click", () => {
       changeQuantity(button.dataset.qtyChange, Number(button.dataset.delta));
+    });
+  });
+
+  document.querySelectorAll("[data-remove-cart]").forEach((button) => {
+    button.addEventListener("click", () => {
+      removeFromCart(button.dataset.removeCart);
     });
   });
 }
@@ -817,6 +835,12 @@ function changeQuantity(productId, delta) {
 
   item.quantity += delta;
   state.cart = state.cart.filter((entry) => entry.quantity > 0);
+  persistCart();
+  updateCartUi();
+}
+
+function removeFromCart(productId) {
+  state.cart = state.cart.filter((entry) => entry.id !== productId);
   persistCart();
   updateCartUi();
 }
