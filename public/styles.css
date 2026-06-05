@@ -42,8 +42,6 @@ body::before {
   position: fixed;
   inset: 0;
   background: url("/assets/images/site-bg.jpeg") center / cover no-repeat;
-  filter: blur(2px);
-  transform: scale(1.015);
   z-index: -2;
 }
 
