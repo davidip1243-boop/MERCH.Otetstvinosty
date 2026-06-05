@@ -684,6 +684,15 @@ function renderProductPage() {
   const details = product.details.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
   const mainImage = product.images[0] || "";
   const hasManyImages = product.images.length > 1;
+  const thumbnails = product.images
+    .map(
+      (image, index) => `
+        <button class="product-thumb-button ${index === 0 ? "is-active" : ""}" type="button" data-gallery-thumb="${index}" aria-label="Показать фото ${index + 1}">
+          <img src="${image}" alt="${escapeHtml(product.title)} ${index + 1}" />
+        </button>
+      `
+    )
+    .join("");
 
   container.innerHTML = `
     <article class="product-detail glass-panel">
@@ -708,6 +717,7 @@ function renderProductPage() {
             <button class="icon-button product-gallery-arrow" type="button" data-gallery-next aria-label="Next image" ${hasManyImages ? "" : "disabled"}>→</button>
           </div>
           <p class="product-gallery-meta" data-gallery-meta>${product.images.length ? `1 / ${product.images.length}` : ""}</p>
+          <div class="product-thumbnails">${thumbnails}</div>
         </div>
       </div>
       <div class="product-detail__details">
@@ -728,6 +738,7 @@ function renderProductPage() {
   const metaNode = container.querySelector("[data-gallery-meta]");
   const prevButton = container.querySelector("[data-gallery-prev]");
   const nextButton = container.querySelector("[data-gallery-next]");
+  const thumbButtons = [...container.querySelectorAll("[data-gallery-thumb]")];
   let activeIndex = 0;
 
   const renderGalleryImage = () => {
@@ -741,6 +752,9 @@ function renderProductPage() {
     if (metaNode) {
       metaNode.textContent = `${activeIndex + 1} / ${product.images.length}`;
     }
+    thumbButtons.forEach((button, index) => {
+      button.classList.toggle("is-active", index === activeIndex);
+    });
   };
 
   prevButton?.addEventListener("click", () => {
@@ -751,6 +765,13 @@ function renderProductPage() {
   nextButton?.addEventListener("click", () => {
     activeIndex = (activeIndex + 1) % product.images.length;
     renderGalleryImage();
+  });
+
+  thumbButtons.forEach((button) => {
+    button.addEventListener("click", () => {
+      activeIndex = Number(button.dataset.galleryThumb || 0);
+      renderGalleryImage();
+    });
   });
 }
 
