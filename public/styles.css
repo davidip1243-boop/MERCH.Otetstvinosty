@@ -1152,19 +1152,36 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   font-size: clamp(2.2rem, 6vw, 4.4rem);
   line-height: 1.04;
   letter-spacing: -0.02em;
+  color: #102c34;
+  background:
+    radial-gradient(circle at 16% 18%, rgba(255, 255, 255, 0.85) 0 7%, transparent 8% 18%),
+    repeating-linear-gradient(
+      105deg,
+      rgba(255, 255, 255, 0.28) 0 2px,
+      rgba(255, 255, 255, 0) 2px 9px
+    ),
+    linear-gradient(135deg, #062f3b 0%, #274558 42%, #6f5035 70%, #142b34 100%);
+  background-size:
+    180px 180px,
+    90px 90px,
+    100% 100%;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  text-shadow: 0 18px 38px rgba(0, 0, 0, 0.16);
 }
 
 .home-focus__title-link {
   display: inline-block;
-  color: var(--text);
+  color: #102c34;
   transition:
-    color 180ms ease,
+    filter 180ms ease,
     transform 180ms ease;
 }
 
 .home-focus__title-link:hover,
 .home-focus__title-link:focus-visible {
-  color: #00556a;
+  filter: saturate(1.18) contrast(1.08);
   transform: translateY(-2px);
 }
 
