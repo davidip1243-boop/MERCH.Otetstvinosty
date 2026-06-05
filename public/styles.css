@@ -111,6 +111,17 @@ body[data-page="home"] .site-shell {
   gap: 10px;
   justify-self: start;
   min-width: 0;
+  padding: 6px 8px;
+  border-radius: 999px;
+  transition:
+    background-color 180ms ease,
+    transform 180ms ease;
+}
+
+.brand:hover,
+.brand:focus-visible {
+  background: rgba(0, 0, 0, 0.04);
+  transform: translateY(-1px);
 }
 
 .brand--center {
