@@ -687,25 +687,33 @@ function renderProductPage() {
 
   container.innerHTML = `
     <article class="product-detail glass-panel">
-      <p class="product-meta">${escapeHtml(product.category)}</p>
-      <h1>${escapeHtml(product.title)}</h1>
-      <p class="product-detail-summary">${escapeHtml(product.summary)}</p>
-      <p class="product-detail-description">${escapeHtml(product.description)}</p>
-      <strong class="product-price product-detail-price">${formatPrice(product.price)} ₽</strong>
-      <div class="product-actions">
-        <a class="button button--ghost" href="/catalog">${t("product.backCatalog")}</a>
-        <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
+      <div class="product-detail__grid">
+        <div class="product-detail__copy">
+          <p class="product-meta">${escapeHtml(product.category)}</p>
+          <h1>${escapeHtml(product.title)}</h1>
+          <p class="product-detail-summary">${escapeHtml(product.summary)}</p>
+          <p class="product-detail-description">${escapeHtml(product.description)}</p>
+          <strong class="product-price product-detail-price">${formatPrice(product.price)} ₽</strong>
+          <div class="product-actions">
+            <a class="button button--ghost" href="/catalog">${t("product.backCatalog")}</a>
+            <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
+          </div>
+        </div>
+        <div class="product-detail__media">
+          <div class="product-gallery-viewer">
+            <button class="icon-button product-gallery-arrow" type="button" data-gallery-prev aria-label="Previous image" ${hasManyImages ? "" : "disabled"}>←</button>
+            <figure class="product-detail-image">
+              <img data-product-detail-main src="${mainImage}" alt="${escapeHtml(product.title)} 1" />
+            </figure>
+            <button class="icon-button product-gallery-arrow" type="button" data-gallery-next aria-label="Next image" ${hasManyImages ? "" : "disabled"}>→</button>
+          </div>
+          <p class="product-gallery-meta" data-gallery-meta>${product.images.length ? `1 / ${product.images.length}` : ""}</p>
+        </div>
       </div>
-      <div class="product-gallery-viewer">
-        <button class="icon-button product-gallery-arrow" type="button" data-gallery-prev aria-label="Previous image" ${hasManyImages ? "" : "disabled"}>←</button>
-        <figure class="product-detail-image">
-          <img data-product-detail-main src="${mainImage}" alt="${escapeHtml(product.title)} 1" />
-        </figure>
-        <button class="icon-button product-gallery-arrow" type="button" data-gallery-next aria-label="Next image" ${hasManyImages ? "" : "disabled"}>→</button>
+      <div class="product-detail__details">
+        <h2>${t("product.details")}</h2>
+        <ul class="product-details">${details}</ul>
       </div>
-      <p class="product-gallery-meta" data-gallery-meta>${product.images.length ? `1 / ${product.images.length}` : ""}</p>
-      <h2>${t("product.details")}</h2>
-      <ul class="product-details">${details}</ul>
     </article>
   `;
 
