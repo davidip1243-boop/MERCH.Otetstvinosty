@@ -573,7 +573,6 @@ function buildProductCard(product, compact = false) {
   return `
     <article class="${compact ? "featured-card" : "product-card"}" data-open-product="${product.id}">
       <div class="product-image">
-        <span class="product-accent" style="background:${product.accent}"></span>
         <img src="${product.images[0]}" alt="${product.title}" />
       </div>
       <div class="product-copy">

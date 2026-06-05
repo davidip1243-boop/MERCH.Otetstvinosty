@@ -565,16 +565,6 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   object-position: center;
 }
 
-.product-accent {
-  position: absolute;
-  inset: 16px auto auto 16px;
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  border: 1px solid rgba(255, 255, 255, 0.7);
-  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.12);
-}
-
 .product-copy {
   display: grid;
   gap: 12px;
