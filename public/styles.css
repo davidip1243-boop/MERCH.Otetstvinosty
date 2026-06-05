@@ -152,30 +152,16 @@ body[data-page="home"] .site-shell {
 
 .brand-mark {
   position: relative;
-  width: 24px;
-  height: 24px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
-  background: #1d1d1f;
+  background: #ffffff url("/assets/images/brand-mark.png") center / 112% 112% no-repeat;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.1);
 }
 
 .brand-mark__vertical,
 .brand-mark__horizontal {
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  transform: translate(-50%, -50%);
-  background: #ffffff;
-  border-radius: 999px;
-}
-
-.brand-mark__vertical {
-  width: 2px;
-  height: 12px;
-}
-
-.brand-mark__horizontal {
-  width: 10px;
-  height: 2px;
+  display: none;
 }
 
 .topnav {
