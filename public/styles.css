@@ -76,14 +76,14 @@ button {
 .site-shell {
   width: min(1260px, calc(100% - 32px));
   margin: 0 auto;
-  padding: 12px 0 56px;
+  padding: 56px 0 56px;
 }
 
 body[data-page="home"] .site-shell {
   width: 100%;
   min-height: 100vh;
   display: block;
-  padding: 0;
+  padding: 44px 0 0;
 }
 
 body[data-page="home"]::before {
@@ -98,17 +98,18 @@ body[data-page="home"]::after {
 }
 
 .topbar {
-  position: sticky;
+  position: fixed;
   top: 0;
+  left: 0;
+  right: 0;
   z-index: 60;
   display: grid;
   grid-template-columns: 64px minmax(0, 1fr) auto;
   align-items: center;
   gap: 22px;
-  width: 100vw;
+  width: 100%;
   min-height: 44px;
-  margin-left: calc(50% - 50vw);
-  margin-bottom: 36px;
+  margin: 0;
   padding: 0 max(18px, calc((100vw - 1040px) / 2));
   border: 0;
   border-radius: 0;
@@ -1308,7 +1309,11 @@ body[data-page="catalog"] .catalog-grid .product-image img {
 @media (max-width: 760px) {
   .site-shell {
     width: min(100% - 18px, 1260px);
-    padding-top: 8px;
+    padding-top: 96px;
+  }
+
+  body[data-page="home"] .site-shell {
+    padding-top: 96px;
   }
 
   .topbar,
