@@ -1142,6 +1142,20 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   letter-spacing: -0.02em;
 }
 
+.home-focus__title-link {
+  display: inline-block;
+  color: var(--text);
+  transition:
+    color 180ms ease,
+    transform 180ms ease;
+}
+
+.home-focus__title-link:hover,
+.home-focus__title-link:focus-visible {
+  color: #00556a;
+  transform: translateY(-2px);
+}
+
 .home-focus__copy p {
   margin: 0;
   max-width: 48ch;
