@@ -321,6 +321,9 @@ body[data-page="cart"] main {
   border: 0;
   border-radius: 0;
   background: transparent;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
   transition:
     opacity 180ms ease,
     transform 180ms ease;
@@ -371,6 +374,10 @@ body[data-page="cart"] main {
     0 0 1px rgba(255, 255, 255, 0.98),
     0 0 18px rgba(255, 255, 255, 0.3);
   image-rendering: auto;
+  pointer-events: none;
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
 }
 
 .brand-mark__vertical,
