@@ -28,6 +28,40 @@ html {
   background: #000000;
 }
 
+@view-transition {
+  navigation: auto;
+}
+
+::view-transition-old(root) {
+  animation: pageCrossFadeOut 460ms ease both;
+}
+
+::view-transition-new(root) {
+  animation: pageCrossFadeIn 520ms ease both;
+}
+
+@keyframes pageCrossFadeOut {
+  from {
+    opacity: 1;
+    filter: brightness(1);
+  }
+  to {
+    opacity: 0;
+    filter: brightness(0.88);
+  }
+}
+
+@keyframes pageCrossFadeIn {
+  from {
+    opacity: 0;
+    filter: brightness(1.08);
+  }
+  to {
+    opacity: 1;
+    filter: brightness(1);
+  }
+}
+
 body {
   margin: 0;
   min-height: 100vh;
@@ -86,8 +120,13 @@ body[data-page="home"] .site-shell {
   padding: 44px 0 0;
 }
 
+body[data-page="home"] {
+  animation: pageToneToDark 520ms ease both;
+}
+
 body[data-page="home"]::before {
   background: #000000;
+  animation: darkBackdropIn 620ms ease both;
 }
 
 body[data-page="home"]::after {
@@ -95,6 +134,10 @@ body[data-page="home"]::after {
     radial-gradient(circle at 50% 24%, rgba(110, 167, 255, 0.28), transparent 31%),
     radial-gradient(circle at 47% 21%, rgba(255, 255, 255, 0.24), transparent 12%),
     linear-gradient(180deg, rgba(0, 0, 0, 0), #000000 72%);
+}
+
+body[data-page="home"] .topbar {
+  animation: darkBarIn 540ms ease both;
 }
 
 body[data-page="catalog"],
@@ -185,7 +228,25 @@ body[data-page="cart"] main {
   }
 }
 
+@keyframes pageToneToDark {
+  from {
+    background-color: #f5f5f2;
+  }
+  to {
+    background-color: #000000;
+  }
+}
+
 @keyframes softBackdropIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes darkBackdropIn {
   from {
     opacity: 0;
   }
@@ -202,6 +263,17 @@ body[data-page="cart"] main {
   to {
     background: rgba(247, 247, 242, 0.82);
     box-shadow: 0 1px 0 rgba(29, 29, 31, 0.08);
+  }
+}
+
+@keyframes darkBarIn {
+  from {
+    background: rgba(247, 247, 242, 0.82);
+    box-shadow: 0 1px 0 rgba(29, 29, 31, 0.08);
+  }
+  to {
+    background: rgba(13, 13, 15, 0.92);
+    box-shadow: none;
   }
 }
 
