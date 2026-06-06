@@ -97,6 +97,36 @@ body[data-page="home"]::after {
     linear-gradient(180deg, rgba(0, 0, 0, 0), #000000 72%);
 }
 
+body[data-page="catalog"],
+body[data-page="product"],
+body[data-page="cart"] {
+  color: #1d1d1f;
+  background: #f5f5f2;
+}
+
+body[data-page="catalog"]::before,
+body[data-page="product"]::before,
+body[data-page="cart"]::before {
+  background:
+    radial-gradient(circle at 16% 8%, rgba(255, 255, 255, 0.96), transparent 32%),
+    radial-gradient(circle at 82% 14%, rgba(233, 229, 218, 0.9), transparent 34%),
+    linear-gradient(180deg, #fbfbf8 0%, #f4f1ea 48%, #efede7 100%);
+}
+
+body[data-page="catalog"]::after,
+body[data-page="product"]::after,
+body[data-page="cart"]::after {
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.34), rgba(255, 255, 255, 0.08)),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.64), transparent 42%);
+}
+
+body[data-page="catalog"] .site-shell,
+body[data-page="product"] .site-shell,
+body[data-page="cart"] .site-shell {
+  width: min(1280px, calc(100% - 36px));
+}
+
 .topbar {
   position: fixed;
   top: 0;
@@ -113,7 +143,7 @@ body[data-page="home"]::after {
   padding: 0 max(22px, calc((100vw - 1024px) / 2));
   border: 0;
   border-radius: 0;
-  background: rgba(22, 22, 23, 0.86);
+  background: rgba(13, 13, 15, 0.92);
   backdrop-filter: saturate(180%) blur(20px);
   -webkit-backdrop-filter: saturate(180%) blur(20px);
   box-shadow: none;
@@ -172,10 +202,10 @@ body[data-page="home"]::after {
 
 .brand-mark {
   position: relative;
-  width: 18px;
-  height: 18px;
+  width: 22px;
+  height: 22px;
   border-radius: 50%;
-  background: transparent url("/assets/images/brand-mark.png") center / 145% 145% no-repeat;
+  background: transparent url("/assets/images/brand-mark.png") center / contain no-repeat;
   filter: brightness(0) invert(1);
   box-shadow: none;
 }
@@ -557,11 +587,14 @@ body[data-page="home"]::after {
 }
 
 .catalog-filter {
-  border: 1px solid var(--stroke);
+  border: 1px solid rgba(29, 29, 31, 0.12);
   border-radius: 999px;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.74);
   color: var(--text-secondary);
   padding: 9px 14px;
+  box-shadow: 0 8px 24px rgba(29, 29, 31, 0.05);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .catalog-filter.is-active {
@@ -601,12 +634,20 @@ body[data-page="home"]::after {
 /* Catalog should show full product images without top/bottom clipping. */
 body[data-page="catalog"] .catalog-grid .product-image {
   aspect-ratio: 4 / 5;
-  background: #ffffff;
+  background:
+    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.95), transparent 42%),
+    linear-gradient(180deg, #fbfaf7, #eeeae1);
 }
 
 body[data-page="catalog"] .catalog-grid .product-image img {
   object-fit: contain;
   object-position: center;
+}
+
+body[data-page="catalog"] .product-card {
+  background: rgba(255, 255, 255, 0.78);
+  border-color: rgba(29, 29, 31, 0.08);
+  box-shadow: 0 18px 45px rgba(29, 29, 31, 0.08);
 }
 
 .product-copy {
