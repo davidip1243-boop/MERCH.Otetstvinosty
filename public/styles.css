@@ -2020,16 +2020,19 @@ html[data-theme="dark"] {
   }
 
   :root:not([data-theme="light"]) body[data-page="catalog"] .product-card {
-    border-color: var(--stroke);
-    background: rgba(19, 22, 27, 0.82);
-    box-shadow: var(--shadow-card);
+    border-color: rgba(245, 247, 250, 0.22);
+    background: linear-gradient(180deg, rgba(34, 39, 47, 0.92), rgba(25, 30, 37, 0.94));
+    box-shadow:
+      0 22px 58px rgba(0, 0, 0, 0.36),
+      0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+      0 18px 70px rgba(95, 150, 205, 0.08);
   }
 
   :root:not([data-theme="light"]) body[data-page="catalog"] .catalog-grid .product-image,
   :root:not([data-theme="light"]) .product-image {
     background:
-      radial-gradient(circle at 68% 16%, rgba(126, 162, 196, 0.18), transparent 38%),
-      linear-gradient(180deg, rgba(25, 29, 35, 0.86), rgba(13, 16, 20, 0.88));
+      radial-gradient(circle at 68% 16%, rgba(177, 206, 233, 0.24), transparent 40%),
+      linear-gradient(180deg, rgba(41, 47, 56, 0.9), rgba(24, 29, 36, 0.92));
   }
 
   :root:not([data-theme="light"]) .product-detail-image {
@@ -2286,16 +2289,19 @@ html[data-theme="dark"] {
   }
 
   :root[data-theme="dark"] body[data-page="catalog"] .product-card {
-    border-color: var(--stroke);
-    background: rgba(19, 22, 27, 0.82);
-    box-shadow: var(--shadow-card);
+    border-color: rgba(245, 247, 250, 0.22);
+    background: linear-gradient(180deg, rgba(34, 39, 47, 0.92), rgba(25, 30, 37, 0.94));
+    box-shadow:
+      0 22px 58px rgba(0, 0, 0, 0.36),
+      0 0 0 1px rgba(255, 255, 255, 0.03) inset,
+      0 18px 70px rgba(95, 150, 205, 0.08);
   }
 
   :root[data-theme="dark"] body[data-page="catalog"] .catalog-grid .product-image,
   :root[data-theme="dark"] .product-image {
     background:
-      radial-gradient(circle at 68% 16%, rgba(126, 162, 196, 0.18), transparent 38%),
-      linear-gradient(180deg, rgba(25, 29, 35, 0.86), rgba(13, 16, 20, 0.88));
+      radial-gradient(circle at 68% 16%, rgba(177, 206, 233, 0.24), transparent 40%),
+      linear-gradient(180deg, rgba(41, 47, 56, 0.9), rgba(24, 29, 36, 0.92));
   }
 
   :root[data-theme="dark"] .product-detail-image {
