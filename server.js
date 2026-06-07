@@ -905,7 +905,7 @@ app.use("/api", (_req, res) => {
 });
 
 app.use((req, res) => {
-  if (req.method === "GET") {
+  if (req.method === "GET" || req.method === "HEAD") {
     return res.status(404).sendFile(path.join(publicDir, "404.html"));
   }
 
