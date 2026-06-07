@@ -1,6 +1,7 @@
 const CART_KEY = "merch-cart";
 const CUSTOMER_KEY = "merch-customer";
 const LANG_KEY = "merch-lang";
+const THEME_KEY = "merch-theme";
 const SESSION_DRAFT_KEY = "merch-session-draft";
 const SESSION_HISTORY_KEY = "merch-session-history";
 const DELETED_PRODUCTS_KEY = "merch-deleted-products";
@@ -10,6 +11,10 @@ const FORCE_RESTORED_PRODUCT_IDS = ["candle-molitva"];
 const translations = {
   ru: {
     "lang.label": "Язык",
+    "theme.label": "Тема",
+    "theme.auto": "Авто",
+    "theme.light": "Свет",
+    "theme.dark": "Тьма",
     "common.telegram": "Telegram",
     "common.youtube": "YouTube",
     "common.admin": "Админ-панель",
@@ -124,6 +129,10 @@ const translations = {
   },
   en: {
     "lang.label": "Language",
+    "theme.label": "Theme",
+    "theme.auto": "Auto",
+    "theme.light": "Light",
+    "theme.dark": "Dark",
     "common.telegram": "Telegram",
     "common.youtube": "YouTube",
     "common.admin": "Admin panel",
@@ -252,6 +261,7 @@ const state = {
   },
   catalogFilter: "all",
   language: detectInitialLanguage(),
+  theme: detectInitialTheme(),
   sessionId: "",
   sessionStartedAt: "",
   sessionFinalized: false,
@@ -259,12 +269,15 @@ const state = {
   selectedCartIds: new Set()
 };
 
+applyTheme(state.theme);
+
 init().catch((error) => {
   console.error(error);
 });
 
 async function init() {
   setupGuestSessionPersistence();
+  setupThemeSwitcher();
   setupLanguageSwitcher();
   restoreForcedProducts();
   state.settings = await fetchJson("/api/settings");
@@ -386,6 +399,64 @@ function detectInitialLanguage() {
   return navigator.language?.toLowerCase().startsWith("ru") ? "ru" : "en";
 }
 
+function detectInitialTheme() {
+  const saved = localStorage.getItem(THEME_KEY);
+  return ["auto", "light", "dark"].includes(saved) ? saved : "auto";
+}
+
+function applyTheme(theme) {
+  const nextTheme = ["auto", "light", "dark"].includes(theme) ? theme : "auto";
+  state.theme = nextTheme;
+  if (nextTheme === "auto") {
+    document.documentElement.removeAttribute("data-theme");
+  } else {
+    document.documentElement.dataset.theme = nextTheme;
+  }
+  document.querySelectorAll("[data-theme-switch]").forEach((select) => {
+    select.value = nextTheme;
+  });
+}
+
+function setupThemeSwitcher() {
+  document.querySelectorAll(".topbar").forEach((topbar) => {
+    let actions = topbar.querySelector(".topbar-actions");
+    if (!actions) {
+      actions = document.createElement("div");
+      actions.className = "topbar-actions";
+      topbar.append(actions);
+    }
+
+    actions.classList.remove("topbar-actions--empty");
+    actions.removeAttribute("aria-hidden");
+
+    if (actions.querySelector("[data-theme-switch]")) {
+      return;
+    }
+
+    const label = document.createElement("label");
+    label.className = "theme-switch";
+    label.innerHTML = `
+      <span data-i18n="theme.label">Тема</span>
+      <select data-theme-switch aria-label="Theme">
+        <option value="auto" data-i18n="theme.auto">Авто</option>
+        <option value="light" data-i18n="theme.light">Свет</option>
+        <option value="dark" data-i18n="theme.dark">Тьма</option>
+      </select>
+    `;
+    actions.prepend(label);
+  });
+
+  document.querySelectorAll("[data-theme-switch]").forEach((select) => {
+    select.value = state.theme;
+    select.addEventListener("change", () => {
+      const theme = ["auto", "light", "dark"].includes(select.value) ? select.value : "auto";
+      localStorage.setItem(THEME_KEY, theme);
+      applyTheme(theme);
+      saveSessionDraft();
+    });
+  });
+}
+
 function t(key) {
   return translations[state.language]?.[key] ?? translations.ru[key] ?? key;
 }
@@ -412,6 +483,10 @@ function applyTranslations() {
 
   document.querySelectorAll("[data-lang-switch]").forEach((select) => {
     select.value = state.language;
+  });
+
+  document.querySelectorAll("[data-theme-switch]").forEach((select) => {
+    select.value = state.theme;
   });
 }
 
