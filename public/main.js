@@ -564,6 +564,17 @@ function matchesCatalogFilter(product, filter) {
     return category.includes("свеч") || category.includes("cand");
   }
 
+  if (filter === "bags") {
+    return (
+      category.includes("сум") ||
+      category.includes("шоппер") ||
+      category.includes("аксесс") ||
+      category.includes("bag") ||
+      category.includes("tote") ||
+      category.includes("accessor")
+    );
+  }
+
   if (filter === "crosses") {
     return category.includes("крест") || category.includes("cross");
   }
