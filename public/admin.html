@@ -6,22 +6,7 @@
     <title>Мерч | Админ</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
     <link rel="apple-touch-icon" href="/assets/images/favicon.png" />
-    <script>
-      (() => {
-        const root = document.documentElement;
-        let theme = "auto";
-        try {
-          theme = localStorage.getItem("merch-theme") || "auto";
-        } catch {}
-        const isDark =
-          theme === "dark" ||
-          (theme !== "light" && window.matchMedia?.("(prefers-color-scheme: dark)").matches);
-        if (theme === "light" || theme === "dark") {
-          root.dataset.theme = theme;
-        }
-        root.style.backgroundColor = isDark ? "#050607" : "#f5f5f2";
-      })();
-    </script>
+    <script src="/theme-head.js"></script>
     <link rel="stylesheet" href="/styles.css" />
   </head>
   <body data-page="admin">
