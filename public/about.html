@@ -3,12 +3,12 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Мерч | Каталог</title>
+    <title>Мерч | О нас</title>
     <link rel="icon" type="image/png" href="/assets/images/favicon.png" />
     <link rel="apple-touch-icon" href="/assets/images/favicon.png" />
     <link rel="stylesheet" href="/styles.css" />
   </head>
-  <body data-page="catalog">
+  <body data-page="about">
     <div class="site-shell">
       <header class="topbar">
         <a class="brand" href="/" aria-label="Главная">
@@ -22,7 +22,7 @@
         </a>
         <nav class="topnav" aria-label="Основная навигация">
           <a href="/" data-i18n="nav.home">Главная</a>
-          <a href="/about" data-i18n="nav.about">О нас</a>
+          <a href="/about" aria-current="page" data-i18n="nav.about">О нас</a>
         </nav>
         <div class="topbar-actions">
           <label class="lang-switch">
@@ -40,24 +40,8 @@
       </header>
 
       <main>
-        <section class="section">
-          <div class="catalog-filters">
-            <button class="catalog-filter is-active" type="button" data-catalog-filter="all">Все</button>
-            <button class="catalog-filter" type="button" data-catalog-filter="clothes">Одежда</button>
-            <button class="catalog-filter" type="button" data-catalog-filter="candles">Свечи</button>
-            <button class="catalog-filter" type="button" data-catalog-filter="crosses">Кресты</button>
-          </div>
-          <div class="catalog-grid" data-catalog-grid></div>
-        </section>
+        <section class="about-blank glass-panel" aria-label="О нас"></section>
       </main>
-
-      <footer class="site-footer">
-        <p data-i18n="catalog.footer">Доставка по России, оформление заказа без создания аккаунта.</p>
-        <div class="footer-links">
-          <a href="https://t.me/" target="_blank" rel="noreferrer" data-i18n="common.telegram">Telegram</a>
-          <a href="https://www.youtube.com/" target="_blank" rel="noreferrer" data-i18n="common.youtube">YouTube</a>
-        </div>
-      </footer>
     </div>
 
     <script type="module" src="/main.js"></script>

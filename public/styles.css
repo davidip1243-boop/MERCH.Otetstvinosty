@@ -108,6 +108,7 @@ body[data-page="home"] .topbar {
   animation: darkBarIn 540ms ease both;
 }
 
+body[data-page="about"],
 body[data-page="catalog"],
 body[data-page="product"],
 body[data-page="cart"] {
@@ -116,6 +117,7 @@ body[data-page="cart"] {
   animation: pageToneIn 520ms ease both;
 }
 
+body[data-page="about"]::before,
 body[data-page="catalog"]::before,
 body[data-page="product"]::before,
 body[data-page="cart"]::before {
@@ -126,6 +128,7 @@ body[data-page="cart"]::before {
   animation: softBackdropIn 680ms ease both;
 }
 
+body[data-page="about"]::after,
 body[data-page="catalog"]::after,
 body[data-page="product"]::after,
 body[data-page="cart"]::after {
@@ -151,12 +154,14 @@ body[data-page="cart"]::after {
     radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.72), transparent 44%);
 }
 
+body[data-page="about"] .site-shell,
 body[data-page="catalog"] .site-shell,
 body[data-page="product"] .site-shell,
 body[data-page="cart"] .site-shell {
   width: min(1280px, calc(100% - 36px));
 }
 
+body[data-page="about"] .topbar,
 body[data-page="catalog"] .topbar,
 body[data-page="product"] .topbar,
 body[data-page="cart"] .topbar {
@@ -169,6 +174,7 @@ body[data-page="cart"] .topbar {
   background: rgba(250, 241, 224, 0.84);
 }
 
+body[data-page="about"] .brand-mark,
 body[data-page="catalog"] .brand-mark,
 body[data-page="product"] .brand-mark,
 body[data-page="cart"] .brand-mark {
@@ -176,33 +182,40 @@ body[data-page="cart"] .brand-mark {
   box-shadow: 0 0 0 1px rgba(29, 29, 31, 0.04), 0 8px 18px rgba(29, 29, 31, 0.08);
 }
 
+body[data-page="about"] .topnav a,
 body[data-page="catalog"] .topnav a,
 body[data-page="product"] .topnav a,
 body[data-page="cart"] .topnav a,
+body[data-page="about"] .cart-trigger,
 body[data-page="catalog"] .cart-trigger,
 body[data-page="product"] .cart-trigger,
 body[data-page="cart"] .cart-trigger,
+body[data-page="about"] .lang-switch,
 body[data-page="catalog"] .lang-switch,
 body[data-page="product"] .lang-switch,
 body[data-page="cart"] .lang-switch {
   color: rgba(29, 29, 31, 0.72);
 }
 
+body[data-page="about"] .topnav a:hover,
 body[data-page="catalog"] .topnav a:hover,
 body[data-page="product"] .topnav a:hover,
 body[data-page="cart"] .topnav a:hover,
+body[data-page="about"] .topnav a[aria-current="page"],
 body[data-page="catalog"] .topnav a[aria-current="page"],
 body[data-page="product"] .topnav a[aria-current="page"],
 body[data-page="cart"] .topnav a[aria-current="page"] {
   color: #1d1d1f;
 }
 
+body[data-page="about"] .lang-switch select,
 body[data-page="catalog"] .lang-switch select,
 body[data-page="product"] .lang-switch select,
 body[data-page="cart"] .lang-switch select {
   color: rgba(29, 29, 31, 0.9);
 }
 
+body[data-page="about"] main,
 body[data-page="catalog"] main,
 body[data-page="product"] main,
 body[data-page="cart"] main {
@@ -721,6 +734,15 @@ body[data-page="cart"] main {
 
 .section--full {
   min-height: calc(100vh - 150px);
+}
+
+.about-blank {
+  width: min(900px, 100%);
+  min-height: clamp(320px, 48vh, 620px);
+  margin: clamp(38px, 8vh, 82px) auto 0;
+  background: rgba(255, 255, 255, 0.82);
+  backdrop-filter: blur(18px) saturate(145%);
+  -webkit-backdrop-filter: blur(18px) saturate(145%);
 }
 
 .section-head {
