@@ -1367,11 +1367,33 @@ body[data-page="cart"] .cart-checkout-gate {
 
 .not-found {
   display: grid;
-  place-items: center;
-  gap: 14px;
+  place-items: start center;
   min-height: 100vh;
-  padding: 32px;
+  padding: clamp(68px, 12vh, 128px) 20px 48px;
   text-align: center;
+}
+
+.not-found__panel {
+  display: grid;
+  justify-items: center;
+  gap: 14px;
+  width: min(720px, 100%);
+  padding: clamp(28px, 6vw, 54px);
+  border: 1px solid rgba(255, 255, 255, 0.74);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 255, 255, 0.86);
+  box-shadow: 0 28px 80px rgba(0, 0, 0, 0.18);
+  backdrop-filter: blur(22px) saturate(150%);
+  -webkit-backdrop-filter: blur(22px) saturate(150%);
+}
+
+.not-found .brand--center {
+  margin-bottom: 4px;
+}
+
+.not-found .brand-mark {
+  background-color: #23303e;
+  box-shadow: 0 8px 22px rgba(35, 48, 62, 0.14);
 }
 
 .not-found h1 {
