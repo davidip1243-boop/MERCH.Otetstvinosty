@@ -7,6 +7,8 @@ const SESSION_HISTORY_KEY = "merch-session-history";
 const DELETED_PRODUCTS_KEY = "merch-deleted-products";
 const CART_PROMPT_CHOICE_KEY = "merch-cart-prompt-choice-v1";
 const FORCE_RESTORED_PRODUCT_IDS = ["candle-molitva"];
+let themeHasApplied = false;
+let themeTransitionTimer;
 
 const translations = {
   ru: {
@@ -404,17 +406,76 @@ function detectInitialTheme() {
   return ["auto", "light", "dark"].includes(saved) ? saved : "auto";
 }
 
+function getTopbarThemeStyle(activeTheme) {
+  const page = document.body?.dataset.page;
+  if (page === "home") {
+    return { background: "", boxShadow: "" };
+  }
+
+  if (activeTheme === "light") {
+    if (page === "about") {
+      return { background: "rgba(239, 246, 249, 0.86)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
+    }
+    if (page === "cart") {
+      return { background: "rgba(250, 241, 224, 0.84)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
+    }
+    return { background: "rgba(247, 247, 242, 0.82)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
+  }
+
+  if (page === "cart") {
+    return { background: "rgba(22, 16, 10, 0.84)", boxShadow: "0 1px 0 rgba(255, 255, 255, 0.08)" };
+  }
+  return { background: "rgba(9, 11, 14, 0.82)", boxShadow: "0 1px 0 rgba(255, 255, 255, 0.08)" };
+}
+
+function syncTopbarTheme(activeTheme) {
+  const style = getTopbarThemeStyle(activeTheme);
+  document.querySelectorAll(".topbar").forEach((topbar) => {
+    if (!style.background) {
+      topbar.style.removeProperty("background");
+      topbar.style.removeProperty("background-color");
+      topbar.style.removeProperty("box-shadow");
+      return;
+    }
+
+    topbar.style.background = style.background;
+    topbar.style.backgroundColor = style.background;
+    topbar.style.boxShadow = style.boxShadow;
+  });
+}
+
 function applyTheme(theme) {
   const nextTheme = ["auto", "light", "dark"].includes(theme) ? theme : "auto";
+  const activeTheme =
+    nextTheme === "auto"
+      ? window.matchMedia?.("(prefers-color-scheme: dark)").matches
+        ? "dark"
+        : "light"
+      : nextTheme;
+  const shouldAnimate = themeHasApplied && state.theme !== nextTheme;
+  if (shouldAnimate) {
+    document.documentElement.classList.add("is-theme-changing");
+    window.clearTimeout(themeTransitionTimer);
+    themeTransitionTimer = window.setTimeout(() => {
+      document.documentElement.classList.remove("is-theme-changing");
+    }, 620);
+  }
+
   state.theme = nextTheme;
   if (nextTheme === "auto") {
     document.documentElement.removeAttribute("data-theme");
   } else {
     document.documentElement.dataset.theme = nextTheme;
   }
+  if (document.body) {
+    document.body.dataset.activeTheme = activeTheme;
+    syncTopbarTheme(activeTheme);
+  }
   document.querySelectorAll("[data-theme-switch]").forEach((select) => {
     select.value = nextTheme;
   });
+  document.documentElement.style.backgroundColor = "";
+  themeHasApplied = true;
 }
 
 function setupThemeSwitcher() {
