@@ -88,13 +88,13 @@ body[data-page="home"] .site-shell {
 }
 
 body[data-page="home"] {
-  background: #f5f5f2;
-  animation: pageToneToDark 520ms ease both;
+  background: #000000;
+  animation: none;
 }
 
 body[data-page="home"]::before {
   background: #000000;
-  animation: darkBackdropIn 620ms ease both;
+  animation: none;
 }
 
 body[data-page="home"]::after {
@@ -102,11 +102,11 @@ body[data-page="home"]::after {
     radial-gradient(circle at 50% 24%, rgba(110, 167, 255, 0.28), transparent 31%),
     radial-gradient(circle at 47% 21%, rgba(255, 255, 255, 0.24), transparent 12%),
     linear-gradient(180deg, rgba(0, 0, 0, 0), #000000 72%);
-  animation: darkOverlayIn 620ms ease both;
+  animation: none;
 }
 
 body[data-page="home"] .topbar {
-  animation: darkBarIn 540ms ease both;
+  animation: none;
 }
 
 body[data-page="about"],
