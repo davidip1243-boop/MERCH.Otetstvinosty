@@ -1458,7 +1458,7 @@ body[data-page="cart"] .cart-checkout-gate {
 .home-focus__logo {
   position: relative;
   z-index: 1;
-  width: clamp(230px, 28vw, 430px);
+  width: clamp(290px, 34vw, 560px);
   height: auto;
   margin-bottom: clamp(16px, 2.6vh, 28px);
   filter:
@@ -1602,7 +1602,7 @@ body[data-page="cart"] .cart-checkout-gate {
   }
 
   .home-focus__logo {
-    width: clamp(190px, 23vw, 330px);
+    width: clamp(230px, 28vw, 430px);
     margin-bottom: 14px;
   }
 
