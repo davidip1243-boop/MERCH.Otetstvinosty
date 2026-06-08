@@ -425,7 +425,7 @@ function getTopbarThemeStyle(activeTheme) {
   if (page === "cart") {
     return { background: "rgba(22, 16, 10, 0.84)", boxShadow: "0 1px 0 rgba(255, 255, 255, 0.08)" };
   }
-  return { background: "rgba(9, 11, 14, 0.82)", boxShadow: "0 1px 0 rgba(255, 255, 255, 0.08)" };
+  return { background: "rgba(26, 30, 37, 0.82)", boxShadow: "0 1px 0 rgba(255, 255, 255, 0.08)" };
 }
 
 function syncTopbarTheme(activeTheme) {
