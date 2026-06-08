@@ -393,12 +393,8 @@ function loadJson(key, fallback) {
 }
 
 function detectInitialLanguage() {
-  const saved = localStorage.getItem(LANG_KEY);
-  if (saved === "ru" || saved === "en") {
-    return saved;
-  }
-
-  return navigator.language?.toLowerCase().startsWith("ru") ? "ru" : "en";
+  localStorage.removeItem(LANG_KEY);
+  return "ru";
 }
 
 function detectInitialTheme() {
@@ -408,10 +404,6 @@ function detectInitialTheme() {
 
 function getTopbarThemeStyle(activeTheme) {
   const page = document.body?.dataset.page;
-  if (page === "home") {
-    return { background: "", boxShadow: "" };
-  }
-
   if (activeTheme === "light") {
     if (page === "about") {
       return { background: "rgba(239, 246, 249, 0.86)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
@@ -552,6 +544,8 @@ function applyTranslations() {
 }
 
 function setupLanguageSwitcher() {
+  state.language = "ru";
+  localStorage.removeItem(LANG_KEY);
   applyTranslations();
 
   document.querySelectorAll("[data-lang-switch]").forEach((select) => {
