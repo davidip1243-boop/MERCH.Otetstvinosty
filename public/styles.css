@@ -27,6 +27,7 @@
 html {
   scroll-behavior: smooth;
   background: #000000;
+  overscroll-behavior-y: none;
 }
 
 body {
@@ -36,6 +37,7 @@ body {
   color: var(--text);
   background: transparent;
   position: relative;
+  overscroll-behavior-y: none;
 }
 
 body::before {
@@ -90,6 +92,10 @@ body[data-page="home"] .site-shell {
 body[data-page="home"] {
   background: #000000;
   animation: none;
+  min-height: 100svh;
+  overflow-x: hidden;
+  overflow-y: hidden;
+  overscroll-behavior: none;
 }
 
 body[data-page="home"]::before {
@@ -1521,7 +1527,7 @@ body[data-page="cart"] .cart-checkout-gate {
 }
 
 .home-focus {
-  min-height: calc(100vh - 44px);
+  min-height: calc(100svh - 44px);
   display: grid;
   place-items: center;
   padding: clamp(34px, 6vh, 68px) 20px clamp(44px, 7vh, 76px);
