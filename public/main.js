@@ -411,7 +411,7 @@ function getTopbarThemeStyle(activeTheme) {
     if (page === "cart") {
       return { background: "rgba(250, 241, 224, 0.84)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
     }
-    return { background: "rgba(247, 247, 242, 0.82)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
+    return { background: "rgba(250, 246, 238, 0.86)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
   }
 
   if (page === "cart") {
