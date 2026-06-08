@@ -1541,7 +1541,7 @@ body[data-page="cart"] .cart-checkout-gate {
   justify-items: center;
   width: min(100%, 980px);
   text-align: center;
-  transform: translateY(clamp(-104px, -12vh, -54px));
+  transform: translateY(clamp(-82px, -9vh, -42px));
 }
 
 .home-focus__copy::before {
@@ -1585,7 +1585,7 @@ body[data-page="cart"] .cart-checkout-gate {
   text-shadow:
     0 0 26px rgba(255, 255, 255, 0.2),
     0 28px 60px rgba(0, 0, 0, 0.72);
-  transform: translateY(clamp(-58px, -7vh, -34px));
+  transform: translateY(clamp(-42px, -5vh, -24px));
 }
 
 .home-focus__copy h1 span {
@@ -1615,7 +1615,7 @@ body[data-page="cart"] .cart-checkout-gate {
   font-size: clamp(1.45rem, 3vw, 2.35rem);
   line-height: 1.12;
   letter-spacing: -0.025em;
-  transform: translateY(clamp(-58px, -7vh, -34px));
+  transform: translateY(clamp(-42px, -5vh, -24px));
 }
 
 .home-focus__cta {
@@ -1633,7 +1633,7 @@ body[data-page="cart"] .cart-checkout-gate {
   font-size: 1.05rem;
   font-weight: 500;
   box-shadow: 0 16px 40px rgba(0, 113, 227, 0.26);
-  transform: translateY(clamp(-58px, -7vh, -34px));
+  transform: translateY(clamp(-42px, -5vh, -24px));
   transition:
     background-color 180ms ease,
     transform 180ms ease;
@@ -1642,7 +1642,7 @@ body[data-page="cart"] .cart-checkout-gate {
 .home-focus__cta:hover,
 .home-focus__cta:focus-visible {
   background: #0077ed;
-  transform: translateY(calc(clamp(-58px, -7vh, -34px) - 1px));
+  transform: translateY(calc(clamp(-42px, -5vh, -24px) - 1px));
 }
 
 .home-focus__image {
