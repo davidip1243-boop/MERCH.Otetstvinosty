@@ -2551,21 +2551,21 @@ body[data-active-theme="light"] .theme-switch select {
 }
 
 body[data-active-theme="light"][data-page="home"] {
-  background: #f5f5f2;
+  background: #f3ecdf;
   color: #1d1d1f;
 }
 
 body[data-active-theme="light"][data-page="home"]::before {
   background:
-    radial-gradient(circle at 50% 18%, rgba(255, 255, 255, 0.92), transparent 28%),
-    radial-gradient(circle at 50% 28%, rgba(214, 224, 235, 0.64), transparent 42%),
-    linear-gradient(180deg, #fbfbf8 0%, #f5f5f2 58%, #ece9df 100%);
+    radial-gradient(circle at 50% 18%, rgba(255, 249, 238, 0.9), transparent 28%),
+    radial-gradient(circle at 50% 30%, rgba(230, 211, 178, 0.42), transparent 46%),
+    linear-gradient(180deg, #f9f3e8 0%, #f3ecdf 58%, #e8ddcc 100%);
 }
 
 body[data-active-theme="light"][data-page="home"]::after {
   background:
-    radial-gradient(circle at 50% 20%, rgba(62, 133, 255, 0.14), transparent 28%),
-    linear-gradient(180deg, rgba(255, 255, 255, 0.28), rgba(255, 255, 255, 0.04));
+    radial-gradient(circle at 50% 20%, rgba(206, 151, 78, 0.1), transparent 30%),
+    linear-gradient(180deg, rgba(255, 250, 240, 0.2), rgba(247, 236, 216, 0.08));
 }
 
 body[data-active-theme="light"][data-page="home"] .home-focus {
@@ -2574,23 +2574,23 @@ body[data-active-theme="light"][data-page="home"] .home-focus {
 
 body[data-active-theme="light"][data-page="home"] .home-focus__copy::before {
   background:
-    radial-gradient(circle, rgba(255, 255, 255, 0.86), rgba(118, 156, 188, 0.18) 38%, transparent 70%);
+    radial-gradient(circle, rgba(255, 249, 237, 0.82), rgba(205, 178, 136, 0.18) 40%, transparent 72%);
 }
 
 body[data-active-theme="light"][data-page="home"] .home-focus__logo {
   filter:
     invert(1)
-    drop-shadow(0 0 18px rgba(35, 48, 62, 0.16))
-    drop-shadow(0 24px 60px rgba(35, 48, 62, 0.18));
+    drop-shadow(0 0 18px rgba(76, 58, 36, 0.12))
+    drop-shadow(0 24px 60px rgba(76, 58, 36, 0.16));
 }
 
 body[data-active-theme="light"][data-page="home"] .home-focus__copy h1 {
-  background: linear-gradient(180deg, #1d1d1f 0%, #4d5663 46%, #89919d 100%);
+  background: linear-gradient(180deg, #1d1d1f 0%, #51483e 46%, #8c8172 100%);
   -webkit-background-clip: text;
   background-clip: text;
   text-shadow:
-    0 10px 34px rgba(35, 48, 62, 0.12),
-    0 24px 70px rgba(35, 48, 62, 0.12);
+    0 10px 34px rgba(94, 70, 42, 0.1),
+    0 24px 70px rgba(94, 70, 42, 0.12);
 }
 
 body[data-active-theme="light"][data-page="home"] .home-focus__title-link,
