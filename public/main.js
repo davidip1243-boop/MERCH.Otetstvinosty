@@ -424,13 +424,11 @@ function syncTopbarTheme(activeTheme) {
   const style = getTopbarThemeStyle(activeTheme);
   document.querySelectorAll(".topbar").forEach((topbar) => {
     if (!style.background) {
-      topbar.style.removeProperty("background");
       topbar.style.removeProperty("background-color");
       topbar.style.removeProperty("box-shadow");
       return;
     }
 
-    topbar.style.background = style.background;
     topbar.style.backgroundColor = style.background;
     topbar.style.boxShadow = style.boxShadow;
   });
@@ -445,6 +443,16 @@ function applyTheme(theme) {
         : "light"
       : nextTheme;
   const shouldAnimate = themeHasApplied && state.theme !== nextTheme;
+  const previousTopbarStyles = shouldAnimate
+    ? Array.from(document.querySelectorAll(".topbar"), (topbar) => {
+        const computed = window.getComputedStyle(topbar);
+        return {
+          topbar,
+          backgroundColor: computed.backgroundColor,
+          boxShadow: computed.boxShadow,
+        };
+      })
+    : [];
   if (shouldAnimate) {
     document.documentElement.classList.add("is-theme-changing");
     window.clearTimeout(themeTransitionTimer);
@@ -462,6 +470,16 @@ function applyTheme(theme) {
   if (document.body) {
     document.body.dataset.activeTheme = activeTheme;
     syncTopbarTheme(activeTheme);
+    if (previousTopbarStyles.length) {
+      previousTopbarStyles.forEach(({ topbar, backgroundColor, boxShadow }) => {
+        topbar.style.backgroundColor = backgroundColor;
+        topbar.style.boxShadow = boxShadow;
+      });
+      document.body.offsetHeight;
+      window.requestAnimationFrame(() => {
+        syncTopbarTheme(activeTheme);
+      });
+    }
   }
   document.querySelectorAll("[data-theme-switch]").forEach((select) => {
     select.value = nextTheme;
