@@ -458,7 +458,7 @@ function applyTheme(theme) {
     window.clearTimeout(themeTransitionTimer);
     themeTransitionTimer = window.setTimeout(() => {
       document.documentElement.classList.remove("is-theme-changing");
-    }, 620);
+    }, 1040);
   }
 
   state.theme = nextTheme;
