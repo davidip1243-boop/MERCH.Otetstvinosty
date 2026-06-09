@@ -13,10 +13,10 @@ let themeTransitionTimer;
 const translations = {
   ru: {
     "lang.label": "Язык",
-    "theme.label": "Тема",
+    "theme.label": "Режим",
     "theme.auto": "Авто",
-    "theme.light": "Свет",
-    "theme.dark": "Тьма",
+    "theme.light": "☀",
+    "theme.dark": "☾",
     "common.telegram": "Telegram",
     "common.youtube": "YouTube",
     "common.admin": "Админ-панель",
@@ -507,11 +507,11 @@ function setupThemeSwitcher() {
     const label = document.createElement("label");
     label.className = "theme-switch";
     label.innerHTML = `
-      <span data-i18n="theme.label">Тема</span>
-      <select data-theme-switch aria-label="Theme">
+      <span data-i18n="theme.label">Режим</span>
+      <select data-theme-switch aria-label="Режим">
         <option value="auto" data-i18n="theme.auto">Авто</option>
-        <option value="light" data-i18n="theme.light">Свет</option>
-        <option value="dark" data-i18n="theme.dark">Тьма</option>
+        <option value="light" data-i18n="theme.light">☀</option>
+        <option value="dark" data-i18n="theme.dark">☾</option>
       </select>
     `;
     actions.prepend(label);

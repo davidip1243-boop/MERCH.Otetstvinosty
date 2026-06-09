@@ -610,7 +610,7 @@ body[data-page="about"] .topbar {
 .lang-switch select,
 .theme-switch select {
   min-height: 20px;
-  padding: 0 2px;
+  padding: 0 4px;
   border: 0;
   border-radius: 0;
   background: transparent;
@@ -620,6 +620,11 @@ body[data-page="about"] .topbar {
   transition:
     color 560ms cubic-bezier(0.22, 0.8, 0.22, 1),
     background-color 560ms cubic-bezier(0.22, 0.8, 0.22, 1);
+}
+
+.theme-switch select {
+  min-width: 34px;
+  text-align: center;
 }
 
 .button,
