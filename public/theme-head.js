@@ -10,5 +10,5 @@
   if (theme === "light" || theme === "dark") {
     root.dataset.theme = theme;
   }
-  root.style.backgroundColor = isDark ? "#050607" : "#f5f5f2";
+  root.style.backgroundColor = isDark ? "#050607" : "#f3ecdf";
 })();
