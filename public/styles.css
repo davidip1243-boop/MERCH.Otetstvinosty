@@ -2883,6 +2883,50 @@ body[data-active-theme="light"] .review-card {
   box-shadow: 0 14px 34px rgba(91, 68, 40, 0.08);
 }
 
+body[data-active-theme="dark"] .product-reviews {
+  border-color: rgba(245, 247, 250, 0.13);
+  background: rgba(20, 24, 29, 0.82);
+  box-shadow: 0 22px 58px rgba(0, 0, 0, 0.36);
+}
+
+body[data-active-theme="dark"] .review-form,
+body[data-active-theme="dark"] .review-card {
+  border-color: rgba(245, 247, 250, 0.12);
+  background: rgba(13, 16, 20, 0.78);
+  box-shadow: 0 14px 34px rgba(0, 0, 0, 0.24);
+}
+
+body[data-active-theme="dark"] .review-form input,
+body[data-active-theme="dark"] .review-form textarea {
+  border-color: rgba(245, 247, 250, 0.14);
+  background: rgba(8, 10, 13, 0.86);
+  color: #f5f7fa;
+}
+
+body[data-active-theme="dark"] .review-form input::placeholder,
+body[data-active-theme="dark"] .review-form textarea::placeholder,
+body[data-active-theme="dark"] .review-form small {
+  color: rgba(245, 247, 250, 0.46);
+}
+
+body[data-active-theme="dark"] .review-form label,
+body[data-active-theme="dark"] .product-reviews__intro p,
+body[data-active-theme="dark"] .review-card p,
+body[data-active-theme="dark"] .review-card__head p {
+  color: rgba(245, 247, 250, 0.68);
+}
+
+body[data-active-theme="dark"] .review-stars-input button {
+  background: rgba(245, 247, 250, 0.08);
+  color: rgba(214, 151, 54, 0.36);
+}
+
+body[data-active-theme="dark"] .review-stars-input button.is-active,
+body[data-active-theme="dark"] .review-stars-input button:hover {
+  background: rgba(214, 151, 54, 0.16);
+  color: #d69736;
+}
+
 body[data-active-theme="light"] .product-detail__media::before {
   background: rgba(205, 178, 136, 0.2);
 }
