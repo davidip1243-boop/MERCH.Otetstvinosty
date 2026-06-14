@@ -715,6 +715,78 @@ body[data-page="about"] .topbar {
   justify-content: flex-end;
 }
 
+.app-rating {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: grid;
+  place-items: center;
+  padding: 18px;
+  background: rgba(22, 18, 12, 0.22);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  animation: softBackdropIn 240ms ease both;
+}
+
+.app-rating__box {
+  position: relative;
+  display: grid;
+  gap: 18px;
+  width: min(420px, 100%);
+  padding: 26px;
+  border: 1px solid rgba(91, 68, 40, 0.12);
+  border-radius: var(--radius-xl);
+  background: rgba(255, 250, 241, 0.94);
+  box-shadow: 0 28px 80px rgba(36, 26, 14, 0.22);
+  text-align: center;
+  animation: cartPromptIn 260ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.app-rating__box p {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.app-rating__close {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  width: 34px;
+  height: 34px;
+}
+
+.app-rating__stars {
+  display: inline-flex;
+  justify-content: center;
+  gap: 8px;
+}
+
+.app-rating__stars button {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(255, 242, 217, 0.78);
+  color: rgba(192, 131, 40, 0.34);
+  font-size: 1.6rem;
+  line-height: 1;
+}
+
+.app-rating__stars button.is-active,
+.app-rating__stars button:hover {
+  color: #c08328;
+  background: rgba(255, 231, 188, 0.92);
+}
+
+.app-rating__actions {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
 .cart-badge {
   min-width: 22px;
   padding: 2px 7px;

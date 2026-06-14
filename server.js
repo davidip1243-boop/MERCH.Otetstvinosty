@@ -499,6 +499,13 @@ async function initDb() {
       FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS app_ratings (
+      id TEXT PRIMARY KEY,
+      rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+      trigger_source TEXT NOT NULL,
+      created_at TEXT NOT NULL
+    );
+
     CREATE TABLE IF NOT EXISTS app_state (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
@@ -506,6 +513,7 @@ async function initDb() {
 
     CREATE INDEX IF NOT EXISTS idx_products_created_at ON products(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_reviews_product_created_at ON reviews(product_id, created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_app_ratings_created_at ON app_ratings(created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
   `);
@@ -812,6 +820,39 @@ app.post(
       ).run(review.id, review.productId, review.author, review.rating, review.comment, review.createdAt);
 
       return res.status(201).json(review);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
+
+app.post(
+  "/api/app-ratings",
+  rateLimit({ keyPrefix: "app-ratings", windowMs: 10 * 60 * 1000, max: 20 }),
+  async (req, res, next) => {
+    try {
+      const rating = Math.round(Number(req.body?.rating));
+      const triggerSource = ["time", "purchase"].includes(String(req.body?.triggerSource))
+        ? String(req.body.triggerSource)
+        : "time";
+
+      if (!Number.isInteger(rating) || rating < 1 || rating > 5) {
+        return res.status(400).json({ error: "Выберите оценку от 1 до 5." });
+      }
+
+      const payload = {
+        id: randomUUID(),
+        rating,
+        triggerSource,
+        createdAt: new Date().toISOString()
+      };
+
+      db.prepare(
+        `INSERT INTO app_ratings (id, rating, trigger_source, created_at)
+         VALUES (?, ?, ?, ?)`
+      ).run(payload.id, payload.rating, payload.triggerSource, payload.createdAt);
+
+      return res.status(201).json(payload);
     } catch (error) {
       next(error);
     }

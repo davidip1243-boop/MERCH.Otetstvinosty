@@ -6,9 +6,12 @@ const SESSION_DRAFT_KEY = "merch-session-draft";
 const SESSION_HISTORY_KEY = "merch-session-history";
 const DELETED_PRODUCTS_KEY = "merch-deleted-products";
 const CART_PROMPT_CHOICE_KEY = "merch-cart-prompt-choice-v1";
+const APP_RATING_KEY = "merch-app-rating-v1";
+const APP_RATING_DELAY_MS = 5 * 60 * 1000;
 const FORCE_RESTORED_PRODUCT_IDS = ["candle-molitva"];
 let themeHasApplied = false;
 let themeTransitionTimer;
+let appRatingPromptShown = false;
 
 const translations = {
   ru: {
@@ -133,6 +136,10 @@ const translations = {
     "reviews.submit": "Оставить отзыв",
     "reviews.empty": "Отзывов пока нет. Будьте первым.",
     "reviews.forProduct": "Оценка товара",
+    "appRating.title": "Как вам магазин?",
+    "appRating.lead": "Поставьте оценку приложению. Это займёт пару секунд.",
+    "appRating.later": "Позже",
+    "appRating.submit": "Оценить",
     "404.title": "Страница не найдена",
     "404.eyebrow": "404",
     "404.main": "Страница не найдена. Но, возможно, ты найдешь себя!",
@@ -259,6 +266,10 @@ const translations = {
     "reviews.submit": "Leave review",
     "reviews.empty": "No reviews yet. Be the first.",
     "reviews.forProduct": "Rated product",
+    "appRating.title": "How is the shop?",
+    "appRating.lead": "Rate the app. It only takes a second.",
+    "appRating.later": "Later",
+    "appRating.submit": "Rate",
     "404.title": "Page Not Found",
     "404.eyebrow": "404",
     "404.main": "Page not found. But maybe you'll find yourself.",
@@ -300,6 +311,7 @@ async function init() {
   setupGuestSessionPersistence();
   setupThemeSwitcher();
   setupLanguageSwitcher();
+  setupAppRatingPrompt();
   restoreForcedProducts();
   state.settings = await fetchJson("/api/settings");
   state.products = applyDeletedFilter(await fetchJson("/api/products"));
@@ -1143,6 +1155,84 @@ function showCartPrompt() {
   });
 }
 
+function setupAppRatingPrompt() {
+  if (localStorage.getItem(APP_RATING_KEY) === "rated") {
+    return;
+  }
+
+  window.setTimeout(() => showAppRatingPrompt("time"), APP_RATING_DELAY_MS);
+}
+
+function showAppRatingPrompt(triggerSource = "time") {
+  if (appRatingPromptShown || localStorage.getItem(APP_RATING_KEY) === "rated") {
+    return;
+  }
+
+  appRatingPromptShown = true;
+  document.querySelector("[data-app-rating]")?.remove();
+
+  const prompt = document.createElement("aside");
+  prompt.className = "app-rating";
+  prompt.dataset.appRating = "";
+  prompt.innerHTML = `
+    <div class="app-rating__box">
+      <button class="icon-button app-rating__close" type="button" data-app-rating-close aria-label="Закрыть">×</button>
+      <div>
+        <strong>${t("appRating.title")}</strong>
+        <p>${t("appRating.lead")}</p>
+      </div>
+      <div class="app-rating__stars" data-app-rating-stars>
+        ${[1, 2, 3, 4, 5]
+          .map((rating) => `<button class="is-active" type="button" data-app-rating-star="${rating}" aria-label="${rating} из 5">★</button>`)
+          .join("")}
+      </div>
+      <div class="app-rating__actions">
+        <button class="button button--ghost" type="button" data-app-rating-close>${t("appRating.later")}</button>
+        <button class="button button--solid" type="button" data-app-rating-submit>${t("appRating.submit")}</button>
+      </div>
+    </div>
+  `;
+
+  document.body.append(prompt);
+  let ratingValue = 5;
+  const starButtons = [...prompt.querySelectorAll("[data-app-rating-star]")];
+  const setRating = (rating) => {
+    ratingValue = Math.max(1, Math.min(5, Number(rating) || 5));
+    starButtons.forEach((button) => {
+      button.classList.toggle("is-active", Number(button.dataset.appRatingStar) <= ratingValue);
+    });
+  };
+  const closePrompt = () => {
+    prompt.remove();
+    appRatingPromptShown = false;
+  };
+
+  starButtons.forEach((button) => {
+    button.addEventListener("click", () => setRating(button.dataset.appRatingStar));
+  });
+  prompt.querySelectorAll("[data-app-rating-close]").forEach((button) => {
+    button.addEventListener("click", closePrompt);
+  });
+  prompt.querySelector("[data-app-rating-submit]")?.addEventListener("click", async () => {
+    const submitButton = prompt.querySelector("[data-app-rating-submit]");
+    submitButton.disabled = true;
+    try {
+      await fetchJson("/api/app-ratings", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({ rating: ratingValue, triggerSource })
+      });
+      localStorage.setItem(APP_RATING_KEY, "rated");
+      prompt.remove();
+    } catch (error) {
+      alert(error.message);
+      submitButton.disabled = false;
+    }
+  });
+}
+
 function setupCart() {
   updateCartUi();
 }
@@ -1370,6 +1460,7 @@ function setupCheckoutForm() {
       document.querySelector("[data-checkout-panel]")?.classList.remove("is-checkout-open");
       persistCart();
       updateCartUi();
+      showAppRatingPrompt("purchase");
     } catch (error) {
       status.textContent = error.message;
     }
