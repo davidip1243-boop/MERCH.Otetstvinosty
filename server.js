@@ -363,6 +363,18 @@ function parseProductRow(row) {
   };
 }
 
+function parseReviewRow(row) {
+  return {
+    id: row.id,
+    productId: row.product_id,
+    productTitle: row.product_title,
+    author: row.author,
+    rating: Number(row.rating) || 0,
+    comment: row.comment,
+    createdAt: row.created_at
+  };
+}
+
 function cleanupExpiredSessions() {
   const now = new Date().toISOString();
   db.prepare("DELETE FROM sessions WHERE expires_at <= ?").run(now);
@@ -477,12 +489,23 @@ async function initDb() {
       FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
     );
 
+    CREATE TABLE IF NOT EXISTS reviews (
+      id TEXT PRIMARY KEY,
+      product_id TEXT NOT NULL,
+      author TEXT NOT NULL,
+      rating INTEGER NOT NULL CHECK (rating BETWEEN 1 AND 5),
+      comment TEXT NOT NULL,
+      created_at TEXT NOT NULL,
+      FOREIGN KEY (product_id) REFERENCES products(id) ON DELETE CASCADE
+    );
+
     CREATE TABLE IF NOT EXISTS app_state (
       key TEXT PRIMARY KEY,
       value TEXT NOT NULL
     );
 
     CREATE INDEX IF NOT EXISTS idx_products_created_at ON products(created_at DESC);
+    CREATE INDEX IF NOT EXISTS idx_reviews_product_created_at ON reviews(product_id, created_at DESC);
     CREATE INDEX IF NOT EXISTS idx_sessions_user_id ON sessions(user_id);
     CREATE INDEX IF NOT EXISTS idx_sessions_expires_at ON sessions(expires_at);
   `);
@@ -729,6 +752,71 @@ app.get("/api/products/:id", async (req, res, next) => {
     next(error);
   }
 });
+
+app.get("/api/products/:id/reviews", async (req, res, next) => {
+  try {
+    const product = db.prepare("SELECT id FROM products WHERE id = ?").get(req.params.id);
+    if (!product) {
+      return res.status(404).json({ error: "Товар не найден." });
+    }
+
+    const rows = db
+      .prepare(
+        `SELECT reviews.*, products.title AS product_title
+         FROM reviews
+         JOIN products ON products.id = reviews.product_id
+         WHERE reviews.product_id = ?
+         ORDER BY reviews.created_at DESC
+         LIMIT 50`
+      )
+      .all(req.params.id);
+
+    return res.json(rows.map(parseReviewRow));
+  } catch (error) {
+    next(error);
+  }
+});
+
+app.post(
+  "/api/reviews",
+  rateLimit({ keyPrefix: "reviews", windowMs: 10 * 60 * 1000, max: 30 }),
+  async (req, res, next) => {
+    try {
+      const productId = String(req.body?.productId || "").trim();
+      const rating = Math.round(Number(req.body?.rating));
+      const author = String(req.body?.author || "Гость").trim().slice(0, 60) || "Гость";
+      const comment = String(req.body?.comment || "").trim().slice(0, 500);
+
+      if (!productId || !Number.isInteger(rating) || rating < 1 || rating > 5 || comment.length < 2) {
+        return res.status(400).json({ error: "Выберите оценку и напишите короткий отзыв." });
+      }
+
+      const product = db.prepare("SELECT id, title FROM products WHERE id = ?").get(productId);
+      if (!product) {
+        return res.status(404).json({ error: "Товар не найден." });
+      }
+
+      const review = {
+        id: randomUUID(),
+        productId,
+        productTitle: product.title,
+        author,
+        rating,
+        comment,
+        createdAt: new Date().toISOString()
+      };
+
+      db.prepare(
+        `INSERT INTO reviews (id, product_id, author, rating, comment, created_at)
+         VALUES (?, ?, ?, ?, ?, ?)`
+      ).run(review.id, review.productId, review.author, review.rating, review.comment, review.createdAt);
+
+      return res.status(201).json(review);
+    } catch (error) {
+      next(error);
+    }
+  }
+);
 
 app.post("/api/products", requireAdmin, upload.array("images", 12), async (req, res, next) => {
   try {

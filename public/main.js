@@ -124,6 +124,15 @@ const translations = {
     "product.backCatalog": "Назад в каталог",
     "product.notFound": "Товар не найден",
     "product.details": "Детали",
+    "reviews.title": "Отзывы",
+    "reviews.lead": "Оцените товар и оставьте короткий комментарий.",
+    "reviews.name": "Имя",
+    "reviews.namePlaceholder": "Гость",
+    "reviews.comment": "Комментарий",
+    "reviews.commentPlaceholder": "Что понравилось или что стоит улучшить?",
+    "reviews.submit": "Оставить отзыв",
+    "reviews.empty": "Отзывов пока нет. Будьте первым.",
+    "reviews.forProduct": "Оценка товара",
     "404.title": "Страница не найдена",
     "404.eyebrow": "404",
     "404.main": "Страница не найдена. Но, возможно, ты найдешь себя!",
@@ -241,6 +250,15 @@ const translations = {
     "product.backCatalog": "Back to shop",
     "product.notFound": "Product not found",
     "product.details": "Details",
+    "reviews.title": "Reviews",
+    "reviews.lead": "Rate the product and leave a short comment.",
+    "reviews.name": "Name",
+    "reviews.namePlaceholder": "Guest",
+    "reviews.comment": "Comment",
+    "reviews.commentPlaceholder": "What did you like or what could be better?",
+    "reviews.submit": "Leave review",
+    "reviews.empty": "No reviews yet. Be the first.",
+    "reviews.forProduct": "Rated product",
     "404.title": "Page Not Found",
     "404.eyebrow": "404",
     "404.main": "Page not found. But maybe you'll find yourself.",
@@ -268,7 +286,8 @@ const state = {
   sessionStartedAt: "",
   sessionFinalized: false,
   editingProduct: null,
-  selectedCartIds: new Set()
+  selectedCartIds: new Set(),
+  reviews: {}
 };
 
 applyTheme(state.theme);
@@ -292,7 +311,7 @@ async function init() {
   openCartFromQuery();
   setupCheckoutForm();
   setupAdmin();
-  renderProductPage();
+  await renderProductPage();
 }
 
 async function hydrateCurrentProduct() {
@@ -822,7 +841,41 @@ function getProductIdFromPath() {
   return match ? decodeURIComponent(match[1]) : "";
 }
 
-function renderProductPage() {
+async function loadProductReviews(productId) {
+  if (!productId || state.reviews[productId]) {
+    return state.reviews[productId] || [];
+  }
+
+  try {
+    state.reviews[productId] = await fetchJson(`/api/products/${encodeURIComponent(productId)}/reviews`);
+  } catch {
+    state.reviews[productId] = [];
+  }
+
+  return state.reviews[productId];
+}
+
+function renderStars(rating) {
+  const safeRating = Math.max(0, Math.min(5, Number(rating) || 0));
+  return Array.from({ length: 5 }, (_, index) => (index < safeRating ? "★" : "☆")).join("");
+}
+
+function buildReviewCard(review) {
+  return `
+    <article class="review-card">
+      <div class="review-card__head">
+        <div>
+          <strong>${escapeHtml(review.author || "Гость")}</strong>
+          <p>${t("reviews.forProduct")}: ${escapeHtml(review.productTitle || "")}</p>
+        </div>
+        <span class="review-stars" aria-label="${review.rating} из 5">${renderStars(review.rating)}</span>
+      </div>
+      <p>${escapeHtml(review.comment || "")}</p>
+    </article>
+  `;
+}
+
+async function renderProductPage() {
   const container = document.querySelector("[data-product-page]");
   if (!container) {
     return;
@@ -842,6 +895,10 @@ function renderProductPage() {
   }
 
   const details = product.details.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  const reviews = await loadProductReviews(product.id);
+  const reviewItems = reviews.length
+    ? reviews.map(buildReviewCard).join("")
+    : `<p class="empty-state">${t("reviews.empty")}</p>`;
   const mainImage = product.images[0] || "";
   const hasManyImages = product.images.length > 1;
   const thumbnails = product.images
@@ -884,11 +941,40 @@ function renderProductPage() {
         <h2>${t("product.details")}</h2>
         <ul class="product-details">${details}</ul>
       </div>
+      <section class="product-reviews" aria-labelledby="product-reviews-title">
+        <div class="product-reviews__intro">
+          <div>
+            <p class="product-meta">${escapeHtml(product.title)}</p>
+            <h2 id="product-reviews-title">${t("reviews.title")}</h2>
+            <p>${t("reviews.lead")}</p>
+          </div>
+          <span class="review-stars review-stars--big">${renderStars(Math.round(reviews.reduce((sum, review) => sum + review.rating, 0) / Math.max(reviews.length, 1)))}</span>
+        </div>
+        <form class="review-form" data-review-form>
+          <input type="hidden" name="rating" value="5" />
+          <div class="review-stars-input" data-review-stars>
+            ${[1, 2, 3, 4, 5]
+              .map((rating) => `<button class="is-active" type="button" data-review-star="${rating}" aria-label="${rating} из 5">★</button>`)
+              .join("")}
+          </div>
+          <label>
+            <span>${t("reviews.name")}</span>
+            <input name="author" type="text" maxlength="60" placeholder="${t("reviews.namePlaceholder")}" />
+          </label>
+          <label>
+            <span>${t("reviews.comment")}</span>
+            <textarea name="comment" rows="3" maxlength="500" placeholder="${t("reviews.commentPlaceholder")}" required></textarea>
+          </label>
+          <button class="button button--solid" type="submit">${t("reviews.submit")}</button>
+        </form>
+        <div class="review-list" data-review-list>${reviewItems}</div>
+      </section>
     </article>
   `;
 
   const addButton = container.querySelector("[data-add-to-cart]");
   addButton?.addEventListener("click", () => addToCart(product.id));
+  setupReviewForm(container, product);
 
   if (!product.images.length) {
     return;
@@ -932,6 +1018,57 @@ function renderProductPage() {
       activeIndex = Number(button.dataset.galleryThumb || 0);
       renderGalleryImage();
     });
+  });
+}
+
+function setupReviewForm(container, product) {
+  const form = container.querySelector("[data-review-form]");
+  if (!form) {
+    return;
+  }
+
+  const ratingInput = form.elements.namedItem("rating");
+  const starButtons = [...form.querySelectorAll("[data-review-star]")];
+  const setRating = (rating) => {
+    const safeRating = Math.max(1, Math.min(5, Number(rating) || 5));
+    ratingInput.value = String(safeRating);
+    starButtons.forEach((button) => {
+      button.classList.toggle("is-active", Number(button.dataset.reviewStar) <= safeRating);
+    });
+  };
+
+  starButtons.forEach((button) => {
+    button.addEventListener("click", () => setRating(button.dataset.reviewStar));
+  });
+
+  form.addEventListener("submit", async (event) => {
+    event.preventDefault();
+    const submitButton = form.querySelector("button[type='submit']");
+    submitButton.disabled = true;
+
+    try {
+      const payload = {
+        productId: product.id,
+        rating: Number(ratingInput.value || 5),
+        author: form.elements.namedItem("author").value,
+        comment: form.elements.namedItem("comment").value
+      };
+      const review = await fetchJson("/api/reviews", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify(payload)
+      });
+      state.reviews[product.id] = [review, ...(state.reviews[product.id] || [])].slice(0, 50);
+      form.reset();
+      setRating(5);
+      await renderProductPage();
+    } catch (error) {
+      alert(error.message);
+    } finally {
+      submitButton.disabled = false;
+    }
   });
 }
 
