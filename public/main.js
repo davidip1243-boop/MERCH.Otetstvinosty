@@ -1,5 +1,6 @@
 const CART_KEY = "merch-cart";
 const CUSTOMER_KEY = "merch-customer";
+const REVIEW_NAME_KEY = "merch-review-name";
 const LANG_KEY = "merch-lang";
 const THEME_KEY = "merch-theme";
 const SESSION_DRAFT_KEY = "merch-session-draft";
@@ -131,6 +132,7 @@ const translations = {
     "reviews.lead": "Оцените товар и оставьте короткий комментарий.",
     "reviews.name": "Имя",
     "reviews.namePlaceholder": "Гость",
+    "reviews.nameHint": "Имя сохранится для следующих отзывов.",
     "reviews.comment": "Комментарий",
     "reviews.commentPlaceholder": "Что понравилось или что стоит улучшить?",
     "reviews.submit": "Оставить отзыв",
@@ -261,6 +263,7 @@ const translations = {
     "reviews.lead": "Rate the product and leave a short comment.",
     "reviews.name": "Name",
     "reviews.namePlaceholder": "Guest",
+    "reviews.nameHint": "Your name will be saved for future reviews.",
     "reviews.comment": "Comment",
     "reviews.commentPlaceholder": "What did you like or what could be better?",
     "reviews.submit": "Leave review",
@@ -286,6 +289,7 @@ const state = {
     address: "",
     telegram: ""
   }),
+  reviewName: localStorage.getItem(REVIEW_NAME_KEY) || "",
   adminPassword: "",
   settings: {
     adminProtected: false
@@ -872,13 +876,27 @@ function renderStars(rating) {
   return Array.from({ length: 5 }, (_, index) => (index < safeRating ? "★" : "☆")).join("");
 }
 
+function formatReviewDate(value) {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return "";
+  }
+
+  return new Intl.DateTimeFormat("ru-RU", {
+    day: "2-digit",
+    month: "short",
+    year: "numeric"
+  }).format(date);
+}
+
 function buildReviewCard(review) {
+  const date = formatReviewDate(review.createdAt);
   return `
     <article class="review-card">
       <div class="review-card__head">
         <div>
           <strong>${escapeHtml(review.author || "Гость")}</strong>
-          <p>${t("reviews.forProduct")}: ${escapeHtml(review.productTitle || "")}</p>
+          <p>${t("reviews.forProduct")}: ${escapeHtml(review.productTitle || "")}${date ? ` · ${escapeHtml(date)}` : ""}</p>
         </div>
         <span class="review-stars" aria-label="${review.rating} из 5">${renderStars(review.rating)}</span>
       </div>
@@ -971,7 +989,8 @@ async function renderProductPage() {
           </div>
           <label>
             <span>${t("reviews.name")}</span>
-            <input name="author" type="text" maxlength="60" placeholder="${t("reviews.namePlaceholder")}" />
+            <input name="author" type="text" maxlength="60" value="${escapeHtml(state.reviewName)}" placeholder="${t("reviews.namePlaceholder")}" />
+            <small>${t("reviews.nameHint")}</small>
           </label>
           <label>
             <span>${t("reviews.comment")}</span>
@@ -1040,6 +1059,7 @@ function setupReviewForm(container, product) {
   }
 
   const ratingInput = form.elements.namedItem("rating");
+  const authorInput = form.elements.namedItem("author");
   const starButtons = [...form.querySelectorAll("[data-review-star]")];
   const setRating = (rating) => {
     const safeRating = Math.max(1, Math.min(5, Number(rating) || 5));
@@ -1052,6 +1072,10 @@ function setupReviewForm(container, product) {
   starButtons.forEach((button) => {
     button.addEventListener("click", () => setRating(button.dataset.reviewStar));
   });
+  authorInput?.addEventListener("input", () => {
+    state.reviewName = authorInput.value.trim().slice(0, 60);
+    localStorage.setItem(REVIEW_NAME_KEY, state.reviewName);
+  });
 
   form.addEventListener("submit", async (event) => {
     event.preventDefault();
@@ -1062,9 +1086,11 @@ function setupReviewForm(container, product) {
       const payload = {
         productId: product.id,
         rating: Number(ratingInput.value || 5),
-        author: form.elements.namedItem("author").value,
+        author: authorInput.value,
         comment: form.elements.namedItem("comment").value
       };
+      state.reviewName = String(payload.author || "").trim().slice(0, 60);
+      localStorage.setItem(REVIEW_NAME_KEY, state.reviewName);
       const review = await fetchJson("/api/reviews", {
         method: "POST",
         headers: {
@@ -1074,6 +1100,7 @@ function setupReviewForm(container, product) {
       });
       state.reviews[product.id] = [review, ...(state.reviews[product.id] || [])].slice(0, 50);
       form.reset();
+      authorInput.value = state.reviewName;
       setRating(5);
       await renderProductPage();
     } catch (error) {

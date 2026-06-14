@@ -1311,6 +1311,11 @@ body[data-page="catalog"] .product-copy {
   color: var(--text-secondary);
 }
 
+.review-form small {
+  color: rgba(110, 110, 115, 0.78);
+  font-size: 0.82rem;
+}
+
 .review-form input,
 .review-form textarea {
   width: 100%;
