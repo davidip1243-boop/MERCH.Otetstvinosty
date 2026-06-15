@@ -1,6 +1,8 @@
 const CART_KEY = "merch-cart";
 const CUSTOMER_KEY = "merch-customer";
 const REVIEW_NAME_KEY = "merch-review-name";
+const REVIEW_BACKUP_KEY = "merch-review-backup-v1";
+const DELETED_REVIEW_BACKUP_KEY = "merch-deleted-review-backup-v1";
 const LANG_KEY = "merch-lang";
 const THEME_KEY = "merch-theme";
 const SESSION_DRAFT_KEY = "merch-session-draft";
@@ -124,6 +126,10 @@ const translations = {
     "ui.adminDelete": "Удалить",
     "ui.adminKeep": "оставить",
     "ui.adminDeleteConfirm": "Удалить товар из каталога?",
+    "ui.adminReviewsTitle": "Отзывы",
+    "ui.adminReviewsEyebrow": "Отзывы пользователей",
+    "ui.adminReviewsEmpty": "Отзывов пока нет.",
+    "ui.adminDeleteReviewConfirm": "Удалить этот отзыв?",
     "ui.openDetails": "Открыть",
     "product.backCatalog": "Назад в каталог",
     "product.notFound": "Товар не найден",
@@ -255,6 +261,10 @@ const translations = {
     "ui.adminDelete": "Delete",
     "ui.adminKeep": "keep",
     "ui.adminDeleteConfirm": "Delete this product from the catalog?",
+    "ui.adminReviewsTitle": "Reviews",
+    "ui.adminReviewsEyebrow": "User reviews",
+    "ui.adminReviewsEmpty": "No reviews yet.",
+    "ui.adminDeleteReviewConfirm": "Delete this review?",
     "ui.openDetails": "Open",
     "product.backCatalog": "Back to shop",
     "product.notFound": "Product not found",
@@ -301,6 +311,7 @@ const state = {
   sessionStartedAt: "",
   sessionFinalized: false,
   editingProduct: null,
+  adminReviews: [],
   selectedCartIds: new Set(),
   reviews: {}
 };
@@ -862,13 +873,73 @@ async function loadProductReviews(productId) {
     return state.reviews[productId] || [];
   }
 
+  const localReviews = getLocalReviewBackup(productId);
   try {
-    state.reviews[productId] = await fetchJson(`/api/products/${encodeURIComponent(productId)}/reviews`);
+    const serverReviews = await fetchJson(`/api/products/${encodeURIComponent(productId)}/reviews`);
+    state.reviews[productId] = mergeReviews(serverReviews, localReviews);
   } catch {
-    state.reviews[productId] = [];
+    state.reviews[productId] = localReviews;
   }
 
   return state.reviews[productId];
+}
+
+function getDeletedReviewBackupIds() {
+  return new Set(loadJson(DELETED_REVIEW_BACKUP_KEY, []));
+}
+
+function rememberDeletedReviewBackupId(reviewId) {
+  if (!reviewId) {
+    return;
+  }
+
+  const ids = getDeletedReviewBackupIds();
+  ids.add(reviewId);
+  localStorage.setItem(DELETED_REVIEW_BACKUP_KEY, JSON.stringify([...ids].slice(-500)));
+}
+
+function getLocalReviewBackup(productId = "") {
+  const deletedIds = getDeletedReviewBackupIds();
+  return loadJson(REVIEW_BACKUP_KEY, [])
+    .filter((review) => review?.id && !deletedIds.has(review.id))
+    .filter((review) => !productId || review.productId === productId)
+    .slice(0, 50);
+}
+
+function saveLocalReviewBackup(review) {
+  if (!review?.id || !review?.productId) {
+    return;
+  }
+
+  const reviews = mergeReviews([review], getLocalReviewBackup(""));
+  localStorage.setItem(REVIEW_BACKUP_KEY, JSON.stringify(reviews.slice(0, 100)));
+}
+
+function removeLocalReviewBackup(reviewId) {
+  if (!reviewId) {
+    return;
+  }
+
+  rememberDeletedReviewBackupId(reviewId);
+  const reviews = loadJson(REVIEW_BACKUP_KEY, []).filter((review) => review?.id !== reviewId);
+  localStorage.setItem(REVIEW_BACKUP_KEY, JSON.stringify(reviews.slice(0, 100)));
+}
+
+function mergeReviews(...groups) {
+  const seen = new Set();
+  return groups
+    .flat()
+    .filter(Boolean)
+    .filter((review) => {
+      if (!review.id || seen.has(review.id)) {
+        return false;
+      }
+
+      seen.add(review.id);
+      return true;
+    })
+    .sort((a, b) => new Date(b.createdAt || 0) - new Date(a.createdAt || 0))
+    .slice(0, 50);
 }
 
 function renderStars(rating) {
@@ -1098,6 +1169,7 @@ function setupReviewForm(container, product) {
         },
         body: JSON.stringify(payload)
       });
+      saveLocalReviewBackup(review);
       state.reviews[product.id] = [review, ...(state.reviews[product.id] || [])].slice(0, 50);
       form.reset();
       authorInput.value = state.reviewName;
@@ -1527,6 +1599,7 @@ function setupAdmin() {
       form.hidden = false;
       loginStatus.textContent = t("ui.adminUnlocked");
       renderAdminProducts();
+      await renderAdminReviews();
     } catch (error) {
       lock.hidden = false;
       form.hidden = true;
@@ -1587,6 +1660,86 @@ function setupAdmin() {
   });
 
   renderAdminProducts();
+}
+
+async function renderAdminReviews() {
+  const container = document.querySelector("[data-admin-reviews]");
+  if (!container || !state.adminPassword) {
+    return;
+  }
+
+  try {
+    state.adminReviews = await fetchJson("/api/admin/reviews", {
+      headers: {
+        "x-admin-password": state.adminPassword
+      }
+    });
+  } catch (error) {
+    container.innerHTML = `
+      <article class="admin-card glass-panel">
+        <div class="admin-card__head">
+          <h3>${t("ui.adminReviewsTitle")}</h3>
+        </div>
+        <p>${escapeHtml(error.message)}</p>
+      </article>
+    `;
+    return;
+  }
+
+  container.innerHTML = `
+    <article class="admin-card glass-panel admin-reviews-card">
+      <div class="admin-card__head">
+        <div>
+          <p class="product-meta">${t("ui.adminReviewsEyebrow")}</p>
+          <h3>${t("ui.adminReviewsTitle")}</h3>
+        </div>
+        <strong>${state.adminReviews.length}</strong>
+      </div>
+      <div class="admin-review-list">
+        ${
+          state.adminReviews.length
+            ? state.adminReviews
+                .map(
+                  (review) => `
+                    <div class="admin-review">
+                      <div>
+                        <strong>${escapeHtml(review.author || "Гость")}</strong>
+                        <p>${escapeHtml(review.productTitle || "")} · ${renderStars(review.rating)}${formatReviewDate(review.createdAt) ? ` · ${escapeHtml(formatReviewDate(review.createdAt))}` : ""}</p>
+                        <p>${escapeHtml(review.comment || "")}</p>
+                      </div>
+                      <button class="button button--ghost" type="button" data-admin-review-delete="${review.id}">${t("ui.adminDelete")}</button>
+                    </div>
+                  `
+                )
+                .join("")
+            : `<p class="empty-state">${t("ui.adminReviewsEmpty")}</p>`
+        }
+      </div>
+    </article>
+  `;
+
+  container.querySelectorAll("[data-admin-review-delete]").forEach((button) => {
+    button.addEventListener("click", async () => {
+      const confirmed = window.confirm(t("ui.adminDeleteReviewConfirm"));
+      if (!confirmed) {
+        return;
+      }
+
+      try {
+        await fetchJson(`/api/reviews/${encodeURIComponent(button.dataset.adminReviewDelete)}`, {
+          method: "DELETE",
+          headers: {
+            "x-admin-password": state.adminPassword
+          }
+        });
+        removeLocalReviewBackup(button.dataset.adminReviewDelete || "");
+        state.reviews = {};
+        await renderAdminReviews();
+      } catch (error) {
+        alert(error.message);
+      }
+    });
+  });
 }
 
 function renderAdminProducts() {

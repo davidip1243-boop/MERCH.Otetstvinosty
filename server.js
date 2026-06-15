@@ -785,6 +785,24 @@ app.get("/api/products/:id/reviews", async (req, res, next) => {
   }
 });
 
+app.get("/api/admin/reviews", requireAdmin, async (_req, res, next) => {
+  try {
+    const rows = db
+      .prepare(
+        `SELECT reviews.*, products.title AS product_title
+         FROM reviews
+         JOIN products ON products.id = reviews.product_id
+         ORDER BY reviews.created_at DESC
+         LIMIT 200`
+      )
+      .all();
+
+    return res.json(rows.map(parseReviewRow));
+  } catch (error) {
+    next(error);
+  }
+});
+
 app.post(
   "/api/reviews",
   rateLimit({ keyPrefix: "reviews", windowMs: 10 * 60 * 1000, max: 30 }),
@@ -825,6 +843,20 @@ app.post(
     }
   }
 );
+
+app.delete("/api/reviews/:id", requireAdmin, async (req, res, next) => {
+  try {
+    const row = db.prepare("SELECT id FROM reviews WHERE id = ?").get(req.params.id);
+    if (!row) {
+      return res.status(404).json({ error: "Отзыв не найден." });
+    }
+
+    db.prepare("DELETE FROM reviews WHERE id = ?").run(req.params.id);
+    return res.status(204).end();
+  } catch (error) {
+    next(error);
+  }
+});
 
 app.post(
   "/api/app-ratings",
