@@ -2358,6 +2358,100 @@ html[data-theme="dark"] {
   color-scheme: dark;
 }
 
+
+/* Light mode contrast repair: keep pale mood, but separate surfaces clearly. */
+body[data-active-theme="light"][data-page="about"],
+body[data-active-theme="light"][data-page="catalog"],
+body[data-active-theme="light"][data-page="product"],
+body[data-active-theme="light"][data-page="cart"] {
+  --bg: #f6efe3;
+  --surface: #fffdf8;
+  --surface-soft: #f0e7da;
+  --surface-alt: #e7d8c4;
+  --stroke: #cdbfa9;
+  --text: #18191b;
+  --text-secondary: #5f6268;
+  --shadow-card: 0 22px 58px rgba(76, 58, 35, 0.16);
+}
+
+body[data-active-theme="light"][data-page="about"]::before,
+body[data-active-theme="light"][data-page="catalog"]::before,
+body[data-active-theme="light"][data-page="product"]::before,
+body[data-active-theme="light"][data-page="cart"]::before {
+  background:
+    radial-gradient(circle at 14% 8%, rgba(255, 255, 255, 0.98), transparent 28%),
+    radial-gradient(circle at 84% 12%, rgba(205, 178, 136, 0.34), transparent 30%),
+    linear-gradient(180deg, #fbf4e8 0%, #f3eadb 48%, #e3d4bf 100%);
+}
+
+body[data-active-theme="light"][data-page="product"] .topbar,
+body[data-active-theme="light"][data-page="catalog"] .topbar,
+body[data-active-theme="light"][data-page="cart"] .topbar {
+  border-bottom: 1px solid rgba(76, 58, 35, 0.14);
+  background: rgba(255, 252, 246, 0.94);
+  background-color: rgba(255, 252, 246, 0.94);
+  box-shadow: 0 8px 30px rgba(76, 58, 35, 0.08);
+}
+
+body[data-active-theme="light"] .product-detail__copy,
+body[data-active-theme="light"] .product-detail__media,
+body[data-active-theme="light"] .product-detail__details,
+body[data-active-theme="light"] .product-reviews,
+body[data-active-theme="light"] .glass-panel,
+body[data-active-theme="light"] .product-card,
+body[data-active-theme="light"] .cart-panel,
+body[data-active-theme="light"] .cart-row,
+body[data-active-theme="light"] .checkout-page__panel {
+  border: 1px solid rgba(76, 58, 35, 0.16);
+  background: rgba(255, 253, 248, 0.94);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.76);
+}
+
+body[data-active-theme="light"] .product-detail__media {
+  background:
+    radial-gradient(circle at 80% 8%, rgba(160, 184, 159, 0.24), transparent 26%),
+    linear-gradient(180deg, #ffffff 0%, #f0e9dd 100%);
+}
+
+body[data-active-theme="light"] .product-detail-image {
+  border: 1px solid rgba(76, 58, 35, 0.18);
+  background: #ffffff;
+  box-shadow: 0 24px 60px rgba(76, 58, 35, 0.18);
+}
+
+body[data-active-theme="light"] .product-thumb,
+body[data-active-theme="light"] .product-thumbnails .product-thumb,
+body[data-active-theme="light"] [data-gallery-thumb] {
+  border-color: rgba(76, 58, 35, 0.18);
+  background: #fffdf8;
+  box-shadow: 0 10px 28px rgba(76, 58, 35, 0.12);
+}
+
+body[data-active-theme="light"] .product-thumb.is-active,
+body[data-active-theme="light"] [data-gallery-thumb].is-active,
+body[data-active-theme="light"] [data-gallery-thumb][aria-current="true"] {
+  border-color: rgba(0, 102, 204, 0.55);
+  box-shadow: 0 0 0 3px rgba(0, 102, 204, 0.14), 0 12px 30px rgba(76, 58, 35, 0.14);
+}
+
+body[data-active-theme="light"] .product-detail-summary,
+body[data-active-theme="light"] .product-detail-description,
+body[data-active-theme="light"] .product-gallery-meta,
+body[data-active-theme="light"] .product-meta {
+  color: #5c6067;
+}
+
+body[data-active-theme="light"] .product-details li {
+  border-color: rgba(76, 58, 35, 0.16);
+  background: rgba(255, 255, 255, 0.88);
+  color: #4f5359;
+}
+
+body[data-active-theme="light"] .icon-button.product-gallery-arrow {
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 12px 32px rgba(76, 58, 35, 0.14);
+}
+
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="light"]) {
     --bg: #0b0d10;
@@ -3301,8 +3395,8 @@ body[data-active-theme="dark"] .theme-switch select {
 body[data-page="catalog"] .section.catalog-wall {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
-  gap: 18px;
-  padding-top: 18px;
+  gap: 14px;
+  padding-top: 8px;
 }
 
 body[data-page="catalog"] .catalog-wall__top {
@@ -3559,4 +3653,19 @@ body[data-active-theme="dark"][data-page="catalog"] .product-thumb--dot span {
   body[data-page="catalog"] .product-actions {
     grid-template-columns: 1fr;
   }
+}
+
+/* Dark cart fix: remove the bright checkout stripe on the cart page. */
+body[data-active-theme="dark"][data-page="cart"] .checkout-page__panel,
+:root[data-theme="dark"] body[data-page="cart"] .checkout-page__panel {
+  border-color: rgba(143, 199, 255, 0.18);
+  background: rgba(17, 21, 26, 0.94);
+  box-shadow:
+    0 24px 70px rgba(0, 0, 0, 0.36),
+    inset 0 1px 0 rgba(255, 255, 255, 0.045);
+}
+
+body[data-active-theme="dark"][data-page="cart"] .cart-checkout-gate,
+:root[data-theme="dark"] body[data-page="cart"] .cart-checkout-gate {
+  border-top-color: rgba(143, 199, 255, 0.14);
 }
