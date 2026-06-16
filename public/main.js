@@ -11,7 +11,7 @@ const DELETED_PRODUCTS_KEY = "merch-deleted-products";
 const CART_PROMPT_CHOICE_KEY = "merch-cart-prompt-choice-v1";
 const APP_RATING_KEY = "merch-app-rating-v1";
 const APP_RATING_DELAY_MS = 5 * 60 * 1000;
-const FORCE_RESTORED_PRODUCT_IDS = ["candle-molitva"];
+const FORCE_RESTORED_PRODUCT_IDS = [];
 let themeHasApplied = false;
 let themeTransitionTimer;
 let appRatingPromptShown = false;
