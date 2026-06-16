@@ -2192,24 +2192,24 @@ body[data-page="cart"] .cart-checkout-gate {
 
   .topbar {
     display: grid;
-    grid-template-columns: 38px minmax(0, 1fr) auto;
+    grid-template-columns: 34px minmax(132px, 1fr) minmax(108px, auto);
     align-items: center;
-    gap: 8px 14px;
+    gap: 6px 8px;
     min-height: auto;
-    padding: 0 14px 8px;
+    padding: 0 10px 8px;
   }
 
   .brand {
-    width: 38px;
+    width: 34px;
     height: 44px;
-    min-width: 38px;
+    min-width: 34px;
     justify-content: center;
     text-align: center;
   }
 
   .brand-mark {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
   }
 
   .brand-copy__tagline {
@@ -2220,12 +2220,13 @@ body[data-page="cart"] .cart-checkout-gate {
     grid-column: 2;
     width: 100%;
     justify-content: center;
-    gap: 22px;
+    gap: clamp(10px, 3vw, 16px);
   }
 
   .topnav a {
     flex: 0 1 auto;
-    font-size: 0.76rem;
+    font-size: clamp(0.76rem, 3.2vw, 0.84rem);
+    line-height: 44px;
     text-align: center;
   }
 
@@ -2233,6 +2234,23 @@ body[data-page="cart"] .cart-checkout-gate {
   .theme-switch {
     justify-content: center;
     width: auto;
+    min-height: 44px;
+    font-size: clamp(0.72rem, 2.9vw, 0.78rem);
+    line-height: 44px;
+  }
+
+  .theme-switch > span {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .theme-switch select {
+    min-width: 30px;
+    padding: 0 2px;
   }
 
   .topbar-actions {
@@ -2241,7 +2259,8 @@ body[data-page="cart"] .cart-checkout-gate {
     flex-direction: row;
     align-items: center;
     justify-content: flex-end;
-    gap: 14px;
+    gap: 8px;
+    min-width: 0;
   }
 
   .topbar-actions--empty {
@@ -2251,6 +2270,23 @@ body[data-page="cart"] .cart-checkout-gate {
   .cart-trigger,
   .topbar-actions > .button {
     width: auto;
+  }
+
+  .cart-trigger {
+    gap: 5px;
+    min-height: 44px;
+    font-size: clamp(0.76rem, 3.1vw, 0.84rem);
+    line-height: 44px;
+  }
+
+  .cart-badge {
+    display: inline-grid;
+    place-items: center;
+    min-width: 22px;
+    height: 22px;
+    padding: 0 6px;
+    font-size: 0.72rem;
+    line-height: 1;
   }
 
   .cart-prompt {
