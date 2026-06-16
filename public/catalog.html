@@ -55,73 +55,58 @@
       </header>
 
       <main>
-        <section class="section catalog-layout">
-          <aside class="catalog-sidebar glass-panel">
-            <div class="catalog-sidebar__intro">
-              <p class="product-meta">Витрина</p>
+        <section class="section catalog-wall">
+          <div class="catalog-wall__top">
+            <div>
+              <p class="product-meta">Маркет</p>
               <h1>Каталог команды</h1>
-              <p>Полноэкранная полка товаров: быстрее выбрать, проще сравнить, легче купить.</p>
+              <p class="catalog-wall__lead">Плотная сетка, крупные изображения и быстрый выбор без боковой панели.</p>
             </div>
+            <div class="catalog-wall__summary">
+              <span data-catalog-count>0 товаров</span>
+              <strong data-catalog-active-label>Вся витрина</strong>
+            </div>
+          </div>
 
-            <div class="catalog-sidebar__panel">
-              <label class="catalog-search">
-                <span>Поиск</span>
-                <input data-catalog-search type="search" placeholder="Худи, крест, свеча..." />
-              </label>
-              <label class="catalog-sort">
-                <span>Сортировка</span>
-                <select data-catalog-sort>
-                  <option value="featured">Сначала новые</option>
-                  <option value="price-asc">Сначала дешевле</option>
-                  <option value="price-desc">Сначала дороже</option>
-                  <option value="name">По названию</option>
-                </select>
-              </label>
+          <div class="catalog-toolbar">
+            <label class="catalog-search">
+              <span>Поиск</span>
+              <input data-catalog-search type="search" placeholder="Худи, крест, свеча..." />
+            </label>
+            <div class="catalog-filters" aria-label="Категории каталога">
+              <button class="catalog-filter is-active" type="button" data-catalog-filter="all">
+                <span>Все</span>
+                <strong data-filter-count="all">0</strong>
+              </button>
+              <button class="catalog-filter" type="button" data-catalog-filter="clothes">
+                <span>Одежда</span>
+                <strong data-filter-count="clothes">0</strong>
+              </button>
+              <button class="catalog-filter" type="button" data-catalog-filter="bags">
+                <span>Сумки</span>
+                <strong data-filter-count="bags">0</strong>
+              </button>
+              <button class="catalog-filter" type="button" data-catalog-filter="candles">
+                <span>Свечи</span>
+                <strong data-filter-count="candles">0</strong>
+              </button>
+              <button class="catalog-filter" type="button" data-catalog-filter="crosses">
+                <span>Кресты</span>
+                <strong data-filter-count="crosses">0</strong>
+              </button>
             </div>
-
-            <div class="catalog-sidebar__panel">
-              <p class="catalog-sidebar__label">Категории</p>
-              <div class="catalog-filters" aria-label="Категории каталога">
-                <button class="catalog-filter is-active" type="button" data-catalog-filter="all">
-                  <span>Все</span>
-                  <strong data-filter-count="all">0</strong>
-                </button>
-                <button class="catalog-filter" type="button" data-catalog-filter="clothes">
-                  <span>Одежда</span>
-                  <strong data-filter-count="clothes">0</strong>
-                </button>
-                <button class="catalog-filter" type="button" data-catalog-filter="bags">
-                  <span>Сумки</span>
-                  <strong data-filter-count="bags">0</strong>
-                </button>
-                <button class="catalog-filter" type="button" data-catalog-filter="candles">
-                  <span>Свечи</span>
-                  <strong data-filter-count="candles">0</strong>
-                </button>
-                <button class="catalog-filter" type="button" data-catalog-filter="crosses">
-                  <span>Кресты</span>
-                  <strong data-filter-count="crosses">0</strong>
-                </button>
-              </div>
-            </div>
-
-            <div class="catalog-sidebar__notes">
-              <div>
-                <span data-catalog-count>0 товаров</span>
-                <strong data-catalog-active-label>Вся витрина</strong>
-              </div>
-              <p>Нажмите на товар для отдельной полноэкранной страницы.</p>
-            </div>
-          </aside>
+            <label class="catalog-sort">
+              <span>Сортировка</span>
+              <select data-catalog-sort>
+                <option value="featured">Сначала новые</option>
+                <option value="price-asc">Сначала дешевле</option>
+                <option value="price-desc">Сначала дороже</option>
+                <option value="name">По названию</option>
+              </select>
+            </label>
+          </div>
 
           <div class="catalog-stage">
-            <div class="catalog-stage__top">
-              <div>
-                <p class="product-meta">Маркет</p>
-                <h2>Быстрый выбор</h2>
-              </div>
-              <p class="catalog-stage__lead">Плотная сетка, крупные изображения, простое сравнение цен и категорий.</p>
-            </div>
             <div class="catalog-grid" data-catalog-grid></div>
           </div>
         </section>
