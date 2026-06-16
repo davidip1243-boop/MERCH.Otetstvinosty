@@ -714,6 +714,7 @@ function renderCatalog() {
     ? products.map((product) => buildProductCard(product)).join("")
     : `<div class="catalog-empty glass-panel">Ничего не найдено. Попробуйте другой запрос или категорию.</div>`;
   updateCatalogCount(products.length);
+  updateCatalogFilterCounts();
   bindProductActions(container);
 }
 
@@ -763,6 +764,26 @@ function updateCatalogCount(count = getVisibleCatalogProducts().length) {
 
   const label = count === 1 ? "товар" : count > 1 && count < 5 ? "товара" : "товаров";
   node.textContent = `${count} ${label}`;
+
+  const activeLabel = document.querySelector("[data-catalog-active-label]");
+  if (activeLabel) {
+    const labels = {
+      all: "Вся витрина",
+      clothes: "Одежда",
+      bags: "Сумки",
+      candles: "Свечи",
+      crosses: "Кресты"
+    };
+    activeLabel.textContent = labels[state.catalogFilter] || "Вся витрина";
+  }
+}
+
+function updateCatalogFilterCounts() {
+  document.querySelectorAll("[data-filter-count]").forEach((node) => {
+    const filter = node.dataset.filterCount || "all";
+    const count = state.products.filter((product) => matchesCatalogFilter(product, filter)).length;
+    node.textContent = String(count);
+  });
 }
 
 function setupCatalogFilters() {
@@ -851,17 +872,17 @@ function buildProductCard(product, compact = false) {
       </div>
       <div class="product-copy">
         <div>
-          <p class="product-meta">${escapeHtml(product.category)}</p>
+          <strong class="product-price">${formatPrice(product.price)} ₽</strong>
           <h3>${escapeHtml(product.title)}</h3>
         </div>
         <p>${escapeHtml(product.summary)}</p>
-        <div class="product-thumbs">
+        <div class="product-thumbs product-thumbs--dots">
           ${images
-            .slice(0, 3)
+            .slice(0, 4)
             .map(
-              (image, index) => `
-                <button class="product-thumb" type="button" data-product-preview="${product.id}" data-image-index="${index}">
-                  <img src="${image}" alt="${escapeHtml(product.title)} ${index + 1}" />
+              (_image, index) => `
+                <button class="product-thumb product-thumb--dot" type="button" data-product-preview="${product.id}" data-image-index="${index}" aria-label="Фото ${index + 1}">
+                  <span></span>
                 </button>
               `
             )
@@ -869,7 +890,6 @@ function buildProductCard(product, compact = false) {
         </div>
         ${compact ? "" : `<ul class="product-details">${details.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`}
         <div class="product-card__bottom">
-          <strong class="product-price">${formatPrice(product.price)} ₽</strong>
           <div class="product-actions">
             <button class="button button--ghost" type="button" data-open-product-button="${product.id}">${t("ui.openDetails")}</button>
             <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
