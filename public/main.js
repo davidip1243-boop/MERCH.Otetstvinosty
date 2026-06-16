@@ -863,10 +863,12 @@ function matchesCatalogFilter(product, filter) {
 
 function buildProductCard(product, compact = false) {
   const images = Array.isArray(product.images) ? product.images : [];
+  const imagePayload = escapeHtml(JSON.stringify(images));
   return `
-    <article class="${compact ? "featured-card" : "product-card"}" data-open-product="${product.id}">
+    <article class="${compact ? "featured-card" : "product-card"}" data-open-product="${product.id}" data-product-images="${imagePayload}">
       <div class="product-image">
         <img src="${images[0] || ""}" alt="${escapeHtml(product.title)}" />
+        ${!compact && images.length > 1 ? `<div class="product-hover-steps" aria-hidden="true">${images.map((_image, index) => `<span class="${index === 0 ? "is-active" : ""}"></span>`).join("")}</div>` : ""}
       </div>
       <div class="product-copy">
         <div>
@@ -903,6 +905,91 @@ function bindProductActions(container) {
     });
   });
 
+  container.querySelectorAll(".product-card[data-product-images]").forEach((card) => {
+    const imageNode = card.querySelector(".product-image img");
+    const imageBox = card.querySelector(".product-image");
+    const stepNodes = [...card.querySelectorAll(".product-hover-steps span")];
+    let images = [];
+
+    try {
+      images = JSON.parse(card.dataset.productImages || "[]");
+    } catch {
+      images = [];
+    }
+
+    if (!imageNode || !imageBox || images.length < 2) {
+      return;
+    }
+
+    let activePreviewIndex = 0;
+    let touchStartX = 0;
+    let touchStartY = 0;
+    let touchStarted = false;
+
+    const setPreviewImage = (index) => {
+      const safeIndex = Math.max(0, Math.min(images.length - 1, index));
+      activePreviewIndex = safeIndex;
+      if (images[safeIndex] && imageNode.src !== images[safeIndex]) {
+        imageNode.src = images[safeIndex];
+      }
+      stepNodes.forEach((node, nodeIndex) => {
+        node.classList.toggle("is-active", nodeIndex === safeIndex);
+      });
+    };
+
+    imageBox.addEventListener("pointermove", (event) => {
+      if (event.pointerType === "touch") {
+        return;
+      }
+
+      const rect = imageBox.getBoundingClientRect();
+      const position = Math.max(0, Math.min(rect.width, event.clientX - rect.left));
+      const index = Math.min(images.length - 1, Math.floor((position / rect.width) * images.length));
+      setPreviewImage(index);
+    });
+
+    imageBox.addEventListener("pointerleave", () => setPreviewImage(0));
+
+    imageBox.addEventListener("pointerdown", (event) => {
+      if (event.pointerType !== "touch") {
+        return;
+      }
+
+      touchStartX = event.clientX;
+      touchStartY = event.clientY;
+      touchStarted = true;
+    });
+
+    imageBox.addEventListener("pointerup", (event) => {
+      if (event.pointerType !== "touch" || !touchStarted) {
+        touchStarted = false;
+        return;
+      }
+
+      const deltaX = event.clientX - touchStartX;
+      const deltaY = event.clientY - touchStartY;
+      touchStarted = false;
+
+      if (Math.abs(deltaX) <= 28 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+        return;
+      }
+
+      event.preventDefault();
+      event.stopPropagation();
+      card.dataset.gallerySwiped = "true";
+      window.setTimeout(() => {
+        delete card.dataset.gallerySwiped;
+      }, 350);
+
+      const direction = deltaX < 0 ? 1 : -1;
+      setPreviewImage((activePreviewIndex + direction + images.length) % images.length);
+    });
+
+    imageBox.addEventListener("pointercancel", () => {
+      touchStarted = false;
+    });
+  });
+
   container.querySelectorAll("[data-open-product-button]").forEach((button) => {
     button.addEventListener("click", () => {
       openProductPage(button.dataset.openProductButton);
@@ -911,6 +998,10 @@ function bindProductActions(container) {
 
   container.querySelectorAll("[data-open-product]").forEach((card) => {
     card.addEventListener("click", (event) => {
+      if (card.dataset.gallerySwiped === "true") {
+        return;
+      }
+
       if (event.target.closest("button, a, input, textarea, select, label")) {
         return;
       }

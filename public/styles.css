@@ -3400,6 +3400,31 @@ body[data-page="catalog"] .catalog-grid .product-image img {
   padding: 10px;
 }
 
+body[data-page="catalog"] .product-hover-steps {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  display: grid;
+  grid-auto-flow: column;
+  gap: 4px;
+  pointer-events: none;
+}
+
+body[data-page="catalog"] .product-hover-steps span {
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(17, 24, 39, 0.18);
+  transition:
+    background-color 140ms ease,
+    transform 140ms ease;
+}
+
+body[data-page="catalog"] .product-hover-steps span.is-active {
+  background: rgba(17, 24, 39, 0.64);
+  transform: scaleY(1.25);
+}
+
 body[data-page="catalog"] .product-card__badge {
   display: none;
 }
@@ -3412,7 +3437,7 @@ body[data-page="catalog"] .product-copy {
 body[data-page="catalog"] .product-copy h3 {
   font-size: 1.1rem;
   line-height: 1.08;
-  letter-spacing: -0.03em;
+  letter-spacing: 0;
 }
 
 body[data-page="catalog"] .product-price {
@@ -3439,31 +3464,31 @@ body[data-page="catalog"] .product-actions .button {
 }
 
 body[data-active-theme="light"][data-page="catalog"] {
-  --bg: #eef1f4;
-  --surface: #ffffff;
-  --surface-soft: #f3f5f7;
-  --stroke: #cfd6dd;
-  --shadow-card: 0 18px 46px rgba(42, 50, 60, 0.14);
+  --bg: #eadfce;
+  --surface: #fffaf2;
+  --surface-soft: #efe4d2;
+  --stroke: #b8a88f;
+  --shadow-card: 0 18px 46px rgba(86, 67, 43, 0.18);
 }
 
 body[data-active-theme="light"][data-page="catalog"]::before {
   background:
-    linear-gradient(180deg, #f8fafc 0%, #eef1f4 46%, #e5e9ee 100%);
+    linear-gradient(180deg, #f7ecdc 0%, #eadfce 48%, #ddcfba 100%);
 }
 
 body[data-active-theme="light"][data-page="catalog"] .product-card {
-  border-color: rgba(31, 41, 55, 0.16);
-  background: #ffffff;
+  border: 2px solid rgba(95, 76, 50, 0.28);
+  background: #fffaf2;
   box-shadow:
-    0 18px 46px rgba(42, 50, 60, 0.14),
-    inset 0 1px 0 rgba(255, 255, 255, 0.92);
+    0 18px 46px rgba(86, 67, 43, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.95);
 }
 
 body[data-active-theme="light"][data-page="catalog"] .catalog-grid .product-image {
-  border: 1px solid rgba(31, 41, 55, 0.08);
+  border: 2px solid rgba(95, 76, 50, 0.18);
   background:
-    radial-gradient(circle at 74% 12%, rgba(209, 217, 224, 0.7), transparent 36%),
-    linear-gradient(180deg, #f8fafc 0%, #e8edf2 100%);
+    radial-gradient(circle at 74% 12%, rgba(198, 176, 145, 0.42), transparent 36%),
+    linear-gradient(180deg, #fffaf2 0%, #eadfce 100%);
 }
 
 body[data-active-theme="light"][data-page="catalog"] .product-price,
@@ -3498,6 +3523,14 @@ body[data-active-theme="dark"][data-page="catalog"] .catalog-grid .product-image
   background:
     radial-gradient(circle at 74% 12%, rgba(150, 190, 225, 0.18), transparent 38%),
     linear-gradient(180deg, rgba(38, 43, 51, 0.96), rgba(22, 26, 32, 0.96));
+}
+
+body[data-active-theme="dark"][data-page="catalog"] .product-hover-steps span {
+  background: rgba(245, 247, 250, 0.18);
+}
+
+body[data-active-theme="dark"][data-page="catalog"] .product-hover-steps span.is-active {
+  background: rgba(245, 247, 250, 0.74);
 }
 
 @media (max-width: 1240px) {
