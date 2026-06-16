@@ -875,7 +875,6 @@ function buildProductCard(product, compact = false) {
           <strong class="product-price">${formatPrice(product.price)} ₽</strong>
           <h3>${escapeHtml(product.title)}</h3>
         </div>
-        <p>${escapeHtml(product.summary)}</p>
         <div class="product-thumbs product-thumbs--dots">
           ${images
             .slice(0, 4)
