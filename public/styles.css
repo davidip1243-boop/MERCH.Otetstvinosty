@@ -1384,6 +1384,7 @@ body[data-page="catalog"] .product-actions .button {
   border: 0;
   background: #000;
   box-shadow: 0 30px 70px rgba(16, 24, 40, 0.16);
+  touch-action: pan-y;
 }
 
 .product-detail-image img {

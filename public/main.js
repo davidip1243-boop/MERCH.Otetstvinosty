@@ -1247,8 +1247,12 @@ async function renderProductPage() {
   const metaNode = container.querySelector("[data-gallery-meta]");
   const prevButton = container.querySelector("[data-gallery-prev]");
   const nextButton = container.querySelector("[data-gallery-next]");
+  const galleryImage = container.querySelector(".product-detail-image");
   const thumbButtons = [...container.querySelectorAll("[data-gallery-thumb]")];
   let activeIndex = 0;
+  let touchStartX = 0;
+  let touchStartY = 0;
+  let touchStarted = false;
 
   const renderGalleryImage = () => {
     if (!mainImageNode) {
@@ -1266,15 +1270,14 @@ async function renderProductPage() {
     });
   };
 
-  prevButton?.addEventListener("click", () => {
-    activeIndex = (activeIndex - 1 + product.images.length) % product.images.length;
+  const moveGallery = (direction) => {
+    activeIndex = (activeIndex + direction + product.images.length) % product.images.length;
     renderGalleryImage();
-  });
+  };
 
-  nextButton?.addEventListener("click", () => {
-    activeIndex = (activeIndex + 1) % product.images.length;
-    renderGalleryImage();
-  });
+  prevButton?.addEventListener("click", () => moveGallery(-1));
+
+  nextButton?.addEventListener("click", () => moveGallery(1));
 
   thumbButtons.forEach((button) => {
     button.addEventListener("click", () => {
@@ -1282,6 +1285,40 @@ async function renderProductPage() {
       renderGalleryImage();
     });
   });
+
+  if (galleryImage && product.images.length > 1) {
+    galleryImage.addEventListener("pointerdown", (event) => {
+      if (event.pointerType !== "touch") {
+        return;
+      }
+
+      touchStartX = event.clientX;
+      touchStartY = event.clientY;
+      touchStarted = true;
+    });
+
+    galleryImage.addEventListener("pointerup", (event) => {
+      if (event.pointerType !== "touch" || !touchStarted) {
+        touchStarted = false;
+        return;
+      }
+
+      const deltaX = event.clientX - touchStartX;
+      const deltaY = event.clientY - touchStartY;
+      touchStarted = false;
+
+      if (Math.abs(deltaX) <= 32 || Math.abs(deltaX) <= Math.abs(deltaY)) {
+        return;
+      }
+
+      event.preventDefault();
+      moveGallery(deltaX < 0 ? 1 : -1);
+    });
+
+    galleryImage.addEventListener("pointercancel", () => {
+      touchStarted = false;
+    });
+  }
 }
 
 function setupReviewForm(container, product) {
