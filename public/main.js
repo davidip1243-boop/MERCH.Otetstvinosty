@@ -1157,6 +1157,16 @@ async function renderProductPage() {
   }
 
   const details = product.details.map((item) => `<li>${escapeHtml(item)}</li>`).join("");
+  const summaryHtml = product.summary ? `<p class="product-detail-summary">${escapeHtml(product.summary)}</p>` : "";
+  const descriptionHtml = product.description ? `<p class="product-detail-description">${escapeHtml(product.description)}</p>` : "";
+  const detailsHtml = details
+    ? `
+      <div class="product-detail__details">
+        <h2>${t("product.details")}</h2>
+        <ul class="product-details">${details}</ul>
+      </div>
+    `
+    : "";
   const reviews = await loadProductReviews(product.id);
   const reviewItems = reviews.length
     ? reviews.map(buildReviewCard).join("")
@@ -1179,8 +1189,8 @@ async function renderProductPage() {
         <div class="product-detail__copy">
           <p class="product-meta">${escapeHtml(product.category)}</p>
           <h1>${escapeHtml(product.title)}</h1>
-          <p class="product-detail-summary">${escapeHtml(product.summary)}</p>
-          <p class="product-detail-description">${escapeHtml(product.description)}</p>
+          ${summaryHtml}
+          ${descriptionHtml}
           <strong class="product-price product-detail-price">${formatPrice(product.price)} ₽</strong>
           <div class="product-actions">
             <a class="button button--ghost" href="/catalog">${t("product.backCatalog")}</a>
@@ -1199,10 +1209,7 @@ async function renderProductPage() {
           <div class="product-thumbnails">${thumbnails}</div>
         </div>
       </div>
-      <div class="product-detail__details">
-        <h2>${t("product.details")}</h2>
-        <ul class="product-details">${details}</ul>
-      </div>
+      ${detailsHtml}
       <section class="product-reviews" aria-labelledby="product-reviews-title">
         <div class="product-reviews__intro">
           <div>

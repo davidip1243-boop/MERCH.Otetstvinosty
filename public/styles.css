@@ -1150,6 +1150,7 @@ body[data-active-theme="dark"] .app-rating__stars button:hover {
   width: 100%;
   height: 100%;
   object-fit: cover;
+  filter: contrast(1.08) saturate(1.08) brightness(1.03);
 }
 
 /* Catalog should show full product images without top/bottom clipping. */
@@ -1394,6 +1395,7 @@ body[data-page="catalog"] .product-actions .button {
   object-fit: cover;
   object-position: center;
   padding: 0;
+  filter: contrast(1.08) saturate(1.08) brightness(1.03);
 }
 
 .product-thumbnails {
@@ -1433,6 +1435,7 @@ body[data-page="catalog"] .product-actions .button {
   width: 100%;
   height: 100%;
   object-fit: contain;
+  filter: contrast(1.08) saturate(1.08) brightness(1.03);
 }
 
 .product-reviews {
