@@ -55,13 +55,41 @@
       </header>
 
       <main>
-        <section class="section">
-          <div class="catalog-filters">
-            <button class="catalog-filter is-active" type="button" data-catalog-filter="all">Все</button>
-            <button class="catalog-filter" type="button" data-catalog-filter="clothes">Одежда</button>
-            <button class="catalog-filter" type="button" data-catalog-filter="bags">Сумки</button>
-            <button class="catalog-filter" type="button" data-catalog-filter="candles">Свечи</button>
-            <button class="catalog-filter" type="button" data-catalog-filter="crosses">Кресты</button>
+        <section class="section catalog-market">
+          <div class="catalog-market__hero">
+            <div>
+              <p class="product-meta">Каталог</p>
+              <h1>Мерч команды</h1>
+              <p>Быстрый выбор вещей, свечей, крестов и сумок. Всё собрано в одной витрине.</p>
+            </div>
+            <div class="catalog-market__stats">
+              <span data-catalog-count>0 товаров</span>
+              <strong>Ответственность в деталях</strong>
+            </div>
+          </div>
+
+          <div class="catalog-toolbar">
+            <label class="catalog-search">
+              <span>Поиск</span>
+              <input data-catalog-search type="search" placeholder="Худи, крест, свеча..." />
+            </label>
+            <label class="catalog-sort">
+              <span>Сортировка</span>
+              <select data-catalog-sort>
+                <option value="featured">Сначала новые</option>
+                <option value="price-asc">Цена вверх</option>
+                <option value="price-desc">Цена вниз</option>
+                <option value="name">По названию</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="catalog-filters" aria-label="Категории каталога">
+            <button class="catalog-filter is-active" type="button" data-catalog-filter="all"><span>Все</span></button>
+            <button class="catalog-filter" type="button" data-catalog-filter="clothes"><span>Одежда</span></button>
+            <button class="catalog-filter" type="button" data-catalog-filter="bags"><span>Сумки</span></button>
+            <button class="catalog-filter" type="button" data-catalog-filter="candles"><span>Свечи</span></button>
+            <button class="catalog-filter" type="button" data-catalog-filter="crosses"><span>Кресты</span></button>
           </div>
           <div class="catalog-grid" data-catalog-grid></div>
         </section>

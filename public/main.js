@@ -305,6 +305,8 @@ const state = {
     adminProtected: false
   },
   catalogFilter: "all",
+  catalogQuery: "",
+  catalogSort: "featured",
   language: detectInitialLanguage(),
   theme: detectInitialTheme(),
   sessionId: "",
@@ -707,16 +709,67 @@ function renderCatalog() {
     return;
   }
 
-  container.innerHTML = state.products
-    .filter((product) => matchesCatalogFilter(product, state.catalogFilter))
-    .map((product) => buildProductCard(product))
-    .join("");
+  const products = getVisibleCatalogProducts();
+  container.innerHTML = products.length
+    ? products.map((product) => buildProductCard(product)).join("")
+    : `<div class="catalog-empty glass-panel">Ничего не найдено. Попробуйте другой запрос или категорию.</div>`;
+  updateCatalogCount(products.length);
   bindProductActions(container);
+}
+
+function getVisibleCatalogProducts() {
+  const query = state.catalogQuery.trim().toLowerCase();
+  const products = state.products
+    .filter((product) => matchesCatalogFilter(product, state.catalogFilter))
+    .filter((product) => {
+      if (!query) {
+        return true;
+      }
+
+      const searchable = [
+        product.title,
+        product.category,
+        product.summary,
+        product.description,
+        ...(Array.isArray(product.details) ? product.details : [])
+      ]
+        .join(" ")
+        .toLowerCase();
+      return searchable.includes(query);
+    });
+
+  return sortCatalogProducts(products);
+}
+
+function sortCatalogProducts(products) {
+  const sorted = [...products];
+  if (state.catalogSort === "price-asc") {
+    return sorted.sort((a, b) => Number(a.price) - Number(b.price));
+  }
+  if (state.catalogSort === "price-desc") {
+    return sorted.sort((a, b) => Number(b.price) - Number(a.price));
+  }
+  if (state.catalogSort === "name") {
+    return sorted.sort((a, b) => String(a.title).localeCompare(String(b.title), "ru"));
+  }
+  return sorted;
+}
+
+function updateCatalogCount(count = getVisibleCatalogProducts().length) {
+  const node = document.querySelector("[data-catalog-count]");
+  if (!node) {
+    return;
+  }
+
+  const label = count === 1 ? "товар" : count > 1 && count < 5 ? "товара" : "товаров";
+  node.textContent = `${count} ${label}`;
 }
 
 function setupCatalogFilters() {
   const buttons = document.querySelectorAll("[data-catalog-filter]");
-  if (!buttons.length) {
+  const search = document.querySelector("[data-catalog-search]");
+  const sort = document.querySelector("[data-catalog-sort]");
+  if (!buttons.length && !search && !sort) {
     return;
   }
 
@@ -728,7 +781,18 @@ function setupCatalogFilters() {
     });
   });
 
+  search?.addEventListener("input", () => {
+    state.catalogQuery = search.value;
+    renderCatalog();
+  });
+
+  sort?.addEventListener("change", () => {
+    state.catalogSort = sort.value || "featured";
+    renderCatalog();
+  });
+
   updateCatalogFilterUi();
+  updateCatalogCount();
 }
 
 function updateCatalogFilterUi() {
@@ -777,31 +841,34 @@ function matchesCatalogFilter(product, filter) {
 }
 
 function buildProductCard(product, compact = false) {
+  const details = (Array.isArray(product.details) ? product.details : []).slice(0, compact ? 0 : 3);
+  const images = Array.isArray(product.images) ? product.images : [];
   return `
     <article class="${compact ? "featured-card" : "product-card"}" data-open-product="${product.id}">
       <div class="product-image">
-        <img src="${product.images[0]}" alt="${product.title}" />
+        <img src="${images[0] || ""}" alt="${escapeHtml(product.title)}" />
+        ${compact ? "" : `<span class="product-card__badge">${escapeHtml(product.category)}</span>`}
       </div>
       <div class="product-copy">
         <div>
-          <p class="product-meta">${product.category}</p>
-          <h3>${product.title}</h3>
+          <p class="product-meta">${escapeHtml(product.category)}</p>
+          <h3>${escapeHtml(product.title)}</h3>
         </div>
-        <p>${product.summary}</p>
+        <p>${escapeHtml(product.summary)}</p>
         <div class="product-thumbs">
-          ${product.images
+          ${images
             .slice(0, 3)
             .map(
               (image, index) => `
                 <button class="product-thumb" type="button" data-product-preview="${product.id}" data-image-index="${index}">
-                  <img src="${image}" alt="${product.title} ${index + 1}" />
+                  <img src="${image}" alt="${escapeHtml(product.title)} ${index + 1}" />
                 </button>
               `
             )
             .join("")}
         </div>
-        ${compact ? "" : `<ul class="product-details">${product.details.map((item) => `<li>${item}</li>`).join("")}</ul>`}
-        <div class="cart-head">
+        ${compact ? "" : `<ul class="product-details">${details.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`}
+        <div class="product-card__bottom">
           <strong class="product-price">${formatPrice(product.price)} ₽</strong>
           <div class="product-actions">
             <button class="button button--ghost" type="button" data-open-product-button="${product.id}">${t("ui.openDetails")}</button>
