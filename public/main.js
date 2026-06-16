@@ -862,35 +862,19 @@ function matchesCatalogFilter(product, filter) {
 }
 
 function buildProductCard(product, compact = false) {
-  const details = (Array.isArray(product.details) ? product.details : []).slice(0, compact ? 0 : 3);
   const images = Array.isArray(product.images) ? product.images : [];
   return `
     <article class="${compact ? "featured-card" : "product-card"}" data-open-product="${product.id}">
       <div class="product-image">
         <img src="${images[0] || ""}" alt="${escapeHtml(product.title)}" />
-        ${compact ? "" : `<span class="product-card__badge">${escapeHtml(product.category)}</span>`}
       </div>
       <div class="product-copy">
         <div>
           <strong class="product-price">${formatPrice(product.price)} ₽</strong>
           <h3>${escapeHtml(product.title)}</h3>
         </div>
-        <div class="product-thumbs product-thumbs--dots">
-          ${images
-            .slice(0, 4)
-            .map(
-              (_image, index) => `
-                <button class="product-thumb product-thumb--dot" type="button" data-product-preview="${product.id}" data-image-index="${index}" aria-label="Фото ${index + 1}">
-                  <span></span>
-                </button>
-              `
-            )
-            .join("")}
-        </div>
-        ${compact ? "" : `<ul class="product-details">${details.map((item) => `<li>${escapeHtml(item)}</li>`).join("")}</ul>`}
         <div class="product-card__bottom">
           <div class="product-actions">
-            <button class="button button--ghost" type="button" data-open-product-button="${product.id}">${t("ui.openDetails")}</button>
             <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
           </div>
         </div>
