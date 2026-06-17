@@ -530,8 +530,10 @@ async function initDb() {
 async function sendTelegramOrder(order) {
   const itemsText = order.items
     .map(
-      (item) =>
-        `• ${item.title} × ${item.quantity} — ${formatPrice(item.price * item.quantity)} ₽`
+      (item) => {
+        const sizeText = item.size ? `, размер ${item.size}` : "";
+        return `• ${item.title}${sizeText} × ${item.quantity} — ${formatPrice(item.price * item.quantity)} ₽`;
+      }
     )
     .join("\n");
 

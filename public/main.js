@@ -11,6 +11,7 @@ const DELETED_PRODUCTS_KEY = "merch-deleted-products";
 const CART_PROMPT_CHOICE_KEY = "merch-cart-prompt-choice-v1";
 const APP_RATING_KEY = "merch-app-rating-v1";
 const APP_RATING_DELAY_MS = 5 * 60 * 1000;
+const TSHIRT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const FORCE_RESTORED_PRODUCT_IDS = [];
 let themeHasApplied = false;
 let themeTransitionTimer;
@@ -30,7 +31,7 @@ const translations = {
     "nav.about": "О нас",
     "nav.catalog": "Каталог",
     "nav.delivery": "Доставка",
-    "nav.cart": "Корзина",
+    "nav.cart": "🛒",
     "index.meta.description":
       "Минималистичный интернет-магазин мерча с лаконичной эстетикой, локальной корзиной и заказами в Telegram.",
     "index.eyebrow": "Минимализм. Тишина. Доверие.",
@@ -166,7 +167,7 @@ const translations = {
     "nav.about": "About us",
     "nav.catalog": "Shop",
     "nav.delivery": "Delivery",
-    "nav.cart": "Cart",
+    "nav.cart": "🛒",
     "index.meta.description":
       "Minimal merch storefront with a clean aesthetic, local cart persistence, and Telegram order flow.",
     "index.eyebrow": "Minimal. Quiet. Trusted.",
@@ -325,6 +326,7 @@ init().catch((error) => {
 });
 
 async function init() {
+  setupPageTransitions();
   setupGuestSessionPersistence();
   setupThemeSwitcher();
   setupLanguageSwitcher();
@@ -341,6 +343,54 @@ async function init() {
   setupCheckoutForm();
   setupAdmin();
   await renderProductPage();
+}
+
+function setupPageTransitions() {
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    return;
+  }
+
+  document.body.classList.add("page-ready");
+
+  window.addEventListener("pageshow", () => {
+    document.body.classList.remove("page-leaving");
+    document.body.classList.add("page-ready");
+  });
+
+  document.addEventListener("click", (event) => {
+    if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) {
+      return;
+    }
+
+    const link = event.target.closest("a[href]");
+    if (!link || link.target || link.hasAttribute("download")) {
+      return;
+    }
+
+    const url = new URL(link.href, window.location.href);
+    if (url.origin !== window.location.origin || url.href === window.location.href) {
+      return;
+    }
+
+    event.preventDefault();
+    navigateTo(url.href);
+  });
+}
+
+function navigateTo(url) {
+  if (!url) {
+    return;
+  }
+
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) {
+    window.location.assign(url);
+    return;
+  }
+
+  document.body.classList.add("page-leaving");
+  window.setTimeout(() => {
+    window.location.assign(url);
+  }, 180);
 }
 
 async function hydrateCurrentProduct() {
@@ -678,6 +728,52 @@ function escapeHtml(value) {
     .replaceAll("<", "&lt;")
     .replaceAll(">", "&gt;")
     .replaceAll('"', "&quot;");
+}
+
+function getProductSizes(product) {
+  const text = `${product?.title || ""} ${product?.category || ""}`.toLowerCase();
+  return text.includes("футбол") || text.includes("tshirt") || text.includes("t-shirt") || text.includes("tee")
+    ? TSHIRT_SIZES
+    : [];
+}
+
+function getCartItemKey(item) {
+  return item.cartId || (item.size ? `${item.id}::${item.size}` : item.id);
+}
+
+function buildSizeSelector(product) {
+  const sizes = getProductSizes(product);
+  if (!sizes.length) {
+    return "";
+  }
+
+  return `
+    <fieldset class="size-selector" data-size-selector>
+      <legend>Размер</legend>
+      <div class="size-selector__options">
+        ${sizes
+          .map(
+            (size, index) => `
+              <label class="size-chip">
+                <input type="radio" name="product-size" value="${size}" ${index === 1 ? "checked" : ""} />
+                <span>${size}</span>
+              </label>
+            `
+          )
+          .join("")}
+      </div>
+    </fieldset>
+  `;
+}
+
+function getSelectedProductSize(container, product) {
+  const sizes = getProductSizes(product);
+  if (!sizes.length) {
+    return "";
+  }
+
+  const selected = container?.querySelector("[data-size-selector] input:checked")?.value;
+  return sizes.includes(selected) ? selected : sizes[1] || sizes[0];
 }
 
 async function fetchJson(url, options = {}) {
@@ -1173,6 +1269,7 @@ async function renderProductPage() {
     : `<p class="empty-state">${t("reviews.empty")}</p>`;
   const mainImage = product.images[0] || "";
   const hasManyImages = product.images.length > 1;
+  const sizeSelector = buildSizeSelector(product);
   const thumbnails = product.images
     .map(
       (image, index) => `
@@ -1192,6 +1289,7 @@ async function renderProductPage() {
           ${summaryHtml}
           ${descriptionHtml}
           <strong class="product-price product-detail-price">${formatPrice(product.price)} ₽</strong>
+          ${sizeSelector}
           <div class="product-actions">
             <a class="button button--ghost" href="/catalog">${t("product.backCatalog")}</a>
             <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
@@ -1243,7 +1341,7 @@ async function renderProductPage() {
   `;
 
   const addButton = container.querySelector("[data-add-to-cart]");
-  addButton?.addEventListener("click", () => addToCart(product.id));
+  addButton?.addEventListener("click", () => addToCart(product.id, { size: getSelectedProductSize(container, product) }));
   setupReviewForm(container, product);
 
   if (!product.images.length) {
@@ -1388,21 +1486,26 @@ function setupReviewForm(container, product) {
   });
 }
 
-function addToCart(productId) {
+function addToCart(productId, options = {}) {
   const product = state.products.find((item) => item.id === productId);
   if (!product) {
     return;
   }
 
-  const existing = state.cart.find((item) => item.id === productId);
+  const sizes = getProductSizes(product);
+  const size = sizes.length && sizes.includes(options.size) ? options.size : sizes[1] || sizes[0] || "";
+  const cartId = size ? `${product.id}::${size}` : product.id;
+  const existing = state.cart.find((item) => getCartItemKey(item) === cartId);
   if (existing) {
     existing.quantity += 1;
   } else {
     state.cart.push({
+      cartId,
       id: product.id,
       title: product.title,
       price: product.price,
       image: product.images[0],
+      size,
       quantity: 1
     });
   }
@@ -1412,7 +1515,7 @@ function addToCart(productId) {
   if (window.location.pathname !== "/cart") {
     const promptChoice = localStorage.getItem(CART_PROMPT_CHOICE_KEY);
     if (promptChoice === "open") {
-      window.location.assign("/cart");
+      navigateTo("/cart");
     } else if (promptChoice !== "stay") {
       showCartPrompt();
     }
@@ -1455,7 +1558,7 @@ function showCartPrompt() {
     if (rememberCheckbox?.checked) {
       localStorage.setItem(CART_PROMPT_CHOICE_KEY, "open");
     }
-    window.location.assign("/cart");
+    navigateTo("/cart");
   });
 }
 
@@ -1542,7 +1645,7 @@ function setupCart() {
 }
 
 function updateCartUi() {
-  const validCartIds = new Set(state.cart.map((item) => item.id));
+  const validCartIds = new Set(state.cart.map(getCartItemKey));
   state.selectedCartIds = new Set([...state.selectedCartIds].filter((id) => validCartIds.has(id)));
   const totalCount = state.cart.reduce((sum, item) => sum + item.quantity, 0);
   const total = state.cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
@@ -1580,34 +1683,39 @@ function updateCartUi() {
 
     container.innerHTML = state.cart
       .map(
-        (item) => `
+        (item) => {
+          const cartKey = getCartItemKey(item);
+          const sizeMeta = item.size ? `<span class="cart-row__meta">Размер: ${escapeHtml(item.size)}</span>` : "";
+          return `
           <div class="cart-row">
             <label class="cart-row__select" aria-label="Выбрать товар">
-              <input type="checkbox" data-cart-select="${item.id}" ${state.selectedCartIds.has(item.id) ? "checked" : ""} />
+              <input type="checkbox" data-cart-select="${escapeHtml(cartKey)}" ${state.selectedCartIds.has(cartKey) ? "checked" : ""} />
             </label>
             <a class="cart-row__image" href="/item/${encodeURIComponent(item.id)}" target="_blank" rel="noopener">
               <img src="${item.image}" alt="${escapeHtml(item.title)}" />
             </a>
             <div class="cart-row__main">
               <a class="cart-row__title" href="/item/${encodeURIComponent(item.id)}" target="_blank" rel="noopener">${escapeHtml(item.title)}</a>
+              ${sizeMeta}
               <span class="cart-row__meta">Цена за 1 шт.</span>
               <strong class="cart-row__unit">${formatPrice(item.price)} ₽</strong>
             </div>
             <div class="cart-row__qty">
               <span>Количество</span>
               <div class="quantity-controls">
-                <button type="button" data-qty-change="${item.id}" data-delta="-1" aria-label="Уменьшить">−</button>
+                <button type="button" data-qty-change="${escapeHtml(cartKey)}" data-delta="-1" aria-label="Уменьшить">−</button>
                 <strong>${item.quantity}</strong>
-                <button type="button" data-qty-change="${item.id}" data-delta="1" aria-label="Увеличить">+</button>
+                <button type="button" data-qty-change="${escapeHtml(cartKey)}" data-delta="1" aria-label="Увеличить">+</button>
               </div>
             </div>
             <div class="cart-row__price">
               <span>Сумма</span>
               <strong>${formatPrice(item.price * item.quantity)} ₽</strong>
             </div>
-            <button class="icon-button cart-row__remove" type="button" data-remove-cart="${item.id}" aria-label="Удалить">×</button>
+            <button class="icon-button cart-row__remove" type="button" data-remove-cart="${escapeHtml(cartKey)}" aria-label="Удалить">×</button>
           </div>
-        `
+        `;
+        }
       )
       .join("");
   });
@@ -1637,24 +1745,24 @@ function updateCartUi() {
 }
 
 function getSelectedCartItems() {
-  return state.cart.filter((item) => state.selectedCartIds.has(item.id));
+  return state.cart.filter((item) => state.selectedCartIds.has(getCartItemKey(item)));
 }
 
-function toggleCartSelection(productId, selected) {
-  if (!productId) {
+function toggleCartSelection(cartId, selected) {
+  if (!cartId) {
     return;
   }
 
   if (selected) {
-    state.selectedCartIds.add(productId);
+    state.selectedCartIds.add(cartId);
   } else {
-    state.selectedCartIds.delete(productId);
+    state.selectedCartIds.delete(cartId);
   }
   updateCartUi();
 }
 
-function changeQuantity(productId, delta) {
-  const item = state.cart.find((entry) => entry.id === productId);
+function changeQuantity(cartId, delta) {
+  const item = state.cart.find((entry) => getCartItemKey(entry) === cartId);
   if (!item) {
     return;
   }
@@ -1665,9 +1773,9 @@ function changeQuantity(productId, delta) {
   updateCartUi();
 }
 
-function removeFromCart(productId) {
-  state.cart = state.cart.filter((entry) => entry.id !== productId);
-  state.selectedCartIds.delete(productId);
+function removeFromCart(cartId) {
+  state.cart = state.cart.filter((entry) => getCartItemKey(entry) !== cartId);
+  state.selectedCartIds.delete(cartId);
   persistCart();
   updateCartUi();
 }
@@ -1678,7 +1786,7 @@ function persistCart() {
 }
 
 function openCart() {
-  window.location.assign("/cart");
+  navigateTo("/cart");
 }
 
 function closeCart() {
@@ -1758,7 +1866,7 @@ function setupCheckoutForm() {
       });
 
       status.textContent = t("ui.checkoutSent");
-      state.cart = state.cart.filter((item) => !state.selectedCartIds.has(item.id));
+      state.cart = state.cart.filter((item) => !state.selectedCartIds.has(getCartItemKey(item)));
       state.selectedCartIds.clear();
       form.hidden = true;
       document.querySelector("[data-checkout-panel]")?.classList.remove("is-checkout-open");
