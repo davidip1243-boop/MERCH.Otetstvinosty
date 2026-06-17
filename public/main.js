@@ -11,6 +11,7 @@ const DELETED_PRODUCTS_KEY = "merch-deleted-products";
 const CART_PROMPT_CHOICE_KEY = "merch-cart-prompt-choice-v1";
 const APP_RATING_KEY = "merch-app-rating-v1";
 const APP_RATING_DELAY_MS = 5 * 60 * 1000;
+const PAGE_TRANSITION_EXIT_MS = 280;
 const TSHIRT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const FORCE_RESTORED_PRODUCT_IDS = [];
 let themeHasApplied = false;
@@ -350,9 +351,12 @@ function setupPageTransitions() {
     return;
   }
 
+  let isNavigating = false;
   document.body.classList.add("page-ready");
 
   window.addEventListener("pageshow", () => {
+    isNavigating = false;
+    document.documentElement.classList.remove("is-page-transitioning");
     document.body.classList.remove("page-leaving");
     document.body.classList.add("page-ready");
   });
@@ -372,8 +376,20 @@ function setupPageTransitions() {
       return;
     }
 
+    if (url.pathname === window.location.pathname && url.search === window.location.search && url.hash) {
+      return;
+    }
+
     event.preventDefault();
+    if (isNavigating) {
+      return;
+    }
+    isNavigating = true;
     navigateTo(url.href);
+  });
+
+  window.addEventListener("pagehide", () => {
+    isNavigating = false;
   });
 }
 
@@ -387,10 +403,16 @@ function navigateTo(url) {
     return;
   }
 
+  if (document.documentElement.classList.contains("is-page-transitioning")) {
+    return;
+  }
+
+  document.documentElement.classList.add("is-page-transitioning");
+  document.body.classList.remove("page-ready");
   document.body.classList.add("page-leaving");
   window.setTimeout(() => {
     window.location.assign(url);
-  }, 180);
+  }, PAGE_TRANSITION_EXIT_MS);
 }
 
 async function hydrateCurrentProduct() {
