@@ -49,6 +49,19 @@ body.page-ready main {
   animation: pageIn 560ms cubic-bezier(0.18, 0.82, 0.22, 1) both;
 }
 
+html[data-transition-to="cart"] body.page-ready main {
+  animation-name: pageInFromRight;
+}
+
+html[data-transition-from="cart"] body.page-ready main {
+  animation-name: pageInFromLeft;
+}
+
+html[data-transition-to="catalog"] body.page-ready main,
+html[data-transition-to="product"] body.page-ready main {
+  animation-name: pageInLift;
+}
+
 body.page-leaving main {
   opacity: 0;
   transform: translateY(16px) scale(0.985);
@@ -68,6 +81,14 @@ html.is-page-transitioning .topbar {
   transform: translateZ(0);
 }
 
+html.is-page-transitioning[data-transition-to="cart"] body.page-leaving main {
+  transform: translateX(-18px) scale(0.985);
+}
+
+html.is-page-transitioning[data-transition-from="cart"] body.page-leaving main {
+  transform: translateX(18px) scale(0.985);
+}
+
 @keyframes pageIn {
   from {
     opacity: 0;
@@ -82,7 +103,82 @@ html.is-page-transitioning .topbar {
   }
 }
 
+@keyframes pageInFromRight {
+  from {
+    opacity: 0;
+    transform: translateX(26px) scale(0.985);
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes pageInFromLeft {
+  from {
+    opacity: 0;
+    transform: translateX(-26px) scale(0.985);
+    filter: blur(10px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes pageInLift {
+  from {
+    opacity: 0;
+    transform: translateY(26px) scale(0.982);
+    filter: blur(12px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes itemRise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.985);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@keyframes itemSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(18px);
+    filter: blur(8px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateX(0);
+    filter: blur(0);
+  }
+}
+
 @supports (view-transition-name: root) {
+  ::view-transition-group(root) {
+    animation-duration: 560ms;
+    animation-timing-function: cubic-bezier(0.18, 0.82, 0.22, 1);
+  }
+
   ::view-transition-old(root),
   ::view-transition-new(root) {
     animation-duration: 560ms;
@@ -1830,6 +1926,23 @@ body[data-page="catalog"] .product-actions .button {
   gap: 18px;
   padding: 20px 0;
   border-bottom: 1px solid var(--stroke);
+  animation: itemSlideIn 460ms cubic-bezier(0.18, 0.82, 0.22, 1) both;
+}
+
+.cart-row:nth-child(2) {
+  animation-delay: 45ms;
+}
+
+.cart-row:nth-child(3) {
+  animation-delay: 90ms;
+}
+
+.cart-row:nth-child(4) {
+  animation-delay: 135ms;
+}
+
+.cart-row:nth-child(n + 5) {
+  animation-delay: 180ms;
 }
 
 .cart-row__select {
@@ -3765,10 +3878,27 @@ body[data-page="catalog"] .catalog-grid {
 body[data-page="catalog"] .product-card {
   border-radius: 24px;
   background: rgba(255, 250, 241, 0.86);
+  animation: itemRise 520ms cubic-bezier(0.18, 0.82, 0.22, 1) both;
   transition:
     transform 220ms ease,
     box-shadow 220ms ease,
     border-color 220ms ease;
+}
+
+body[data-page="catalog"] .product-card:nth-child(2) {
+  animation-delay: 55ms;
+}
+
+body[data-page="catalog"] .product-card:nth-child(3) {
+  animation-delay: 110ms;
+}
+
+body[data-page="catalog"] .product-card:nth-child(4) {
+  animation-delay: 165ms;
+}
+
+body[data-page="catalog"] .product-card:nth-child(n + 5) {
+  animation-delay: 220ms;
 }
 
 body[data-page="catalog"] .product-card:hover {

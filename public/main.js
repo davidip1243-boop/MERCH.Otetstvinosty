@@ -12,6 +12,7 @@ const CART_PROMPT_CHOICE_KEY = "merch-cart-prompt-choice-v1";
 const APP_RATING_KEY = "merch-app-rating-v1";
 const APP_RATING_DELAY_MS = 5 * 60 * 1000;
 const PAGE_TRANSITION_EXIT_MS = 280;
+const PAGE_TRANSITION_KEY = "merch-page-transition-v1";
 const TSHIRT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const FORCE_RESTORED_PRODUCT_IDS = [];
 let themeHasApplied = false;
@@ -352,6 +353,16 @@ function setupPageTransitions() {
   }
 
   let isNavigating = false;
+  const currentPage = getTransitionPageName(window.location.pathname);
+  const transitionFrom = sessionStorage.getItem(PAGE_TRANSITION_KEY);
+  sessionStorage.removeItem(PAGE_TRANSITION_KEY);
+  document.documentElement.dataset.transitionTo = currentPage;
+  if (transitionFrom && transitionFrom !== currentPage) {
+    document.documentElement.dataset.transitionFrom = transitionFrom;
+  } else {
+    document.documentElement.removeAttribute("data-transition-from");
+  }
+
   document.body.classList.add("page-ready");
 
   window.addEventListener("pageshow", () => {
@@ -407,12 +418,44 @@ function navigateTo(url) {
     return;
   }
 
+  const destination = new URL(url, window.location.href);
+  sessionStorage.setItem(PAGE_TRANSITION_KEY, getTransitionPageName(window.location.pathname));
+  document.documentElement.dataset.transitionFrom = getTransitionPageName(window.location.pathname);
+  document.documentElement.dataset.transitionTo = getTransitionPageName(destination.pathname);
   document.documentElement.classList.add("is-page-transitioning");
   document.body.classList.remove("page-ready");
   document.body.classList.add("page-leaving");
   window.setTimeout(() => {
-    window.location.assign(url);
+    window.location.assign(destination.href);
   }, PAGE_TRANSITION_EXIT_MS);
+}
+
+function getTransitionPageName(pathname) {
+  if (pathname === "/" || pathname === "/index.html") {
+    return "home";
+  }
+
+  if (pathname.startsWith("/catalog")) {
+    return "catalog";
+  }
+
+  if (pathname.startsWith("/cart")) {
+    return "cart";
+  }
+
+  if (pathname.startsWith("/item/")) {
+    return "product";
+  }
+
+  if (pathname.startsWith("/about")) {
+    return "about";
+  }
+
+  if (pathname.startsWith("/admin")) {
+    return "admin";
+  }
+
+  return "page";
 }
 
 async function hydrateCurrentProduct() {
