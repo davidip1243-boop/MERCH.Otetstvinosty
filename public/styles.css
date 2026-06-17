@@ -40,11 +40,11 @@ body {
   overscroll-behavior-y: none;
 }
 
-body.page-ready .site-shell {
+body.page-ready main {
   animation: pageIn 420ms cubic-bezier(0.22, 0.8, 0.22, 1) both;
 }
 
-body.page-leaving .site-shell {
+body.page-leaving main {
   opacity: 0;
   transform: translateY(10px) scale(0.992);
   filter: blur(6px);
@@ -3943,4 +3943,297 @@ body[data-active-theme="dark"][data-page="cart"] .checkout-page__panel,
 body[data-active-theme="dark"][data-page="cart"] .cart-checkout-gate,
 :root[data-theme="dark"] body[data-page="cart"] .cart-checkout-gate {
   border-top-color: rgba(143, 199, 255, 0.14);
+}
+
+/* Mobile polish pass: keep the Apple-like bar, but stop Russian labels from crashing together. */
+@media (max-width: 760px) {
+  html,
+  body {
+    max-width: 100%;
+    overflow-x: hidden;
+  }
+
+  .site-shell,
+  body[data-page="about"] .site-shell,
+  body[data-page="catalog"] .site-shell,
+  body[data-page="product"] .site-shell,
+  body[data-page="cart"] .site-shell {
+    width: min(100%, 100vw);
+    padding: 76px 10px 28px;
+  }
+
+  body[data-page="home"] .site-shell {
+    padding: 66px 0 0;
+  }
+
+  .topbar {
+    grid-template-columns: 38px minmax(0, 1fr) auto;
+    min-height: 54px;
+    padding: 0 10px;
+    gap: 8px;
+  }
+
+  .brand {
+    width: 38px;
+    min-width: 38px;
+    height: 54px;
+  }
+
+  .brand-mark {
+    width: 32px;
+    height: 32px;
+  }
+
+  .topnav {
+    justify-content: center;
+    gap: 0;
+    min-width: 0;
+    overflow: hidden;
+  }
+
+  .topnav a {
+    flex: 0 1 auto;
+    min-width: 0;
+    padding: 0 clamp(5px, 1.45vw, 8px);
+    font-size: clamp(0.78rem, 3.15vw, 0.92rem);
+    line-height: 54px;
+    letter-spacing: -0.035em;
+  }
+
+  .topbar-actions {
+    gap: 5px;
+    min-width: 0;
+  }
+
+  .theme-switch,
+  .cart-trigger {
+    min-height: 54px;
+    line-height: 54px;
+  }
+
+  .theme-switch {
+    gap: 2px;
+  }
+
+  .theme-switch select {
+    min-width: 28px;
+    max-width: 40px;
+    padding: 0;
+    font-size: 1rem;
+  }
+
+  .cart-trigger {
+    gap: 4px;
+    padding: 0 0 0 2px;
+    font-size: 1.08rem;
+  }
+
+  .cart-badge {
+    min-width: 28px;
+    height: 40px;
+    padding: 0 6px;
+    border-radius: 999px;
+    font-size: 0.82rem;
+  }
+
+  .section {
+    padding: 0;
+  }
+
+  body[data-page="home"] .home-focus {
+    min-height: calc(100svh - 66px);
+    padding: 0 20px 28px;
+  }
+
+  .home-focus__logo {
+    width: clamp(180px, 54vw, 250px);
+  }
+
+  .home-focus__copy h1 {
+    font-size: clamp(3.05rem, 15vw, 4.55rem);
+    line-height: 0.98;
+  }
+
+  .home-focus__copy p {
+    max-width: 11em;
+    margin-inline: auto;
+    font-size: clamp(1.22rem, 6vw, 1.75rem);
+    line-height: 1.14;
+  }
+
+  .home-focus__cta {
+    min-height: 56px;
+    padding-inline: 30px;
+    font-size: 1.12rem;
+  }
+
+  body[data-page="catalog"] .section.catalog-wall {
+    padding-top: 0;
+  }
+
+  body[data-page="catalog"] .catalog-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 10px;
+  }
+
+  body[data-page="catalog"] .product-card {
+    border-radius: 19px;
+  }
+
+  body[data-page="catalog"] .catalog-grid .product-image {
+    aspect-ratio: 0.78 / 1;
+    width: 100%;
+    margin: 0;
+    border-radius: 18px 18px 0 0;
+  }
+
+  body[data-page="catalog"] .product-copy {
+    gap: 7px;
+    padding: 9px 10px 12px;
+  }
+
+  body[data-page="catalog"] .product-price {
+    font-size: clamp(1.08rem, 5.5vw, 1.34rem);
+  }
+
+  body[data-page="catalog"] .product-copy h3 {
+    min-height: 2.16em;
+    font-size: clamp(0.92rem, 4.4vw, 1.08rem);
+    line-height: 1.08;
+  }
+
+  body[data-page="catalog"] .product-actions .button {
+    min-height: 42px;
+    font-size: 0.94rem;
+  }
+
+  body[data-page="product"] .product-detail {
+    padding: 14px;
+    border-radius: 24px;
+  }
+
+  body[data-page="product"] .product-detail__grid {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  body[data-page="product"] .product-detail__copy,
+  body[data-page="product"] .product-detail__media,
+  body[data-page="product"] .product-gallery-viewer,
+  body[data-page="product"] .product-detail-image {
+    width: 100%;
+  }
+
+  body[data-page="product"] .product-detail h1 {
+    font-size: clamp(1.95rem, 9.2vw, 2.82rem);
+    line-height: 1.05;
+  }
+
+  body[data-page="product"] .product-detail-summary,
+  body[data-page="product"] .product-detail-description {
+    font-size: clamp(0.94rem, 4.1vw, 1.06rem);
+    line-height: 1.42;
+  }
+
+  body[data-page="product"] .product-detail-image img {
+    height: clamp(380px, 112vw, 520px);
+  }
+
+  body[data-page="product"] .product-actions {
+    grid-template-columns: 1fr 1fr;
+  }
+
+  body[data-page="product"] .product-actions .button {
+    min-height: 48px;
+    font-size: clamp(0.92rem, 4.2vw, 1.02rem);
+  }
+
+  .about-blank {
+    margin-top: 0;
+    min-height: auto;
+    padding: 22px 18px;
+    border-radius: 24px;
+  }
+
+  .about-story h1 {
+    font-size: clamp(2rem, 11vw, 3.2rem);
+    line-height: 1;
+    letter-spacing: -0.055em;
+  }
+
+  .about-story__text {
+    gap: 14px;
+    font-size: clamp(1rem, 4.35vw, 1.14rem);
+    line-height: 1.52;
+  }
+
+  .about-story__image {
+    margin-inline: -18px;
+    border-radius: 0;
+  }
+
+  body[data-page="cart"] .checkout-page {
+    padding: 0;
+  }
+
+  body[data-page="cart"] .checkout-page__panel {
+    padding: 14px;
+    border-radius: 24px;
+  }
+
+  body[data-page="cart"] .cart-row {
+    grid-template-columns: 24px 74px minmax(0, 1fr) 32px;
+    gap: 10px;
+    padding: 14px 0;
+  }
+
+  body[data-page="cart"] .cart-row__qty,
+  body[data-page="cart"] .cart-row__price {
+    grid-column: 3 / -1;
+    justify-self: start;
+  }
+
+  body[data-page="cart"] .cart-row__remove {
+    grid-column: 4;
+    grid-row: 1;
+  }
+
+  body[data-page="cart"] .cart-row__title {
+    font-size: 0.88rem;
+    line-height: 1.14;
+  }
+
+  body[data-page="cart"] .cart-row__image img {
+    width: 74px;
+    height: 74px;
+  }
+
+  body[data-page="cart"] .site-footer {
+    display: none;
+  }
+}
+
+@media (max-width: 380px) {
+  .topbar {
+    grid-template-columns: 32px minmax(0, 1fr) auto;
+    padding-inline: 7px;
+    gap: 5px;
+  }
+
+  .brand,
+  .brand-mark {
+    width: 30px;
+    min-width: 30px;
+  }
+
+  .topnav a {
+    padding-inline: 4px;
+    font-size: 0.76rem;
+  }
+
+  .cart-badge {
+    min-width: 24px;
+    height: 36px;
+  }
 }
