@@ -1400,7 +1400,7 @@ body[data-page="catalog"] .catalog-grid .product-image {
 
 body[data-page="catalog"] .catalog-grid .product-image img {
   object-fit: cover;
-  object-position: center;
+  object-position: center top;
   padding: 0;
 }
 
@@ -1689,7 +1689,7 @@ body[data-page="catalog"] .product-actions .button {
   overflow: hidden;
   border-radius: clamp(24px, 4vw, 44px);
   border: 0;
-  background: #000;
+  background: #0c1015;
   box-shadow: 0 30px 70px rgba(16, 24, 40, 0.16);
   touch-action: pan-y;
 }
@@ -1698,8 +1698,8 @@ body[data-page="catalog"] .product-actions .button {
   display: block;
   width: 100%;
   height: clamp(440px, 43vw, 650px);
-  object-fit: cover;
-  object-position: center;
+  object-fit: contain;
+  object-position: center top;
   padding: 0;
   filter: contrast(1.08) saturate(1.08) brightness(1.03);
 }
