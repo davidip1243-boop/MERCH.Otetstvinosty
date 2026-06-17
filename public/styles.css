@@ -4585,3 +4585,59 @@ body[data-active-theme="light"][data-page="cart"] .topnav a[aria-current="page"]
 :root[data-theme="light"] body[data-page="cart"] .topnav a[aria-current="page"] {
   color: #ffffff;
 }
+
+/* Add-to-cart popup contrast repair. */
+.cart-prompt {
+  color: #1d1d1f;
+}
+
+.cart-prompt strong {
+  color: #1d1d1f;
+}
+
+.cart-prompt p,
+.cart-prompt__check {
+  color: #62666d;
+}
+
+.cart-prompt .button--ghost {
+  background: #eef4fb;
+  color: #0b6bd3;
+}
+
+.cart-prompt .button--solid {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+
+body[data-active-theme="dark"] .cart-prompt,
+:root[data-theme="dark"] .cart-prompt {
+  border-color: rgba(255, 255, 255, 0.14);
+  background: rgba(255, 255, 255, 0.96);
+  color: #1d1d1f;
+  box-shadow: 0 26px 70px rgba(0, 0, 0, 0.42);
+}
+
+body[data-active-theme="dark"] .cart-prompt strong,
+:root[data-theme="dark"] .cart-prompt strong {
+  color: #1d1d1f;
+}
+
+body[data-active-theme="dark"] .cart-prompt p,
+body[data-active-theme="dark"] .cart-prompt__check,
+:root[data-theme="dark"] .cart-prompt p,
+:root[data-theme="dark"] .cart-prompt__check {
+  color: #5f656d;
+}
+
+body[data-active-theme="dark"] .cart-prompt .button--solid,
+:root[data-theme="dark"] .cart-prompt .button--solid {
+  background: #ffffff;
+  color: #1d1d1f;
+}
+
+body[data-active-theme="dark"] .cart-prompt .button--ghost,
+:root[data-theme="dark"] .cart-prompt .button--ghost {
+  background: #edf5ff;
+  color: #0b6bd3;
+}
