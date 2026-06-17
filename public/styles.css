@@ -4641,3 +4641,104 @@ body[data-active-theme="dark"] .cart-prompt .button--ghost,
   background: #edf5ff;
   color: #0b6bd3;
 }
+
+/* Desktop product fit: keep the whole first product view visible on laptop screens. */
+@media (min-width: 861px) {
+  body[data-page="product"] .site-shell {
+    padding-top: clamp(64px, 8.8svh, 82px);
+    padding-bottom: 18px;
+  }
+
+  body[data-page="product"] .product-detail {
+    gap: clamp(12px, 1.5vw, 20px);
+    min-height: calc(100svh - 104px);
+    padding: clamp(20px, 2.6vw, 34px) clamp(26px, 3.8vw, 48px);
+  }
+
+  body[data-page="product"] .product-detail__grid {
+    grid-template-columns: minmax(260px, 0.68fr) minmax(460px, 1.32fr);
+    gap: clamp(20px, 3.2vw, 46px);
+    align-items: center;
+  }
+
+  body[data-page="product"] .product-detail__copy {
+    gap: 12px;
+    padding-top: 0;
+    align-content: center;
+  }
+
+  body[data-page="product"] .product-detail h1 {
+    font-size: clamp(2.85rem, 4.25vw, 4rem);
+    line-height: 0.96;
+  }
+
+  body[data-page="product"] .product-detail-price {
+    font-size: clamp(1.32rem, 2vw, 1.62rem);
+  }
+
+  body[data-page="product"] .size-selector {
+    gap: 8px;
+  }
+
+  body[data-page="product"] .size-chip span {
+    min-width: 50px;
+    min-height: 40px;
+  }
+
+  body[data-page="product"] .product-actions {
+    gap: 8px;
+  }
+
+  body[data-page="product"] .product-actions .button {
+    min-height: 42px;
+    padding: 9px 16px;
+  }
+
+  body[data-page="product"] .product-detail__media {
+    margin-left: 0;
+  }
+
+  body[data-page="product"] .product-gallery-viewer {
+    gap: 8px;
+  }
+
+  body[data-page="product"] .product-gallery-arrow {
+    width: 42px;
+    height: 42px;
+  }
+
+  body[data-page="product"] .product-detail-image {
+    border-radius: clamp(22px, 3.2vw, 34px);
+  }
+
+  body[data-page="product"] .product-detail-image img {
+    height: clamp(390px, calc(100svh - 210px), 560px);
+  }
+
+  body[data-page="product"] .product-gallery-meta {
+    margin-top: -6px;
+  }
+
+  body[data-page="product"] .product-thumbnails {
+    max-height: 56px;
+    overflow: hidden;
+  }
+}
+
+@media (min-width: 861px) and (max-height: 760px) {
+  body[data-page="product"] .product-detail {
+    min-height: calc(100svh - 92px);
+  }
+
+  body[data-page="product"] .product-detail h1 {
+    font-size: clamp(2.65rem, 4vw, 3.55rem);
+  }
+
+  body[data-page="product"] .product-detail-image img {
+    height: clamp(360px, calc(100svh - 190px), 520px);
+  }
+
+  body[data-page="product"] .product-thumbnails {
+    display: none;
+  }
+}
