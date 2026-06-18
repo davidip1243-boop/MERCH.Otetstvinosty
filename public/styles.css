@@ -4777,3 +4777,12 @@ body[data-page="catalog"] .catalog-grid .product-image img {
 body[data-page="product"] .product-detail-image img {
   min-height: 100%;
 }
+
+body[data-page="catalog"] .catalog-grid .product-image img[data-image-index="2"],
+body[data-page="catalog"] .catalog-grid .product-image img[data-image-index="3"],
+body[data-page="catalog"] .catalog-grid .product-image img[data-image-index="4"],
+body[data-page="product"] .product-detail-image img[data-image-index="2"],
+body[data-page="product"] .product-detail-image img[data-image-index="3"],
+body[data-page="product"] .product-detail-image img[data-image-index="4"] {
+  object-position: center 24%;
+}

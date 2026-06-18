@@ -1028,7 +1028,7 @@ function buildProductCard(product, compact = false) {
   return `
     <article class="${compact ? "featured-card" : "product-card"}" data-open-product="${product.id}" data-product-images="${imagePayload}">
       <div class="product-image">
-        <img src="${images[0] || ""}" alt="${escapeHtml(product.title)}" />
+        <img src="${images[0] || ""}" alt="${escapeHtml(product.title)}" data-image-index="1" />
         ${!compact && images.length > 1 ? `<div class="product-hover-steps" aria-hidden="true">${images.map((_image, index) => `<span class="${index === 0 ? "is-active" : ""}"></span>`).join("")}</div>` : ""}
       </div>
       <div class="product-copy">
@@ -1093,6 +1093,7 @@ function bindProductActions(container) {
       if (images[safeIndex] && imageNode.src !== images[safeIndex]) {
         imageNode.src = images[safeIndex];
       }
+      imageNode.dataset.imageIndex = String(safeIndex + 1);
       stepNodes.forEach((node, nodeIndex) => {
         node.classList.toggle("is-active", nodeIndex === safeIndex);
       });
@@ -1364,7 +1365,7 @@ async function renderProductPage() {
           <div class="product-gallery-viewer">
             <button class="icon-button product-gallery-arrow" type="button" data-gallery-prev aria-label="Previous image" ${hasManyImages ? "" : "disabled"}>←</button>
             <figure class="product-detail-image">
-              <img data-product-detail-main src="${mainImage}" alt="${escapeHtml(product.title)} 1" />
+              <img data-product-detail-main src="${mainImage}" alt="${escapeHtml(product.title)} 1" data-image-index="1" />
             </figure>
             <button class="icon-button product-gallery-arrow" type="button" data-gallery-next aria-label="Next image" ${hasManyImages ? "" : "disabled"}>→</button>
           </div>
@@ -1432,6 +1433,7 @@ async function renderProductPage() {
     const src = product.images[activeIndex];
     mainImageNode.src = src;
     mainImageNode.alt = `${product.title} ${activeIndex + 1}`;
+    mainImageNode.dataset.imageIndex = String(activeIndex + 1);
     if (metaNode) {
       metaNode.textContent = `${activeIndex + 1} / ${product.images.length}`;
     }
