@@ -4755,3 +4755,25 @@ body[data-active-theme="dark"] .cart-prompt .button--ghost,
     display: none;
   }
 }
+
+/* Final image fit pass: fill every frame edge-to-edge, anchored at the top. */
+body[data-page="catalog"] .catalog-grid .product-image,
+body[data-page="product"] .product-detail-image {
+  background: transparent;
+}
+
+body[data-page="catalog"] .catalog-grid .product-image img,
+body[data-page="product"] .product-detail-image img {
+  display: block;
+  width: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+body[data-page="catalog"] .catalog-grid .product-image img {
+  height: 100%;
+}
+
+body[data-page="product"] .product-detail-image img {
+  min-height: 100%;
+}
