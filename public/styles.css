@@ -4767,7 +4767,7 @@ body[data-page="product"] .product-detail-image img {
   display: block;
   width: 100%;
   object-fit: cover;
-  object-position: center top;
+  object-position: center 12%;
 }
 
 body[data-page="catalog"] .catalog-grid .product-image img {
