@@ -1722,6 +1722,7 @@ function updateCartUi() {
   const checkoutGate = document.querySelector("[data-checkout-gate]");
   const checkoutForm = document.querySelector("[data-checkout-form]");
   const checkoutPanel = document.querySelector("[data-checkout-panel]");
+  const checkoutStart = document.querySelector("[data-checkout-start]");
 
   document.querySelectorAll("[data-cart-count]").forEach((badge) => {
     badge.textContent = String(totalCount);
@@ -1789,6 +1790,10 @@ function updateCartUi() {
 
   if (checkoutGate) {
     checkoutGate.hidden = selectedItems.length === 0 || !checkoutForm?.hidden;
+  }
+  if (checkoutStart) {
+    checkoutStart.disabled = selectedItems.length === 0 || !checkoutForm?.hidden;
+    checkoutStart.hidden = Boolean(checkoutForm && !checkoutForm.hidden);
   }
   checkoutPanel?.classList.toggle("is-checkout-open", Boolean(checkoutForm && !checkoutForm.hidden));
 

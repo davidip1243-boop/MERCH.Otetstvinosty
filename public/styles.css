@@ -741,6 +741,17 @@ body[data-page="about"] .topbar {
   font-weight: 500;
 }
 
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.46;
+}
+
+.checkout-menu-button {
+  min-height: 40px;
+  padding-inline: 18px;
+  white-space: nowrap;
+}
+
 .cart-trigger {
   flex: 0 0 auto;
   min-width: auto;
