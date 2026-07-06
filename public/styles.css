@@ -4618,6 +4618,79 @@ body[data-active-theme="light"][data-page="cart"] .topnav a[aria-current="page"]
   color: #1d1d1f;
 }
 
+/* Cart header readability repair: keep the nav visible when light cart styles win late. */
+body[data-page="cart"] .topbar {
+  background: rgba(250, 241, 224, 0.94);
+  background-color: rgba(250, 241, 224, 0.94);
+  border-bottom: 1px solid rgba(76, 58, 35, 0.14);
+  box-shadow: 0 8px 30px rgba(76, 58, 35, 0.08);
+}
+
+body[data-page="cart"] .topnav a,
+body[data-page="cart"] .brand-copy,
+body[data-page="cart"] .brand-copy__tagline,
+body[data-page="cart"] .theme-switch,
+body[data-page="cart"] .theme-switch select {
+  color: rgba(29, 29, 31, 0.82);
+}
+
+body[data-page="cart"] .topnav a:hover,
+body[data-page="cart"] .topnav a[aria-current="page"] {
+  color: #1d1d1f;
+}
+
+body[data-page="cart"] .checkout-menu-button {
+  background: #1d1d1f;
+  color: #ffffff;
+  opacity: 1;
+}
+
+body[data-page="cart"] .checkout-menu-button:disabled {
+  background: rgba(29, 29, 31, 0.14);
+  color: rgba(29, 29, 31, 0.62);
+  opacity: 1;
+}
+
+body[data-active-theme="dark"][data-page="cart"] .topbar,
+:root[data-theme="dark"] body[data-page="cart"] .topbar {
+  background: rgba(18, 23, 29, 0.94);
+  background-color: rgba(18, 23, 29, 0.94);
+  border-bottom-color: rgba(255, 255, 255, 0.08);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
+}
+
+body[data-active-theme="dark"][data-page="cart"] .topnav a,
+body[data-active-theme="dark"][data-page="cart"] .brand-copy,
+body[data-active-theme="dark"][data-page="cart"] .brand-copy__tagline,
+body[data-active-theme="dark"][data-page="cart"] .theme-switch,
+body[data-active-theme="dark"][data-page="cart"] .theme-switch select,
+:root[data-theme="dark"] body[data-page="cart"] .topnav a,
+:root[data-theme="dark"] body[data-page="cart"] .brand-copy,
+:root[data-theme="dark"] body[data-page="cart"] .brand-copy__tagline,
+:root[data-theme="dark"] body[data-page="cart"] .theme-switch,
+:root[data-theme="dark"] body[data-page="cart"] .theme-switch select {
+  color: rgba(248, 242, 234, 0.82);
+}
+
+body[data-active-theme="dark"][data-page="cart"] .topnav a:hover,
+body[data-active-theme="dark"][data-page="cart"] .topnav a[aria-current="page"],
+:root[data-theme="dark"] body[data-page="cart"] .topnav a:hover,
+:root[data-theme="dark"] body[data-page="cart"] .topnav a[aria-current="page"] {
+  color: #ffffff;
+}
+
+body[data-active-theme="dark"][data-page="cart"] .checkout-menu-button,
+:root[data-theme="dark"] body[data-page="cart"] .checkout-menu-button {
+  background: #f7f1e8;
+  color: #0b0d10;
+}
+
+body[data-active-theme="dark"][data-page="cart"] .checkout-menu-button:disabled,
+:root[data-theme="dark"] body[data-page="cart"] .checkout-menu-button:disabled {
+  background: rgba(248, 242, 234, 0.14);
+  color: rgba(248, 242, 234, 0.62);
+}
+
 /* Add-to-cart popup contrast repair. */
 .cart-prompt {
   color: #1d1d1f;
