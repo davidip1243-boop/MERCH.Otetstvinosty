@@ -4419,17 +4419,17 @@ body[data-active-theme="dark"][data-page="cart"] .cart-checkout-gate,
   }
 }
 
-/* Cart contrast mode: the cart intentionally flips against the active theme. */
+/* Cart theme repair: keep cart page consistent with the active theme. */
 body[data-active-theme="dark"][data-page="cart"],
 :root[data-theme="dark"] body[data-page="cart"] {
-  --cart-bg: #ffffff;
-  --cart-surface: #ffffff;
-  --cart-surface-strong: #ffffff;
-  --cart-surface-soft: #f3f3f3;
-  --cart-stroke: rgba(0, 0, 0, 0.14);
-  --cart-text: #050505;
-  --cart-muted: #555555;
-  --cart-shadow: 0 28px 70px rgba(0, 0, 0, 0.14);
+  --cart-bg: #050607;
+  --cart-surface: #0b0d10;
+  --cart-surface-strong: #101419;
+  --cart-surface-soft: #171d24;
+  --cart-stroke: rgba(255, 255, 255, 0.16);
+  --cart-text: #f7f1e8;
+  --cart-muted: rgba(247, 241, 232, 0.68);
+  --cart-shadow: 0 32px 80px rgba(0, 0, 0, 0.34);
   color: var(--cart-text);
   background: var(--cart-bg);
 }
@@ -4437,20 +4437,20 @@ body[data-active-theme="dark"][data-page="cart"],
 body[data-active-theme="dark"][data-page="cart"]::before,
 :root[data-theme="dark"] body[data-page="cart"]::before {
   background:
-    radial-gradient(circle at 18% 8%, rgba(255, 255, 255, 1), transparent 32%),
-    linear-gradient(180deg, #ffffff 0%, #ffffff 100%);
+    radial-gradient(circle at 18% 4%, rgba(96, 126, 155, 0.2), transparent 30%),
+    linear-gradient(180deg, #101419 0%, #050607 100%);
 }
 
 body[data-active-theme="light"][data-page="cart"],
 :root[data-theme="light"] body[data-page="cart"] {
-  --cart-bg: #000000;
-  --cart-surface: #000000;
-  --cart-surface-strong: #0a0a0a;
-  --cart-surface-soft: #151515;
-  --cart-stroke: rgba(255, 255, 255, 0.18);
-  --cart-text: #ffffff;
-  --cart-muted: rgba(255, 255, 255, 0.68);
-  --cart-shadow: 0 32px 80px rgba(0, 0, 0, 0.34);
+  --cart-bg: #f3ecdf;
+  --cart-surface: #fffaf1;
+  --cart-surface-strong: #ffffff;
+  --cart-surface-soft: #f8efe2;
+  --cart-stroke: rgba(76, 58, 35, 0.16);
+  --cart-text: #1d1d1f;
+  --cart-muted: #6e645a;
+  --cart-shadow: 0 28px 70px rgba(76, 58, 35, 0.12);
   color: var(--cart-text);
   background: var(--cart-bg);
 }
@@ -4458,8 +4458,9 @@ body[data-active-theme="light"][data-page="cart"],
 body[data-active-theme="light"][data-page="cart"]::before,
 :root[data-theme="light"] body[data-page="cart"]::before {
   background:
-    radial-gradient(circle at 18% 4%, rgba(255, 255, 255, 0.06), transparent 30%),
-    linear-gradient(180deg, #000000 0%, #000000 100%);
+    radial-gradient(circle at 16% 8%, rgba(255, 255, 255, 0.92), transparent 30%),
+    radial-gradient(circle at 86% 12%, rgba(218, 176, 113, 0.22), transparent 34%),
+    linear-gradient(180deg, #fbf4e8 0%, #f3ecdf 52%, #eadcc8 100%);
 }
 
 body[data-active-theme="dark"][data-page="cart"]::after,
@@ -4555,22 +4556,22 @@ body[data-page="cart"] .button--solid {
 
 body[data-active-theme="light"][data-page="cart"] .button--solid,
 :root[data-theme="light"] body[data-page="cart"] .button--solid {
-  background: #ffffff;
-  color: #000000;
+  background: #1d1d1f;
+  color: #ffffff;
 }
 
 body[data-active-theme="light"][data-page="cart"] .button--ghost,
 :root[data-theme="light"] body[data-page="cart"] .button--ghost {
-  background: rgba(255, 255, 255, 0.12);
-  color: #ffffff;
+  background: rgba(0, 102, 204, 0.08);
+  color: #0066cc;
 }
 
 body[data-active-theme="dark"][data-page="cart"] .topbar,
 :root[data-theme="dark"] body[data-page="cart"] .topbar {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.12);
-  background: #ffffff;
-  background-color: #ffffff;
-  box-shadow: 0 10px 34px rgba(0, 0, 0, 0.08);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(18, 23, 29, 0.94);
+  background-color: rgba(18, 23, 29, 0.94);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.3);
 }
 
 body[data-active-theme="dark"][data-page="cart"] .topnav a,
@@ -4581,22 +4582,22 @@ body[data-active-theme="dark"][data-page="cart"] .theme-switch select,
 :root[data-theme="dark"] body[data-page="cart"] .cart-trigger,
 :root[data-theme="dark"] body[data-page="cart"] .theme-switch,
 :root[data-theme="dark"] body[data-page="cart"] .theme-switch select {
-  color: rgba(29, 29, 31, 0.72);
+  color: rgba(248, 242, 234, 0.76);
 }
 
 body[data-active-theme="dark"][data-page="cart"] .topnav a:hover,
 body[data-active-theme="dark"][data-page="cart"] .topnav a[aria-current="page"],
 :root[data-theme="dark"] body[data-page="cart"] .topnav a:hover,
 :root[data-theme="dark"] body[data-page="cart"] .topnav a[aria-current="page"] {
-  color: #1d1d1f;
+  color: #ffffff;
 }
 
 body[data-active-theme="light"][data-page="cart"] .topbar,
 :root[data-theme="light"] body[data-page="cart"] .topbar {
-  border-bottom: 1px solid rgba(255, 255, 255, 0.14);
-  background: #000000;
-  background-color: #000000;
-  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.32);
+  border-bottom: 1px solid rgba(76, 58, 35, 0.14);
+  background: rgba(255, 252, 246, 0.94);
+  background-color: rgba(255, 252, 246, 0.94);
+  box-shadow: 0 8px 30px rgba(76, 58, 35, 0.08);
 }
 
 body[data-active-theme="light"][data-page="cart"] .topnav a,
@@ -4607,14 +4608,14 @@ body[data-active-theme="light"][data-page="cart"] .theme-switch select,
 :root[data-theme="light"] body[data-page="cart"] .cart-trigger,
 :root[data-theme="light"] body[data-page="cart"] .theme-switch,
 :root[data-theme="light"] body[data-page="cart"] .theme-switch select {
-  color: rgba(248, 242, 234, 0.76);
+  color: rgba(29, 29, 31, 0.72);
 }
 
 body[data-active-theme="light"][data-page="cart"] .topnav a:hover,
 body[data-active-theme="light"][data-page="cart"] .topnav a[aria-current="page"],
 :root[data-theme="light"] body[data-page="cart"] .topnav a:hover,
 :root[data-theme="light"] body[data-page="cart"] .topnav a[aria-current="page"] {
-  color: #ffffff;
+  color: #1d1d1f;
 }
 
 /* Add-to-cart popup contrast repair. */
