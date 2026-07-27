@@ -1,0 +1,10 @@
+.git
+.vercel
+node_modules
+.env
+.env.*
+.codex-tools
+data
+public
+*.log
+.DS_Store
