@@ -71,16 +71,55 @@
       </header>
 
       <main>
-        <section class="home-focus">
-          <div class="home-focus__copy">
-            <img class="home-focus__logo" src="/assets/images/brand-mark.png" alt="" draggable="false" />
-            <a class="home-focus__title-link" href="/about">
-              <h1><span>Знаешь ли ты,</span><span>кто мы?</span></h1>
+        <section class="base44-hero" aria-labelledby="home-title">
+          <div class="base44-hero__image" aria-hidden="true"></div>
+          <div class="base44-hero__shade" aria-hidden="true"></div>
+          <div class="base44-hero__content">
+            <p class="base44-kicker">Мерч команды по ответственностям</p>
+            <a class="base44-title-link" href="/about" aria-label="О нас">
+              <h1 id="home-title">Знаешь ли ты,<br /><span>кто мы?</span></h1>
             </a>
-            <p>Мерч команды по ответственностям</p>
-            <a class="home-focus__cta" href="/catalog">Открыть каталог</a>
+            <div class="base44-hero__actions">
+              <a class="base44-button base44-button--solid" href="/catalog">Открыть каталог</a>
+              <a class="base44-button base44-button--ghost" href="/about">О нас</a>
+            </div>
           </div>
         </section>
+
+        <div class="base44-divider" aria-hidden="true">
+          <span></span>
+          <i></i>
+          <span></span>
+        </div>
+
+        <section class="base44-section" aria-labelledby="featured-title">
+          <div class="base44-section__head">
+            <div>
+              <p class="base44-kicker">Каталог</p>
+              <h2 id="featured-title">Избранное</h2>
+            </div>
+            <a href="/catalog">Все товары →</a>
+          </div>
+          <div class="catalog-grid base44-featured-grid" data-featured-products></div>
+        </section>
+
+        <div class="base44-divider" aria-hidden="true">
+          <span></span>
+          <i></i>
+          <span></span>
+        </div>
+
+        <section class="base44-mission" aria-label="Наша миссия">
+          <p class="base44-kicker">Наша миссия</p>
+          <p>
+            Мы команда православных подростков, которые любят путешествовать, трудиться и веселиться.
+            Каждая вещь — это история нашей веры, дружбы и мечты о большом путешествии.
+          </p>
+        </section>
+
+        <footer class="base44-footer">
+          <p>Вера<br />в каждом<br />стежке</p>
+        </footer>
       </main>
     </div>
 
