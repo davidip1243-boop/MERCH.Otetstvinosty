@@ -1110,7 +1110,7 @@ function buildProductCard(product, compact = false) {
         </div>
         <div class="product-card__bottom">
           <div class="product-actions">
-            <button class="button button--solid" type="button" data-add-to-cart="${product.id}">В корзину</button>
+            <button class="button button--solid" type="button" data-open-product-button="${product.id}">Смотреть товар</button>
           </div>
         </div>
       </div>
