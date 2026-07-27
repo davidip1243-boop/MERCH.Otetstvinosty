@@ -11,7 +11,7 @@ const DELETED_PRODUCTS_KEY = "merch-deleted-products";
 const CART_PROMPT_CHOICE_KEY = "merch-cart-prompt-choice-v1";
 const APP_RATING_KEY = "merch-app-rating-v1";
 const APP_RATING_DELAY_MS = 5 * 60 * 1000;
-const PAGE_TRANSITION_EXIT_MS = 280;
+const PAGE_TRANSITION_EXIT_MS = 540;
 const PAGE_TRANSITION_KEY = "merch-page-transition-v1";
 const TSHIRT_SIZES = ["S", "M", "L", "XL", "XXL"];
 const FORCE_RESTORED_PRODUCT_IDS = [];
@@ -569,18 +569,30 @@ function getTopbarThemeStyle(activeTheme) {
   const page = document.body?.dataset.page;
   if (activeTheme === "light") {
     if (page === "about") {
-      return { background: "rgba(239, 246, 249, 0.86)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
+      return { background: "rgba(255, 244, 225, 0.88)", boxShadow: "0 1px 0 rgba(105, 68, 25, 0.1)" };
     }
     if (page === "cart") {
-      return { background: "rgba(250, 241, 224, 0.84)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
+      return { background: "rgba(255, 239, 214, 0.86)", boxShadow: "0 1px 0 rgba(105, 68, 25, 0.1)" };
     }
-    return { background: "rgba(250, 246, 238, 0.86)", boxShadow: "0 1px 0 rgba(29, 29, 31, 0.08)" };
+    return { background: "rgba(255, 244, 225, 0.88)", boxShadow: "0 1px 0 rgba(105, 68, 25, 0.1)" };
   }
 
   if (page === "cart") {
     return { background: "rgba(22, 16, 10, 0.84)", boxShadow: "0 1px 0 rgba(255, 255, 255, 0.08)" };
   }
   return { background: "rgba(26, 30, 37, 0.82)", boxShadow: "0 1px 0 rgba(255, 255, 255, 0.08)" };
+}
+
+function getThemeFadeColor(activeTheme) {
+  if (activeTheme === "dark") {
+    return "#050607";
+  }
+
+  if (document.body?.dataset.page === "cart") {
+    return "#faead2";
+  }
+
+  return "#f7ead5";
 }
 
 function syncTopbarTheme(activeTheme) {
@@ -617,10 +629,13 @@ function applyTheme(theme) {
       })
     : [];
   if (shouldAnimate) {
+    const previousTheme = document.body?.dataset.activeTheme || (document.documentElement.dataset.theme === "dark" ? "dark" : "light");
+    document.documentElement.style.setProperty("--theme-fade-from", getThemeFadeColor(previousTheme));
     document.documentElement.classList.add("is-theme-changing");
     window.clearTimeout(themeTransitionTimer);
     themeTransitionTimer = window.setTimeout(() => {
       document.documentElement.classList.remove("is-theme-changing");
+      document.documentElement.style.removeProperty("--theme-fade-from");
     }, 1040);
   }
 
@@ -841,6 +856,63 @@ function getSelectedProductSize(container, product) {
   return sizes.includes(selected) ? selected : sizes[1] || sizes[0];
 }
 
+function getProductCartId(product, size = "") {
+  return size ? `${product.id}::${size}` : product.id;
+}
+
+function getProductCartItem(product, size = "") {
+  const cartId = getProductCartId(product, size);
+  return state.cart.find((item) => getCartItemKey(item) === cartId);
+}
+
+function getProductCartQuantity(product, size = "") {
+  return getProductCartItem(product, size)?.quantity || 0;
+}
+
+function renderProductPurchaseControls(product, size = "") {
+  const quantity = getProductCartQuantity(product, size);
+
+  if (quantity > 0) {
+    return `
+      <div class="product-quantity-stepper" data-product-cart-controls aria-label="Количество в корзине">
+        <button type="button" data-product-cart-delta="-1" aria-label="Уменьшить количество">−</button>
+        <strong>${quantity}</strong>
+        <button type="button" data-product-cart-delta="1" aria-label="Увеличить количество">+</button>
+      </div>
+    `;
+  }
+
+  return `<button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>`;
+}
+
+function refreshProductPurchaseControls(container, product) {
+  const controls = container.querySelector("[data-product-purchase-controls]");
+  if (!controls) {
+    return;
+  }
+
+  controls.innerHTML = renderProductPurchaseControls(product, getSelectedProductSize(container, product));
+  bindProductPurchaseControls(container, product);
+}
+
+function bindProductPurchaseControls(container, product) {
+  const addButton = container.querySelector("[data-product-purchase-controls] [data-add-to-cart]");
+  addButton?.addEventListener("click", () => {
+    addToCart(product.id, {
+      size: getSelectedProductSize(container, product),
+      showPrompt: false
+    });
+    refreshProductPurchaseControls(container, product);
+  });
+
+  container.querySelectorAll("[data-product-purchase-controls] [data-product-cart-delta]").forEach((button) => {
+    button.addEventListener("click", () => {
+      changeProductCartQuantity(product, Number(button.dataset.productCartDelta), getSelectedProductSize(container, product));
+      refreshProductPurchaseControls(container, product);
+    });
+  });
+}
+
 async function fetchJson(url, options = {}) {
   const response = await fetch(url, {
     credentials: "include",
@@ -1038,7 +1110,7 @@ function buildProductCard(product, compact = false) {
         </div>
         <div class="product-card__bottom">
           <div class="product-actions">
-            <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
+            <button class="button button--solid" type="button" data-open-product-button="${product.id}">Смотреть товар</button>
           </div>
         </div>
       </div>
@@ -1349,18 +1421,6 @@ async function renderProductPage() {
   container.innerHTML = `
     <article class="product-detail glass-panel">
       <div class="product-detail__grid">
-        <div class="product-detail__copy">
-          <p class="product-meta">${escapeHtml(product.category)}</p>
-          <h1>${escapeHtml(product.title)}</h1>
-          ${summaryHtml}
-          ${descriptionHtml}
-          <strong class="product-price product-detail-price">${formatPrice(product.price)} ₽</strong>
-          ${sizeSelector}
-          <div class="product-actions">
-            <a class="button button--ghost" href="/catalog">${t("product.backCatalog")}</a>
-            <button class="button button--solid" type="button" data-add-to-cart="${product.id}">${t("ui.addToCart")}</button>
-          </div>
-        </div>
         <div class="product-detail__media">
           <div class="product-gallery-viewer">
             <button class="icon-button product-gallery-arrow" type="button" data-gallery-prev aria-label="Previous image" ${hasManyImages ? "" : "disabled"}>←</button>
@@ -1371,6 +1431,20 @@ async function renderProductPage() {
           </div>
           <p class="product-gallery-meta" data-gallery-meta>${product.images.length ? `1 / ${product.images.length}` : ""}</p>
           <div class="product-thumbnails">${thumbnails}</div>
+        </div>
+        <div class="product-detail__copy">
+          <p class="product-meta">${escapeHtml(product.category)}</p>
+          <h1>${escapeHtml(product.title)}</h1>
+          ${summaryHtml}
+          ${descriptionHtml}
+          <strong class="product-price product-detail-price">${formatPrice(product.price)} ₽</strong>
+          ${sizeSelector}
+          <div class="product-actions">
+            <a class="button button--ghost" href="/catalog">${t("product.backCatalog")}</a>
+            <div class="product-purchase-controls" data-product-purchase-controls>
+              ${renderProductPurchaseControls(product, getSelectedProductSize(container, product))}
+            </div>
+          </div>
         </div>
       </div>
       ${detailsHtml}
@@ -1406,8 +1480,10 @@ async function renderProductPage() {
     </article>
   `;
 
-  const addButton = container.querySelector("[data-add-to-cart]");
-  addButton?.addEventListener("click", () => addToCart(product.id, { size: getSelectedProductSize(container, product) }));
+  bindProductPurchaseControls(container, product);
+  container.querySelectorAll("[data-size-selector] input").forEach((input) => {
+    input.addEventListener("change", () => refreshProductPurchaseControls(container, product));
+  });
   setupReviewForm(container, product);
 
   if (!product.images.length) {
@@ -1579,7 +1655,7 @@ function addToCart(productId, options = {}) {
 
   persistCart();
   updateCartUi();
-  if (window.location.pathname !== "/cart") {
+  if (options.showPrompt !== false && window.location.pathname !== "/cart") {
     const promptChoice = localStorage.getItem(CART_PROMPT_CHOICE_KEY);
     if (promptChoice === "open") {
       navigateTo("/cart");
@@ -1587,6 +1663,22 @@ function addToCart(productId, options = {}) {
       showCartPrompt();
     }
   }
+}
+
+function changeProductCartQuantity(product, delta, size = "") {
+  const cartId = getProductCartId(product, size);
+  const item = state.cart.find((entry) => getCartItemKey(entry) === cartId);
+
+  if (!item && delta > 0) {
+    addToCart(product.id, { size, showPrompt: false });
+    return;
+  }
+
+  if (!item) {
+    return;
+  }
+
+  changeQuantity(cartId, delta);
 }
 
 function showCartPrompt() {
