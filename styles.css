@@ -494,6 +494,27 @@ p {
   font-size: clamp(1rem, 1.45vw, 1.22rem);
 }
 
+/* The daylight home view uses the photo directly, softened only by white. */
+:root[data-theme="light"] .storefront-bg img {
+  opacity: 1;
+  filter: saturate(0.98) contrast(1.01);
+}
+
+:root[data-theme="light"] .storefront-bg::after {
+  background: linear-gradient(
+    180deg,
+    rgba(255, 253, 248, 0.04),
+    rgba(255, 253, 248, 0.1) 58%,
+    var(--bg) 100%
+  );
+}
+
+/* Keep the hero kicker readable over the home photograph in the light palette. */
+:root[data-theme="light"] .storefront-copy .label {
+  color: #4f421f;
+  text-shadow: 0 1px 18px rgba(255, 255, 255, 0.94);
+}
+
 .hero-actions {
   display: flex;
   flex-wrap: wrap;
