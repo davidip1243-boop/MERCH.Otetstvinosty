@@ -888,6 +888,10 @@ p {
   background: #c9c9c4;
 }
 
+.variant-chip__dot--burgundy {
+  background: #6f2638;
+}
+
 .product-thumbs {
   display: flex;
   gap: 0.6rem;

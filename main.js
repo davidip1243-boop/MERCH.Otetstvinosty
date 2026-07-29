@@ -38,6 +38,13 @@ const products = [
         imagePath: "/assets/images/products/tee-team/light-grey",
         images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
       },
+      {
+        id: "burgundy",
+        name: "Бордовая",
+        visual: "wine",
+        imagePath: "/assets/images/products/tee-team/burgundy",
+        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
+      },
     ],
   },
 ];
