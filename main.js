@@ -1,7 +1,7 @@
 const teeColours = [
   { id: "white", name: "Белая", visual: "chalk", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
   { id: "graphite", name: "Графитовая", visual: "wine", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"] },
-  { id: "banana", name: "Банановая", visual: "canvas" },
+  { id: "banana", name: "Банановая", visual: "canvas", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
   { id: "light-grey", name: "Светло-серая", visual: "pine" },
   { id: "burgundy", name: "Бордовая", visual: "wine", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
 ];
