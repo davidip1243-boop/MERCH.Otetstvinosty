@@ -1134,14 +1134,10 @@ p {
 
 .story-image img {
   width: 100%;
-  height: clamp(24rem, 45vw, 34rem);
-  object-fit: cover;
+  height: auto;
+  aspect-ratio: 3 / 2;
+  object-fit: contain;
   filter: saturate(0.86) contrast(1.04);
-  transition: transform 900ms ease;
-}
-
-.story-image:hover img {
-  transform: scale(1.035);
 }
 
 .story-image::after {
@@ -1592,10 +1588,6 @@ input:focus {
   .about-hero h1,
   .cart-copy h1 {
     font-size: clamp(2.1rem, 10vw, 3rem);
-  }
-
-  .story-image img {
-    height: 24rem;
   }
 
   .cart-row {
