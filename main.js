@@ -75,9 +75,7 @@ const productTypeLabels = {
 };
 
 const products = [...teeColours.map(createTeeProduct), ...defaultProducts];
-const catalogProducts = products.filter(
-  (product) => !product.id.startsWith("tee-") || product.id === "tee-white" || product.id === "tee-graphite",
-);
+const catalogProducts = products;
 const legacyColourProductIds = Object.fromEntries(teeColours.map((colour) => [colour.id, `tee-${colour.id}`]));
 
 const storageKey = "otv-cart-v2";
