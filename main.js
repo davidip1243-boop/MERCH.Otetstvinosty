@@ -300,7 +300,8 @@ function renderProducts() {
   }
 
   if (featured) {
-    featured.innerHTML = catalogProducts.slice(0, 3).map((product) => productCard(product, true)).join("");
+    const featuredProducts = products.filter((product) => product.id === "tee-black" || product.id === "tee-graphite");
+    featured.innerHTML = featuredProducts.map((product) => productCard(product, true)).join("");
   }
 }
 
