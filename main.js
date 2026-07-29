@@ -164,6 +164,23 @@ function productGallery(product, variantId) {
   `;
 }
 
+function selectGalleryImage(galleryButton) {
+  if (!galleryButton || galleryButton.disabled) return;
+
+  const gallery = galleryButton.closest("[data-gallery-root]");
+  const main = gallery?.querySelector("[data-product-main-visual]");
+  const image = main?.querySelector(".product-photo");
+
+  if (image) {
+    image.src = galleryButton.dataset.galleryImage;
+    image.alt = galleryButton.dataset.galleryAlt;
+  }
+
+  gallery?.querySelectorAll("[data-gallery-image]").forEach((button) => {
+    button.classList.toggle("is-active", button === galleryButton);
+  });
+}
+
 function productCard(product, featured = false) {
   const variant = product.variants[0];
   return `
@@ -447,18 +464,7 @@ document.addEventListener("click", (event) => {
 
   const galleryButton = event.target.closest("[data-gallery-image]");
   if (galleryButton) {
-    const detail = galleryButton.closest("[data-product-detail]");
-    const main = detail?.querySelector("[data-product-main-visual]");
-    if (main) {
-      const image = main.querySelector(".product-photo");
-      if (image) {
-        image.src = galleryButton.dataset.galleryImage;
-        image.alt = galleryButton.dataset.galleryAlt;
-      }
-    }
-    detail?.querySelectorAll("[data-gallery-image]").forEach((button) => {
-      button.classList.toggle("is-active", button === galleryButton);
-    });
+    selectGalleryImage(galleryButton);
   }
 
   const removeButton = event.target.closest("[data-remove-item]");
@@ -578,6 +584,45 @@ function updateScrollProgress() {
 
 updateScrollProgress();
 window.addEventListener("scroll", updateScrollProgress, { passive: true });
+
+let gallerySwipeStart = null;
+
+document.addEventListener("pointerdown", (event) => {
+  if (event.pointerType === "mouse") return;
+
+  const visual = event.target.closest("[data-gallery-root] [data-product-main-visual]");
+  if (!visual) return;
+
+  gallerySwipeStart = {
+    gallery: visual.closest("[data-gallery-root]"),
+    pointerId: event.pointerId,
+    x: event.clientX,
+    y: event.clientY,
+  };
+});
+
+document.addEventListener("pointerup", (event) => {
+  if (!gallerySwipeStart || gallerySwipeStart.pointerId !== event.pointerId) return;
+
+  const { gallery, x, y } = gallerySwipeStart;
+  gallerySwipeStart = null;
+
+  const horizontalDistance = event.clientX - x;
+  const verticalDistance = event.clientY - y;
+  if (Math.abs(horizontalDistance) < 48 || Math.abs(horizontalDistance) <= Math.abs(verticalDistance)) return;
+
+  const photos = [...gallery.querySelectorAll("[data-gallery-image]")];
+  if (photos.length < 2) return;
+
+  const activeIndex = Math.max(0, photos.findIndex((button) => button.classList.contains("is-active")));
+  const direction = horizontalDistance < 0 ? 1 : -1;
+  const nextIndex = (activeIndex + direction + photos.length) % photos.length;
+  selectGalleryImage(photos[nextIndex]);
+});
+
+document.addEventListener("pointercancel", () => {
+  gallerySwipeStart = null;
+});
 
 document.addEventListener("keydown", (event) => {
   if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
