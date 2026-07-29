@@ -628,7 +628,7 @@ document.addEventListener("pointercancel", () => {
 });
 
 document.addEventListener("keydown", (event) => {
-  if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+  if (event.key !== "ArrowLeft" && event.key !== "ArrowRight") return;
 
   const target = event.target;
   if (
@@ -638,11 +638,15 @@ document.addEventListener("keydown", (event) => {
     return;
   }
 
+  const gallery = document.querySelector("[data-gallery-root]");
+  if (!gallery) return;
+
+  const photos = [...gallery.querySelectorAll("[data-gallery-image]")];
+  if (photos.length < 2) return;
+
   event.preventDefault();
-  const distance = Math.max(96, Math.round(window.innerHeight * 0.12));
-  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  window.scrollBy({
-    top: event.key === "ArrowDown" ? distance : -distance,
-    behavior: reducedMotion ? "auto" : "smooth",
-  });
+  const activeIndex = Math.max(0, photos.findIndex((button) => button.classList.contains("is-active")));
+  const direction = event.key === "ArrowRight" ? 1 : -1;
+  const nextIndex = (activeIndex + direction + photos.length) % photos.length;
+  selectGalleryImage(photos[nextIndex]);
 });
