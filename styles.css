@@ -19,8 +19,8 @@
   --bg-deep: #f6f4ef;
   --panel: #ffffff;
   --panel-2: #f8f6f1;
-  --text: #252822;
-  --muted: #626961;
+  --text: #11120f;
+  --muted: #20231e;
   --gold: #7b6742;
   --gold-2: #9b8657;
   --line: rgba(37, 40, 34, 0.12);
@@ -221,12 +221,31 @@ img {
 }
 
 :root[data-theme="light"] .topnav a {
-  color: #53635a;
+  color: #1c1e1a;
 }
 
 :root[data-theme="light"] .topnav a:hover,
 :root[data-theme="light"] .topnav a[aria-current="page"] {
   color: #6f5729;
+}
+
+:root[data-theme="light"] .topnav a[aria-current="page"] {
+  padding: 0.42rem 0.78rem;
+  border-radius: 999px;
+  background: #11120f;
+  color: #fffdf8;
+}
+
+:root[data-theme="light"] .topnav a[aria-current="page"]::after {
+  display: none;
+}
+
+/* The source logo artwork is white for the dark palette. In light mode it
+   becomes black so it stays clear against the bright navigation and hero. */
+:root[data-theme="light"] .brand-mark,
+:root[data-theme="light"] .hero-logo {
+  filter: brightness(0) saturate(100%)
+    drop-shadow(0 1px 3px rgba(255, 255, 255, 0.72));
 }
 
 .topnav a:hover::after,
@@ -427,9 +446,9 @@ p {
   inset: 0;
   content: "";
   background:
-    radial-gradient(circle at 50% 46%, rgba(15, 15, 14, 0.12) 0 16rem, rgba(15, 15, 14, 0.32) 31rem),
-    linear-gradient(180deg, rgba(15, 15, 14, 0.42), rgba(15, 15, 14, 0.36) 48%, var(--bg) 100%),
-    linear-gradient(90deg, rgba(15, 15, 14, 0.82), transparent 28%, transparent 72%, rgba(15, 15, 14, 0.82));
+    radial-gradient(circle at 50% 46%, rgba(15, 15, 14, 0.08) 0 16rem, rgba(15, 15, 14, 0.2) 31rem),
+    linear-gradient(180deg, rgba(15, 15, 14, 0.3), rgba(15, 15, 14, 0.26) 48%, var(--bg) 100%),
+    linear-gradient(90deg, rgba(15, 15, 14, 0.56), transparent 28%, transparent 72%, rgba(15, 15, 14, 0.56));
 }
 
 @keyframes slowZoom {
@@ -509,10 +528,54 @@ p {
   );
 }
 
+:root[data-theme="light"] .storefront-copy {
+  isolation: isolate;
+}
+
+/* A localized glow keeps the text legible without veiling the photograph. */
+:root[data-theme="light"] .storefront-copy::before {
+  position: absolute;
+  z-index: -1;
+  inset: -3rem -5rem;
+  content: "";
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 253, 248, 0.72) 0%,
+    rgba(255, 253, 248, 0.34) 42%,
+    rgba(255, 253, 248, 0) 74%
+  );
+  filter: blur(10px);
+  pointer-events: none;
+}
+
 /* Keep the hero kicker readable over the home photograph in the light palette. */
 :root[data-theme="light"] .storefront-copy .label {
-  color: #4f421f;
-  text-shadow: 0 1px 18px rgba(255, 255, 255, 0.94);
+  color: #3e3216;
+  text-shadow: 0 1px 10px rgba(255, 255, 255, 0.92);
+}
+
+:root[data-theme="light"] .storefront-copy p:not(.label) {
+  position: relative;
+  isolation: isolate;
+  color: #0b0d0a;
+  font-weight: 600;
+  text-shadow: 0 1px 8px rgba(255, 255, 255, 0.8);
+}
+
+:root[data-theme="light"] .storefront-copy p:not(.label)::before {
+  position: absolute;
+  z-index: -1;
+  inset: -0.8rem -1.8rem;
+  content: "";
+  border-radius: 50%;
+  background: radial-gradient(
+    ellipse at center,
+    rgba(255, 253, 248, 0.42),
+    rgba(255, 253, 248, 0) 72%
+  );
+  filter: blur(7px);
+  pointer-events: none;
 }
 
 .hero-actions {
@@ -1580,8 +1643,17 @@ input:focus {
 
   .storefront-bg::after {
     background:
-      linear-gradient(180deg, rgba(15, 15, 14, 0.22), rgba(15, 15, 14, 0.32) 44%, var(--bg) 100%),
-      linear-gradient(90deg, rgba(15, 15, 14, 0.68), transparent 45%, rgba(15, 15, 14, 0.68));
+      linear-gradient(180deg, rgba(15, 15, 14, 0.16), rgba(15, 15, 14, 0.22) 44%, var(--bg) 100%),
+      linear-gradient(90deg, rgba(15, 15, 14, 0.46), transparent 45%, rgba(15, 15, 14, 0.46));
+  }
+
+  :root[data-theme="light"] .storefront-bg::after {
+    background: linear-gradient(
+      180deg,
+      rgba(255, 253, 248, 0.04),
+      rgba(255, 253, 248, 0.1) 58%,
+      var(--bg) 100%
+    );
   }
 
   .storefront-copy h1 {
