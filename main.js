@@ -63,7 +63,7 @@ const defaultProducts = [
     lead: "Плотный шопер для книг, вещей в дорогу и всего нужного на каждый день.",
     note: "Практичная вещь с тихим характером.",
     details: ["Плотный канвас", "Усиленные ручки", "Внутреннее отделение"],
-    variants: [{ id: "default", name: "Канвас", visual: "canvas", imagePath: "/assets/images/products/defaults/tote-dream", images: ["01.svg", "02.svg"] }],
+    variants: [{ id: "default", name: "Канвас", visual: "canvas", imagePath: "/assets/images/products/defaults/tote-dream", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg"] }],
   },
 ];
 
