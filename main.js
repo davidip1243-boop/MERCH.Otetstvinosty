@@ -578,3 +578,23 @@ function updateScrollProgress() {
 
 updateScrollProgress();
 window.addEventListener("scroll", updateScrollProgress, { passive: true });
+
+document.addEventListener("keydown", (event) => {
+  if (event.key !== "ArrowUp" && event.key !== "ArrowDown") return;
+
+  const target = event.target;
+  if (
+    target instanceof HTMLElement &&
+    (target.matches("input, textarea, select, [contenteditable='true']") || target.isContentEditable)
+  ) {
+    return;
+  }
+
+  event.preventDefault();
+  const distance = Math.max(96, Math.round(window.innerHeight * 0.12));
+  const reducedMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+  window.scrollBy({
+    top: event.key === "ArrowDown" ? distance : -distance,
+    behavior: reducedMotion ? "auto" : "smooth",
+  });
+});
