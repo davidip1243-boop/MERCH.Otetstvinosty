@@ -24,6 +24,20 @@ const products = [
         imagePath: "/assets/images/products/tee-team/graphite",
         images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
       },
+      {
+        id: "banana",
+        name: "Банановая",
+        visual: "canvas",
+        imagePath: "/assets/images/products/tee-team/banana",
+        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
+      },
+      {
+        id: "light-grey",
+        name: "Светло-серая",
+        visual: "pine",
+        imagePath: "/assets/images/products/tee-team/light-grey",
+        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
+      },
     ],
   },
 ];

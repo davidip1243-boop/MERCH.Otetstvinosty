@@ -874,6 +874,14 @@ p {
   background: #403b40;
 }
 
+.variant-chip__dot--banana {
+  background: #e7d163;
+}
+
+.variant-chip__dot--light-grey {
+  background: #c9c9c4;
+}
+
 .product-thumbs {
   display: flex;
   gap: 0.6rem;
