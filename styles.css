@@ -229,17 +229,6 @@ img {
   color: #6f5729;
 }
 
-:root[data-theme="light"] .topnav a[aria-current="page"] {
-  padding: 0.42rem 0.78rem;
-  border-radius: 999px;
-  background: #11120f;
-  color: #fffdf8;
-}
-
-:root[data-theme="light"] .topnav a[aria-current="page"]::after {
-  display: none;
-}
-
 /* The source logo artwork is white for the dark palette. In light mode it
    becomes black so it stays clear against the bright navigation and hero. */
 :root[data-theme="light"] .brand-mark,
