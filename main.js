@@ -9,7 +9,22 @@ const products = [
     lead: "Плотный хлопок, свободная посадка, спокойный принт команды.",
     note: "Для встреч, поездок и обычного воскресенья.",
     details: ["Плотная посадка oversize", "Мягкий хлопок", "Размер выбирается в карточке товара"],
-    gallery: ["chalk", "pine", "canvas", "wine"],
+    variants: [
+      {
+        id: "white",
+        name: "Белая",
+        visual: "chalk",
+        imagePath: "/assets/images/products/tee-team/white",
+        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
+      },
+      {
+        id: "graphite",
+        name: "Графитовая",
+        visual: "wine",
+        imagePath: "/assets/images/products/tee-team/graphite",
+        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
+      },
+    ],
   },
 ];
 
@@ -22,6 +37,7 @@ const readCart = () =>
   JSON.parse(localStorage.getItem(storageKey) || "[]").map((item) => ({
     ...item,
     size: item.size === "ONE" ? "" : item.size,
+    variant: item.variant || "white",
     quantity: Math.max(1, Number(item.quantity) || 1),
   }));
 
@@ -35,26 +51,26 @@ function productById(id) {
   return products.find((product) => product.id === id);
 }
 
-function cartKey(id, size = "") {
-  return size ? `${id}::${size}` : id;
+function cartKey(id, size = "", variant = "") {
+  return [id, size, variant].filter(Boolean).join("::");
 }
 
-function upsertCartItem(id, size = "", delta = 1) {
+function upsertCartItem(id, size = "", variant = "", delta = 1) {
   const items = readCart();
-  const key = cartKey(id, size);
-  const existing = items.find((item) => cartKey(item.id, item.size) === key);
+  const key = cartKey(id, size, variant);
+  const existing = items.find((item) => cartKey(item.id, item.size, item.variant) === key);
 
   if (existing) {
     existing.quantity += delta;
   } else if (delta > 0) {
-    items.push({ id, size, quantity: delta });
+    items.push({ id, size, variant, quantity: delta });
   }
 
   writeCart(items.filter((item) => item.quantity > 0));
 }
 
-function getCartQuantity(id, size = "") {
-  const item = readCart().find((entry) => cartKey(entry.id, entry.size) === cartKey(id, size));
+function getCartQuantity(id, size = "", variant = "") {
+  const item = readCart().find((entry) => cartKey(entry.id, entry.size, entry.variant) === cartKey(id, size, variant));
   return item?.quantity || 0;
 }
 
@@ -62,11 +78,46 @@ function selectedProductSize(productId) {
   return document.querySelector(`[data-size-group="${productId}"] .size-chip.is-active`)?.dataset.size || "";
 }
 
+function productVariant(product, variantId) {
+  return product.variants.find((variant) => variant.id === variantId) || product.variants[0];
+}
+
+function selectedProductVariant(productId) {
+  return document.querySelector(`[data-variant-group="${productId}"] .variant-chip.is-active`)?.dataset.variant || productById(productId)?.variants?.[0]?.id || "";
+}
+
+function productGallery(product, variantId) {
+  const variant = productVariant(product, variantId);
+  return `
+    <div class="product-detail-gallery" data-gallery-root data-gallery-variant="${variant.id}">
+      <div class="product-visual product-visual--${variant.visual}" data-product-main-visual>
+        <span class="garment garment--${product.id}" aria-hidden="true"></span>
+        <img class="product-photo" src="${variant.imagePath}/${variant.images[0]}" alt="${product.name}, ${variant.name}" onerror="this.remove()" />
+      </div>
+      <div class="product-thumbs" aria-label="Фото цвета ${variant.name}">
+        ${variant.images
+          .map(
+            (image, index) => `
+              <button class="product-thumb ${index === 0 ? "is-active" : ""}" type="button" data-gallery-image="${variant.imagePath}/${image}" data-gallery-alt="${product.name}, ${variant.name}, фото ${index + 1}" aria-label="${variant.name}, фото ${index + 1}">
+                <span class="product-visual--${variant.visual}"></span>
+                <img src="${variant.imagePath}/${image}" alt="" onerror="this.remove()" />
+                <b>${String(index + 1).padStart(2, "0")}</b>
+              </button>
+            `,
+          )
+          .join("")}
+      </div>
+    </div>
+  `;
+}
+
 function productCard(product, featured = false) {
+  const variant = product.variants[0];
   return `
     <article class="product-card reveal" data-product-card data-product-open="${product.id}" data-type="${product.type}">
       <div class="product-visual product-visual--${product.color}" aria-hidden="true">
         <span class="garment garment--${product.id}"></span>
+        <img class="product-photo" src="${variant.imagePath}/${variant.images[0]}" alt="" onerror="this.remove()" />
       </div>
       <div class="product-info">
         <span class="product-kind">${product.type === "clothes" ? "Одежда" : "Аксессуар"}</span>
@@ -83,30 +134,27 @@ function productCard(product, featured = false) {
 
 function productDetail(product) {
   const activeSize = product.sizes[1] || product.sizes[0] || "";
-  const quantity = getCartQuantity(product.id, activeSize);
+  const activeVariant = product.variants[0].id;
+  const quantity = getCartQuantity(product.id, activeSize, activeVariant);
   return `
     <section class="product-detail-page reveal" data-product-detail="${product.id}">
-      <div class="product-detail-gallery">
-        <div class="product-visual product-visual--${product.color}" data-product-main-visual aria-hidden="true">
-          <span class="garment garment--${product.id}"></span>
-        </div>
-        <div class="product-thumbs">
-          ${product.gallery
-            .map(
-              (color, index) => `
-                <button class="product-thumb ${index === 0 ? "is-active" : ""}" type="button" data-gallery-color="${color}" aria-label="Фото ${index + 1}">
-                  <span class="product-visual--${color}"></span>
-                </button>
-              `,
-            )
-            .join("")}
-        </div>
-      </div>
+      <div data-product-gallery>${productGallery(product, activeVariant)}</div>
       <div class="product-detail-copy">
         <p class="label">Товар</p>
         <h1>${product.name}</h1>
         <p>${product.lead}</p>
         <strong class="product-detail-price">${money(product.price)}</strong>
+        <div class="variant-row" data-variant-group="${product.id}" aria-label="Цвет футболки">
+          ${product.variants
+            .map(
+              (variant, index) => `
+                <button class="variant-chip ${index === 0 ? "is-active" : ""}" data-variant="${variant.id}" type="button">
+                  <span class="variant-chip__dot variant-chip__dot--${variant.id}"></span>${variant.name}
+                </button>
+              `,
+            )
+            .join("")}
+        </div>
         <div class="size-row" data-size-group="${product.id}">
           ${product.sizes
             .map(
@@ -119,7 +167,7 @@ function productDetail(product) {
             .join("")}
         </div>
         <div data-product-controls="${product.id}">
-          ${productControls(product.id, activeSize, quantity)}
+          ${productControls(product.id, activeSize, activeVariant, quantity)}
         </div>
         <ul class="product-detail-list">
           ${product.details.map((item) => `<li>${item}</li>`).join("")}
@@ -129,7 +177,7 @@ function productDetail(product) {
   `;
 }
 
-function productControls(id, size, quantity = getCartQuantity(id, size)) {
+function productControls(id, size, variant, quantity = getCartQuantity(id, size, variant)) {
   if (quantity > 0) {
     return `
       <div class="quantity-stepper">
@@ -148,7 +196,8 @@ function refreshProductControls(id) {
   const controls = document.querySelector(`[data-product-controls="${id}"]`);
   if (!product || !controls) return;
   const size = selectedProductSize(id) || product.sizes[1] || product.sizes[0] || "";
-  controls.innerHTML = productControls(id, size);
+  const variant = selectedProductVariant(id);
+  controls.innerHTML = productControls(id, size, variant);
 }
 
 function renderProductDetailPage() {
@@ -200,10 +249,10 @@ function renderCart() {
       if (!product) return "";
       return `
         <div class="cart-row">
-          <div class="cart-row-visual product-visual--${product.color}" aria-hidden="true"></div>
+          <div class="cart-row-visual product-visual--${productVariant(product, item.variant).visual}" aria-hidden="true"></div>
           <div>
             <strong>${product.name}</strong>
-            ${item.size ? `<span>Размер: ${item.size}</span>` : "<span>Один универсальный вариант</span>"}
+            <span>${productVariant(product, item.variant).name}${item.size ? ` · Размер: ${item.size}` : ""}</span>
           </div>
           <div class="quantity-stepper quantity-stepper--cart">
             <button type="button" data-cart-delta="${index}" data-delta="-1">−</button>
@@ -226,6 +275,7 @@ function cartOrderItems() {
         id: product.id,
         name: product.name,
         size: item.size || "",
+        colour: productVariant(product, item.variant).name,
         quantity: item.quantity,
         unitPrice: product.price,
         total: product.price * item.quantity,
@@ -289,7 +339,7 @@ document.addEventListener("click", (event) => {
   const addButton = event.target.closest("[data-add-to-cart]");
   if (addButton) {
     const id = addButton.dataset.addToCart;
-    upsertCartItem(id, selectedProductSize(id));
+    upsertCartItem(id, selectedProductSize(id), selectedProductVariant(id));
     refreshProductControls(id);
   }
 
@@ -317,18 +367,35 @@ document.addEventListener("click", (event) => {
     const detail = productDelta.closest("[data-product-detail]");
     const id = detail?.dataset.productDetail;
     if (!id) return;
-    upsertCartItem(id, selectedProductSize(id), Number(productDelta.dataset.productDelta));
+    upsertCartItem(id, selectedProductSize(id), selectedProductVariant(id), Number(productDelta.dataset.productDelta));
     refreshProductControls(id);
   }
 
-  const galleryButton = event.target.closest("[data-gallery-color]");
+  const variantButton = event.target.closest("[data-variant]");
+  if (variantButton) {
+    const detail = variantButton.closest("[data-product-detail]");
+    const product = productById(detail?.dataset.productDetail);
+    if (!product) return;
+    detail.querySelectorAll("[data-variant]").forEach((button) => {
+      button.classList.toggle("is-active", button === variantButton);
+    });
+    const galleryHost = detail.querySelector("[data-product-gallery]");
+    if (galleryHost) galleryHost.innerHTML = productGallery(product, variantButton.dataset.variant);
+    refreshProductControls(product.id);
+  }
+
+  const galleryButton = event.target.closest("[data-gallery-image]");
   if (galleryButton) {
     const detail = galleryButton.closest("[data-product-detail]");
     const main = detail?.querySelector("[data-product-main-visual]");
     if (main) {
-      main.className = `product-visual product-visual--${galleryButton.dataset.galleryColor}`;
+      const image = main.querySelector(".product-photo");
+      if (image) {
+        image.src = galleryButton.dataset.galleryImage;
+        image.alt = galleryButton.dataset.galleryAlt;
+      }
     }
-    detail?.querySelectorAll("[data-gallery-color]").forEach((button) => {
+    detail?.querySelectorAll("[data-gallery-image]").forEach((button) => {
       button.classList.toggle("is-active", button === galleryButton);
     });
   }

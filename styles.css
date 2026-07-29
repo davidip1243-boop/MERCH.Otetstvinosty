@@ -812,6 +812,60 @@ p {
   min-height: clamp(28rem, 58vw, 42rem);
 }
 
+.product-photo {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  background: var(--panel);
+}
+
+.variant-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+.variant-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.4rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--muted);
+  padding: 0 0.8rem;
+  cursor: pointer;
+  font-size: 0.76rem;
+  font-weight: 700;
+  transition: border-color 220ms ease, background 220ms ease, color 220ms ease;
+}
+
+.variant-chip:hover,
+.variant-chip.is-active {
+  border-color: var(--gold);
+  background: rgba(197, 160, 89, 0.08);
+  color: var(--text);
+}
+
+.variant-chip__dot {
+  width: 0.78rem;
+  height: 0.78rem;
+  border: 1px solid rgba(255, 255, 255, 0.45);
+  border-radius: 50%;
+}
+
+.variant-chip__dot--white {
+  background: #f7f3e9;
+}
+
+.variant-chip__dot--graphite {
+  background: #403b40;
+}
+
 .product-thumbs {
   display: flex;
   gap: 0.6rem;
@@ -820,6 +874,8 @@ p {
 }
 
 .product-thumb {
+  position: relative;
+  overflow: hidden;
   width: 4.4rem;
   height: 4.4rem;
   flex: 0 0 auto;
@@ -833,6 +889,26 @@ p {
   display: block;
   width: 100%;
   height: 100%;
+}
+
+.product-thumb img {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.product-thumb b {
+  position: absolute;
+  right: 0.35rem;
+  bottom: 0.25rem;
+  z-index: 2;
+  color: var(--text);
+  font-size: 0.58rem;
+  letter-spacing: 0.08em;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.65);
 }
 
 .product-thumb.is-active {
