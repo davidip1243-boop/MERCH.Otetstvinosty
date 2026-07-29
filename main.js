@@ -3,7 +3,7 @@ const teeColours = [
   { id: "graphite", name: "Графитовая", visual: "wine", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"] },
   { id: "banana", name: "Банановая", visual: "canvas" },
   { id: "light-grey", name: "Светло-серая", visual: "pine" },
-  { id: "burgundy", name: "Бордовая", visual: "wine" },
+  { id: "burgundy", name: "Бордовая", visual: "wine", images: ["01.jpg", "02.jpg", "03.jpg", null, null] },
 ];
 
 function createTeeProduct(colour) {
@@ -104,10 +104,10 @@ function productGallery(product, variantId) {
         ${variant.images
           .map(
             (image, index) => `
-              <button class="product-thumb ${index === 0 ? "is-active" : ""}" type="button" data-gallery-image="${variant.imagePath}/${image}" data-gallery-alt="${product.name}, ${variant.name}, фото ${index + 1}" aria-label="${variant.name}, фото ${index + 1}">
+              <button class="product-thumb ${image ? "" : "is-pending"} ${index === 0 ? "is-active" : ""}" type="button" ${image ? `data-gallery-image="${variant.imagePath}/${image}" data-gallery-alt="${product.name}, ${variant.name}, фото ${index + 1}"` : "disabled"} aria-label="${image ? `${variant.name}, фото ${index + 1}` : "Фото скоро появится"}">
                 <span class="product-visual--${variant.visual}"></span>
-                <img src="${variant.imagePath}/${image}" alt="" onerror="this.remove()" />
-                <b>${String(index + 1).padStart(2, "0")}</b>
+                ${image ? `<img src="${variant.imagePath}/${image}" alt="" onerror="this.remove()" />` : ""}
+                ${image ? `<b>${String(index + 1).padStart(2, "0")}</b>` : ""}
               </button>
             `,
           )

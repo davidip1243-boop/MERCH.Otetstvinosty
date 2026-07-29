@@ -945,6 +945,12 @@ p {
   border-color: var(--gold);
 }
 
+.product-thumb.is-pending {
+  border-style: dashed;
+  cursor: default;
+  opacity: 0.38;
+}
+
 .product-detail-copy {
   position: sticky;
   top: 6rem;
