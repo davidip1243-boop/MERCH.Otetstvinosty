@@ -1,5 +1,5 @@
 const teeColours = [
-  { id: "white", name: "Белая", visual: "chalk", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
+  { id: "white", name: "Белая", visual: "chalk", price: 3000, images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
   { id: "graphite", name: "Графитовая", visual: "wine", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"] },
   { id: "banana", name: "Банановая", visual: "canvas", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
   { id: "light-brown", name: "Светло-коричневая", visual: "canvas", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
@@ -12,7 +12,7 @@ function createTeeProduct(colour) {
     id: `tee-${colour.id}`,
     name: `Футболка ${colour.name.toLowerCase()}`,
     type: "tshirts",
-    price: 2500,
+    price: colour.price || 2500,
     color: colour.visual,
     sizes: ["S", "M", "L", "XL", "XXL"],
     lead: "Плотный хлопок, свободная посадка, спокойный принт команды.",
@@ -75,6 +75,9 @@ const productTypeLabels = {
 };
 
 const products = [...teeColours.map(createTeeProduct), ...defaultProducts];
+const catalogProducts = products.filter(
+  (product) => !product.id.startsWith("tee-") || product.id === "tee-white" || product.id === "tee-graphite",
+);
 const legacyColourProductIds = Object.fromEntries(teeColours.map((colour) => [colour.id, `tee-${colour.id}`]));
 
 const storageKey = "otv-cart-v2";
@@ -291,11 +294,11 @@ function renderProducts() {
   const featured = document.querySelector("[data-featured-products]");
 
   if (grid) {
-    grid.innerHTML = products.map((product) => productCard(product)).join("");
+    grid.innerHTML = catalogProducts.map((product) => productCard(product)).join("");
   }
 
   if (featured) {
-    featured.innerHTML = products.slice(0, 3).map((product) => productCard(product, true)).join("");
+    featured.innerHTML = catalogProducts.slice(0, 3).map((product) => productCard(product, true)).join("");
   }
 }
 
