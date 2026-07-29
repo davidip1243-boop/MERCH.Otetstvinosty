@@ -1478,6 +1478,8 @@ input:focus {
 
   .topbar {
     min-height: 4rem;
+    padding-top: max(0.6rem, env(safe-area-inset-top));
+    padding-bottom: 0.3rem;
   }
 
   .brand {
