@@ -149,12 +149,13 @@ function productGallery(product, variantId) {
       <div class="product-visual product-visual--${variant.visual}" data-product-main-visual>
         <span class="garment garment--${product.id}" aria-hidden="true"></span>
         <img class="product-photo" src="${variant.imagePath}/${variant.images[0]}" alt="${product.name}, ${variant.name}" onerror="this.remove()" />
+        ${variant.images.length > 1 ? `<span class="gallery-count" data-gallery-count>1 / ${variant.images.length}</span>` : ""}
       </div>
       <div class="product-thumbs" aria-label="Фото цвета ${variant.name}">
         ${variant.images
           .map(
             (image, index) => `
-              <button class="product-thumb ${image ? "" : "is-pending"} ${index === 0 ? "is-active" : ""}" type="button" ${image ? `data-gallery-image="${variant.imagePath}/${image}" data-gallery-alt="${product.name}, ${variant.name}, фото ${index + 1}"` : "disabled"} aria-label="${image ? `${variant.name}, фото ${index + 1}` : "Фото скоро появится"}">
+              <button class="product-thumb ${image ? "" : "is-pending"} ${index === 0 ? "is-active" : ""}" type="button" ${image ? `data-gallery-image="${variant.imagePath}/${image}" data-gallery-alt="${product.name}, ${variant.name}, фото ${index + 1}" data-gallery-index="${index + 1}"` : "disabled"} aria-label="${image ? `${variant.name}, фото ${index + 1}` : "Фото скоро появится"}">
                 <span class="product-visual--${variant.visual}"></span>
                 ${image ? `<img src="${variant.imagePath}/${image}" alt="" onerror="this.remove()" />` : ""}
                 ${image ? `<b>${String(index + 1).padStart(2, "0")}</b>` : ""}
@@ -178,6 +179,9 @@ function selectGalleryImage(galleryButton) {
     image.src = galleryButton.dataset.galleryImage;
     image.alt = galleryButton.dataset.galleryAlt;
   }
+
+  const count = gallery?.querySelector("[data-gallery-count]");
+  if (count) count.textContent = `${galleryButton.dataset.galleryIndex} / ${gallery.querySelectorAll("[data-gallery-image]").length}`;
 
   gallery?.querySelectorAll("[data-gallery-image]").forEach((button) => {
     button.classList.toggle("is-active", button === galleryButton);
