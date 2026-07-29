@@ -32,6 +32,10 @@
       "dest": "/item/tee-team/index.html"
     },
     {
+      "src": "/item/(tee-white|tee-graphite|tee-banana|tee-light-grey|tee-burgundy)",
+      "dest": "/item/tee-team/index.html"
+    },
+    {
       "handle": "filesystem"
     }
   ],

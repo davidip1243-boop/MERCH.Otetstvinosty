@@ -1,53 +1,34 @@
-const products = [
-  {
-    id: "tee-team",
-    name: "Футболка",
+const teeColours = [
+  { id: "white", name: "Белая", visual: "chalk" },
+  { id: "graphite", name: "Графитовая", visual: "wine" },
+  { id: "banana", name: "Банановая", visual: "canvas" },
+  { id: "light-grey", name: "Светло-серая", visual: "pine" },
+  { id: "burgundy", name: "Бордовая", visual: "wine" },
+];
+
+function createTeeProduct(colour) {
+  return {
+    id: `tee-${colour.id}`,
+    name: `Футболка ${colour.name.toLowerCase()}`,
     type: "clothes",
     price: 2500,
-    color: "chalk",
+    color: colour.visual,
     sizes: ["S", "M", "L", "XL", "XXL"],
     lead: "Плотный хлопок, свободная посадка, спокойный принт команды.",
     note: "Для встреч, поездок и обычного воскресенья.",
     details: ["Плотная посадка oversize", "Мягкий хлопок", "Размер выбирается в карточке товара"],
     variants: [
       {
-        id: "white",
-        name: "Белая",
-        visual: "chalk",
-        imagePath: "/assets/images/products/tee-team/white",
-        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
-      },
-      {
-        id: "graphite",
-        name: "Графитовая",
-        visual: "wine",
-        imagePath: "/assets/images/products/tee-team/graphite",
-        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
-      },
-      {
-        id: "banana",
-        name: "Банановая",
-        visual: "canvas",
-        imagePath: "/assets/images/products/tee-team/banana",
-        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
-      },
-      {
-        id: "light-grey",
-        name: "Светло-серая",
-        visual: "pine",
-        imagePath: "/assets/images/products/tee-team/light-grey",
-        images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
-      },
-      {
-        id: "burgundy",
-        name: "Бордовая",
-        visual: "wine",
-        imagePath: "/assets/images/products/tee-team/burgundy",
+        ...colour,
+        imagePath: `/assets/images/products/tee-team/${colour.id}`,
         images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
       },
     ],
-  },
-];
+  };
+}
+
+const products = teeColours.map(createTeeProduct);
+const legacyColourProductIds = Object.fromEntries(teeColours.map((colour) => [colour.id, `tee-${colour.id}`]));
 
 const storageKey = "otv-cart-v2";
 const themeKey = "otv-theme";
@@ -55,12 +36,16 @@ const formatter = new Intl.NumberFormat("ru-RU");
 
 const money = (value) => `${formatter.format(value)} ₽`;
 const readCart = () =>
-  JSON.parse(localStorage.getItem(storageKey) || "[]").map((item) => ({
-    ...item,
-    size: item.size === "ONE" ? "" : item.size,
-    variant: item.variant || "white",
-    quantity: Math.max(1, Number(item.quantity) || 1),
-  }));
+  JSON.parse(localStorage.getItem(storageKey) || "[]").map((item) => {
+    const variant = item.variant || "white";
+    return {
+      ...item,
+      id: item.id === "tee-team" ? legacyColourProductIds[variant] || "tee-white" : item.id,
+      size: item.size === "ONE" ? "" : item.size,
+      variant,
+      quantity: Math.max(1, Number(item.quantity) || 1),
+    };
+  });
 
 function writeCart(items) {
   localStorage.setItem(storageKey, JSON.stringify(items));
@@ -165,17 +150,21 @@ function productDetail(product) {
         <h1>${product.name}</h1>
         <p>${product.lead}</p>
         <strong class="product-detail-price">${money(product.price)}</strong>
-        <div class="variant-row" data-variant-group="${product.id}" aria-label="Цвет футболки">
-          ${product.variants
-            .map(
-              (variant, index) => `
-                <button class="variant-chip ${index === 0 ? "is-active" : ""}" data-variant="${variant.id}" type="button">
-                  <span class="variant-chip__dot variant-chip__dot--${variant.id}"></span>${variant.name}
-                </button>
-              `,
-            )
-            .join("")}
-        </div>
+        ${
+          product.variants.length > 1
+            ? `<div class="variant-row" data-variant-group="${product.id}" aria-label="Цвет футболки">
+                ${product.variants
+                  .map(
+                    (variant, index) => `
+                      <button class="variant-chip ${index === 0 ? "is-active" : ""}" data-variant="${variant.id}" type="button">
+                        <span class="variant-chip__dot variant-chip__dot--${variant.id}"></span>${variant.name}
+                      </button>
+                    `,
+                  )
+                  .join("")}
+              </div>`
+            : ""
+        }
         <div class="size-row" data-size-group="${product.id}">
           ${product.sizes
             .map(
