@@ -387,13 +387,13 @@ function applyTheme(theme) {
 document.addEventListener("click", (event) => {
   const openButton = event.target.closest("[data-open-product]");
   if (openButton) {
-    window.open(`/item/${openButton.dataset.openProduct}/`, "_blank", "noopener");
+    window.open(`/item/${openButton.dataset.openProduct}`, "_blank", "noopener");
     return;
   }
 
   const openCard = event.target.closest("[data-product-open]");
   if (openCard && !event.target.closest("button, a")) {
-    window.open(`/item/${openCard.dataset.productOpen}/`, "_blank", "noopener");
+    window.open(`/item/${openCard.dataset.productOpen}`, "_blank", "noopener");
     return;
   }
 

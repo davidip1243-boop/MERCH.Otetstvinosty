@@ -36,6 +36,10 @@
       "dest": "/item/tee-team/index.html"
     },
     {
+      "src": "/item/(tee-white|tee-graphite|tee-banana|tee-light-brown|tee-light-grey|tee-burgundy|hoodie-road|longsleeve-light|tote-dream)/",
+      "dest": "/item/tee-team/index.html"
+    },
+    {
       "handle": "filesystem"
     }
   ],
