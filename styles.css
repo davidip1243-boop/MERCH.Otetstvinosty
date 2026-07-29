@@ -809,7 +809,10 @@ p {
 }
 
 .product-detail-gallery .product-visual {
-  min-height: clamp(28rem, 58vw, 42rem);
+  width: min(100%, 34rem);
+  min-height: 0;
+  aspect-ratio: 2 / 3;
+  justify-self: start;
 }
 
 .product-photo {
@@ -818,8 +821,13 @@ p {
   z-index: 1;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   background: var(--panel);
+}
+
+.product-card .product-visual:has(.product-photo) {
+  min-height: 0;
+  aspect-ratio: 2 / 3;
 }
 
 .variant-row {
@@ -1486,6 +1494,13 @@ input:focus {
 
   .product-visual {
     min-height: 23rem;
+  }
+
+  .product-detail-gallery .product-visual,
+  .product-card .product-visual:has(.product-photo) {
+    width: 100%;
+    min-height: 0;
+    aspect-ratio: 2 / 3;
   }
 
   .product-buy .button {
