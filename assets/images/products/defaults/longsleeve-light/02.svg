@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" role="img" aria-label="Деталь лонгслива Свет">
+  <rect width="1000" height="1400" fill="#faf8f1"/>
+  <path d="M150 280c195-130 505-130 700 0v840c-195 130-505 130-700 0z" fill="#eee7da"/>
+  <path d="M500 470v240m-72-120h144" stroke="#947a48" stroke-width="28" stroke-linecap="round"/>
+  <path d="M290 865h420" stroke="#c7b99f" stroke-width="16"/>
+  <text x="500" y="970" text-anchor="middle" fill="#6f6048" font-family="Arial, sans-serif" font-size="40" font-weight="700">ТИХИЙ СВЕТ</text>
+</svg>

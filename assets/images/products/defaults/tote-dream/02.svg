@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" role="img" aria-label="Деталь шопера Путь">
+  <rect width="1000" height="1400" fill="#f3e5c7"/>
+  <path d="M170 250h660v900H170z" fill="#d6c29c"/>
+  <path d="M330 345c0-180 340-180 340 0" fill="none" stroke="#927747" stroke-width="42" stroke-linecap="round"/>
+  <path d="M500 635v265m-95-132h190" stroke="#355545" stroke-width="28" stroke-linecap="round"/>
+  <text x="500" y="1030" text-anchor="middle" fill="#355545" font-family="Arial, sans-serif" font-size="44" font-weight="700">В ДОРОГУ</text>
+</svg>

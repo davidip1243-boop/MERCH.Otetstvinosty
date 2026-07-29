@@ -11,7 +11,7 @@ function createTeeProduct(colour) {
   return {
     id: `tee-${colour.id}`,
     name: `Футболка ${colour.name.toLowerCase()}`,
-    type: "clothes",
+    type: "tshirts",
     price: 2500,
     color: colour.visual,
     sizes: ["S", "M", "L", "XL", "XXL"],
@@ -28,7 +28,53 @@ function createTeeProduct(colour) {
   };
 }
 
-const products = teeColours.map(createTeeProduct);
+const defaultProducts = [
+  {
+    id: "hoodie-road",
+    name: "Худи «Дорога»",
+    type: "hoodies",
+    price: 4900,
+    color: "pine",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    lead: "Теплое худи свободного кроя для поездок, встреч и долгих прогулок.",
+    note: "Базовый цвет и мягкая посадка на каждый день.",
+    details: ["Мягкий футер", "Свободная посадка", "Размер выбирается в карточке товара"],
+    variants: [{ id: "default", name: "Базовый", visual: "pine", imagePath: "/assets/images/products/defaults/hoodie-road", images: ["01.svg", "02.svg"] }],
+  },
+  {
+    id: "longsleeve-light",
+    name: "Лонгслив «Свет»",
+    type: "long-sleeves",
+    price: 3300,
+    color: "chalk",
+    sizes: ["S", "M", "L", "XL", "XXL"],
+    lead: "Легкий лонгслив с длинным рукавом и спокойной вышивкой.",
+    note: "Лаконичная база для прохладного дня.",
+    details: ["Мягкий хлопок", "Длинный рукав", "Размер выбирается в карточке товара"],
+    variants: [{ id: "default", name: "Светлый", visual: "chalk", imagePath: "/assets/images/products/defaults/longsleeve-light", images: ["01.svg", "02.svg"] }],
+  },
+  {
+    id: "tote-dream",
+    name: "Шопер «Путь»",
+    type: "shoppers",
+    price: 1800,
+    color: "canvas",
+    sizes: [],
+    lead: "Плотный шопер для книг, вещей в дорогу и всего нужного на каждый день.",
+    note: "Практичная вещь с тихим характером.",
+    details: ["Плотный канвас", "Усиленные ручки", "Внутреннее отделение"],
+    variants: [{ id: "default", name: "Канвас", visual: "canvas", imagePath: "/assets/images/products/defaults/tote-dream", images: ["01.svg", "02.svg"] }],
+  },
+];
+
+const productTypeLabels = {
+  tshirts: "Футболки",
+  hoodies: "Худи",
+  "long-sleeves": "Лонгсливы",
+  shoppers: "Шоперы",
+};
+
+const products = [...teeColours.map(createTeeProduct), ...defaultProducts];
 const legacyColourProductIds = Object.fromEntries(teeColours.map((colour) => [colour.id, `tee-${colour.id}`]));
 
 const storageKey = "otv-cart-v2";
@@ -127,7 +173,7 @@ function productCard(product, featured = false) {
         <img class="product-photo" src="${variant.imagePath}/${variant.images[0]}" alt="" onerror="this.remove()" />
       </div>
       <div class="product-info">
-        <span class="product-kind">${product.type === "clothes" ? "Одежда" : "Аксессуар"}</span>
+        <span class="product-kind">${productTypeLabels[product.type] || "Мерч"}</span>
         <h2>${product.name}</h2>
         <p>${featured ? product.note : product.lead}</p>
       </div>
@@ -166,17 +212,21 @@ function productDetail(product) {
               </div>`
             : ""
         }
-        <div class="size-row" data-size-group="${product.id}">
-          ${product.sizes
-            .map(
-              (size) => `
-                <button class="size-chip ${size === activeSize ? "is-active" : ""}" data-size="${size}" type="button">
-                  ${size}
-                </button>
-              `,
-            )
-            .join("")}
-        </div>
+        ${
+          product.sizes.length
+            ? `<div class="size-row" data-size-group="${product.id}">
+                ${product.sizes
+                  .map(
+                    (size) => `
+                      <button class="size-chip ${size === activeSize ? "is-active" : ""}" data-size="${size}" type="button">
+                        ${size}
+                      </button>
+                    `,
+                  )
+                  .join("")}
+              </div>`
+            : ""
+        }
         <div data-product-controls="${product.id}">
           ${productControls(product.id, activeSize, activeVariant, quantity)}
         </div>

@@ -664,6 +664,26 @@ p {
   box-shadow: none;
 }
 
+.garment--longsleeve-light {
+  width: 46%;
+  height: 61%;
+  border-radius: 1.7rem 1.7rem 0.7rem 0.7rem;
+  background: #f7f4ec;
+}
+
+.garment--longsleeve-light::before {
+  width: 34%;
+  height: 13%;
+}
+
+.garment--longsleeve-light::after {
+  top: 53%;
+  width: 1rem;
+  height: 2.1rem;
+  background: rgba(143, 116, 66, 0.72);
+  box-shadow: 0 -0.56rem 0 -0.38rem rgba(143, 116, 66, 0.72);
+}
+
 .garment--tote-dream {
   width: 40%;
   height: 47%;

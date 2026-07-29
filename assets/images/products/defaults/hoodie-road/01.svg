@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" role="img" aria-label="Худи Дорога">
+  <rect width="1000" height="1400" fill="#183f36"/>
+  <circle cx="500" cy="485" r="315" fill="#245747" opacity=".45"/>
+  <path d="M330 420 450 330h100l120 90 115 185-120 84v450H335V689l-120-84z" fill="#d9c797"/>
+  <path d="M450 330c0 78 100 78 100 0M385 690h230v140H385z" fill="none" stroke="#927c47" stroke-width="18"/>
+  <path d="M442 470v120m116-120v120" stroke="#927c47" stroke-width="13" stroke-linecap="round"/>
+  <text x="500" y="930" text-anchor="middle" fill="#183f36" font-family="Arial, sans-serif" font-size="38" font-weight="700">ОТВЕТСТВЕННОСТИ</text>
+  <text x="500" y="995" text-anchor="middle" fill="#183f36" font-family="Arial, sans-serif" font-size="25" letter-spacing="8">ДОРОГА</text>
+</svg>

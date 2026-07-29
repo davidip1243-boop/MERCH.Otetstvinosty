@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1000 1400" role="img" aria-label="Деталь худи Дорога">
+  <rect width="1000" height="1400" fill="#d9c797"/>
+  <path d="M95 215c175-135 635-135 810 0v970c-175 135-635 135-810 0z" fill="#183f36" opacity=".95"/>
+  <path d="M305 500c50-90 340-90 390 0" fill="none" stroke="#d9c797" stroke-width="28"/>
+  <path d="M500 420v215" stroke="#d9c797" stroke-width="18" stroke-linecap="round"/>
+  <path d="M400 765h200l52 135H348z" fill="#d9c797"/>
+  <text x="500" y="1010" text-anchor="middle" fill="#d9c797" font-family="Arial, sans-serif" font-size="50" font-weight="700">ДОРОГА</text>
+</svg>
