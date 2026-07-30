@@ -1244,13 +1244,6 @@ p {
   filter: saturate(0.86) contrast(1.04);
 }
 
-.story-image::after {
-  position: absolute;
-  inset: 0;
-  content: "";
-  background: linear-gradient(180deg, transparent 46%, rgba(15, 15, 14, 0.55));
-}
-
 .process-band {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
