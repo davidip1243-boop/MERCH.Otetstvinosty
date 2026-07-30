@@ -1,5 +1,5 @@
 const teeColours = [
-  { id: "white", name: "Белая", visual: "chalk", price: 3000, images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
+  { id: "white", name: "Белая", visual: "chalk", price: 3000, images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg"] },
   { id: "graphite", name: "Графитовая", visual: "wine", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"] },
   { id: "banana", name: "Банановая", visual: "canvas", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
   { id: "light-brown", name: "Светло-коричневая", visual: "canvas", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
@@ -51,7 +51,7 @@ const defaultProducts = [
     lead: "Легкий лонгслив с длинным рукавом и спокойной вышивкой.",
     note: "Лаконичная база для прохладного дня.",
     details: ["Мягкий хлопок", "Длинный рукав", "Размер выбирается в карточке товара"],
-    variants: [{ id: "default", name: "Светлый", visual: "chalk", imagePath: "/assets/images/products/defaults/longsleeve-light", images: ["01.svg", "02.svg"] }],
+    variants: [{ id: "default", name: "Светлый", visual: "chalk", imagePath: "/assets/images/products/defaults/longsleeve-light", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg"] }],
   },
   {
     id: "tote-dream",
@@ -81,6 +81,24 @@ const legacyColourProductIds = Object.fromEntries(teeColours.map((colour) => [co
 const storageKey = "otv-cart-v2";
 const themeKey = "otv-theme";
 const formatter = new Intl.NumberFormat("ru-RU");
+const isMobilePreview = new URLSearchParams(window.location.search).has("mobile-preview");
+
+if (isMobilePreview) {
+  document.documentElement.classList.add("phone-preview");
+  const previewStyles = document.createElement("link");
+  previewStyles.rel = "stylesheet";
+  previewStyles.href = "/mobile-preview/mobile-preview.css";
+  document.head.append(previewStyles);
+}
+
+function openProduct(id) {
+  const url = `/item/${id}/${isMobilePreview ? "?mobile-preview=1" : ""}`;
+  if (isMobilePreview) {
+    window.location.assign(url);
+    return;
+  }
+  window.open(url, "_blank", "noopener");
+}
 
 const money = (value) => `${formatter.format(value)} ₽`;
 const readCart = () =>
@@ -410,13 +428,13 @@ function applyTheme(theme) {
 document.addEventListener("click", (event) => {
   const openButton = event.target.closest("[data-open-product]");
   if (openButton) {
-    window.open(`/item/${openButton.dataset.openProduct}`, "_blank", "noopener");
+    openProduct(openButton.dataset.openProduct);
     return;
   }
 
   const openCard = event.target.closest("[data-product-open]");
   if (openCard && !event.target.closest("button, a")) {
-    window.open(`/item/${openCard.dataset.productOpen}`, "_blank", "noopener");
+    openProduct(openCard.dataset.productOpen);
     return;
   }
 
