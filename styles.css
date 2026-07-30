@@ -437,7 +437,7 @@ p {
   background:
     radial-gradient(circle at 50% 46%, rgba(15, 15, 14, 0.08) 0 16rem, rgba(15, 15, 14, 0.2) 31rem),
     linear-gradient(180deg, rgba(15, 15, 14, 0.3), rgba(15, 15, 14, 0.26) 48%, var(--bg) 100%),
-    linear-gradient(90deg, rgba(15, 15, 14, 0.56), transparent 28%, transparent 72%, rgba(15, 15, 14, 0.56));
+    linear-gradient(90deg, rgba(15, 15, 14, 0.22), transparent 28%, transparent 72%, rgba(15, 15, 14, 0.22));
 }
 
 @keyframes slowZoom {
