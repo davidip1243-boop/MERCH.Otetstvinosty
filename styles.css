@@ -1555,6 +1555,27 @@ body[data-page="cart"] .site-footer {
 .account-panel small { color:var(--muted); font-size:.7rem; }
 .account-close { position:absolute; top:.8rem; right:1rem; border:0; background:transparent; color:var(--muted); font-size:1.5rem; cursor:pointer; }
 
+/* Desktop cart pass: keep the summary and complete checkout visible together. */
+@media (min-width: 900px) and (max-height: 850px) {
+  body[data-page="cart"] .cart-page { grid-template-columns:minmax(14rem,.48fr) minmax(0,1.52fr); gap:1.4rem; min-height:auto; padding-top:4.2rem; padding-bottom:2.5rem; }
+  body[data-page="cart"] .cart-copy { align-self:start; padding-top:1.1rem; }
+  body[data-page="cart"] .cart-copy h1 { font-size:clamp(1.8rem,2.5vw,2.5rem); }
+  body[data-page="cart"] .cart-copy p:not(.label) { margin-top:.8rem; font-size:.9rem; }
+  body[data-page="cart"] .cart-board { grid-column:2; grid-row:1; }
+  body[data-page="cart"] .cart-row { padding:.7rem; gap:.7rem; }
+  body[data-page="cart"] .cart-item-link { grid-template-columns:3.7rem minmax(0,1fr); gap:.7rem; }
+  body[data-page="cart"] .cart-row-image { width:3.7rem; height:3.7rem; }
+  body[data-page="cart"] .cart-total { padding:.85rem 1rem; }
+  body[data-page="cart"] .cart-total strong { font-size:1.5rem; }
+  body[data-page="cart"] .checkout-form { gap:.65rem; padding:.95rem 1rem; }
+  body[data-page="cart"] .checkout-fields { gap:.55rem .7rem; }
+  body[data-page="cart"] .checkout-form input, body[data-page="cart"] .checkout-form select { min-height:2.55rem; }
+  body[data-page="cart"] .checkout-form label { gap:.25rem; font-size:.67rem; }
+  body[data-page="cart"] .fulfillment-switch button { min-height:2rem; }
+  body[data-page="cart"] .pay-method { padding:.6rem .7rem; }
+  body[data-page="cart"] .checkout-safe { font-size:.62rem; }
+}
+
 .checkout-title {
   display: none;
   color: var(--text);
@@ -1570,6 +1591,8 @@ body[data-page="cart"] .site-footer {
   letter-spacing: 0.12em;
   text-transform: uppercase;
 }
+
+.checkout-form [hidden] { display: none !important; }
 
 input {
   width: 100%;
