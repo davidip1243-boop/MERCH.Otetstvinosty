@@ -457,14 +457,10 @@ document.addEventListener("click", (event) => {
     const mode = fulfillmentButton.dataset.fulfillment;
     document.querySelectorAll("[data-fulfillment]").forEach((button) => button.classList.toggle("is-active", button === fulfillmentButton));
     const deliveryField = document.querySelector("[data-delivery-field]");
-    const pickupField = document.querySelector("[data-pickup-field]");
     const address = document.querySelector('[name="address"]');
-    const pickup = document.querySelector('[name="pickupPoint"]');
     const isDelivery = mode === "delivery";
     deliveryField?.toggleAttribute("hidden", !isDelivery);
-    pickupField?.toggleAttribute("hidden", isDelivery);
     if (address) { address.required = isDelivery; address.disabled = !isDelivery; }
-    if (pickup) { pickup.required = !isDelivery; pickup.disabled = isDelivery; }
     return;
   }
   const accountOpen = event.target.closest("[data-account-open]");
