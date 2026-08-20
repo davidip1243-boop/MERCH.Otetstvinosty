@@ -22,6 +22,8 @@ body[data-page="checkout"] main { width:100%; margin:0; }
 .checkout-review span:first-child { margin-top:0; }
 .checkout-review strong { color:var(--text); font-size:1rem; }
 .checkout-review small { color:var(--muted); }
+.payment-safety { margin:0 0 1rem; color:var(--muted); font-size:.76rem; line-height:1.5; }
+.payment-safety b { color:var(--text); }
 .checkout-result-icon { display:grid; place-items:center; width:4rem; height:4rem; margin-bottom:1.4rem; border:1px solid var(--gold); border-radius:50%; color:var(--gold); font-size:1.7rem; }
 .checkout-result-link { text-decoration:none; }
 .checkout-error { min-height:1.4rem; margin-top:1rem; color:#dd806c; font-size:.8rem; line-height:1.45; }
