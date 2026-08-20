@@ -460,6 +460,8 @@ document.addEventListener("click", (event) => {
     const address = document.querySelector('[name="address"]');
     const isDelivery = mode === "delivery";
     deliveryField?.toggleAttribute("hidden", !isDelivery);
+    const action = document.querySelector("[data-checkout-action]");
+    if (action) action.textContent = isDelivery ? "Перейти к оплате" : "Заказать";
     if (address) { address.required = isDelivery; address.disabled = !isDelivery; }
     return;
   }
@@ -630,7 +632,7 @@ document.addEventListener("submit", async (event) => {
     setOrderStatus(error.message || "Не удалось сохранить заказ.", "error");
   } finally {
     submitButton.disabled = false;
-    submitButton.querySelector("span").textContent = "Перейти к оплате";
+    submitButton.querySelector("span").textContent = document.querySelector("[data-fulfillment].is-active")?.dataset.fulfillment === "pickup" ? "Заказать" : "Перейти к оплате";
   }
 });
 
