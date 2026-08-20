@@ -452,6 +452,21 @@ function applyTheme(theme) {
 }
 
 document.addEventListener("click", (event) => {
+  const fulfillmentButton = event.target.closest("[data-fulfillment]");
+  if (fulfillmentButton) {
+    const mode = fulfillmentButton.dataset.fulfillment;
+    document.querySelectorAll("[data-fulfillment]").forEach((button) => button.classList.toggle("is-active", button === fulfillmentButton));
+    const deliveryField = document.querySelector("[data-delivery-field]");
+    const pickupField = document.querySelector("[data-pickup-field]");
+    const address = document.querySelector('[name="address"]');
+    const pickup = document.querySelector('[name="pickupPoint"]');
+    const isDelivery = mode === "delivery";
+    deliveryField?.toggleAttribute("hidden", !isDelivery);
+    pickupField?.toggleAttribute("hidden", isDelivery);
+    if (address) { address.required = isDelivery; address.disabled = !isDelivery; }
+    if (pickup) { pickup.required = !isDelivery; pickup.disabled = isDelivery; }
+    return;
+  }
   const accountOpen = event.target.closest("[data-account-open]");
   if (accountOpen) { document.querySelector("[data-account-panel]")?.removeAttribute("hidden"); return; }
   const accountClose = event.target.closest("[data-account-close]");
@@ -580,7 +595,8 @@ document.addEventListener("submit", async (event) => {
   const submitButton = form.querySelector('button[type="submit"]');
   const formData = new FormData(form);
   const order = {
-    customer: { name: String(formData.get("name") || "").trim(), phone: String(formData.get("phone") || "").trim(), email: String(formData.get("email") || "").trim().toLowerCase(), address: String(formData.get("address") || "").trim() },
+    customer: { name: String(formData.get("name") || "").trim(), phone: String(formData.get("phone") || "").trim(), email: String(formData.get("email") || "").trim().toLowerCase(), address: String(formData.get("address") || "").trim(), pickupPoint: String(formData.get("pickupPoint") || "").trim() },
+    fulfillmentMethod: document.querySelector("[data-fulfillment].is-active")?.dataset.fulfillment || "delivery",
     items,
     total: cartOrderTotal(items),
     paymentStatus: "pending_payment",
