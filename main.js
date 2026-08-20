@@ -15,7 +15,7 @@ function createTeeProduct(colour) {
     price: colour.price || 2500,
     color: colour.visual,
     sizes: ["S", "M", "L", "XL", "XXL"],
-    lead: "Плотный хлопок, свободная посадка, спокойный принт команды.",
+    lead: "Плотный хлопок, свободная посадка.",
     note: "Для встреч, поездок и обычного воскресенья.",
     details: ["Плотная посадка oversize", "Мягкий хлопок", "Размер выбирается в карточке товара"],
     variants: [
@@ -79,6 +79,7 @@ const catalogProducts = products;
 const legacyColourProductIds = Object.fromEntries(teeColours.map((colour) => [colour.id, `tee-${colour.id}`]));
 
 const storageKey = "otv-cart-v2";
+const ordersStorageKey = "otv-orders-v1";
 const themeKey = "otv-theme";
 const formatter = new Intl.NumberFormat("ru-RU");
 const isMobilePreview = new URLSearchParams(window.location.search).has("mobile-preview");
@@ -318,7 +319,7 @@ function renderProducts() {
   }
 
   if (featured) {
-    const featuredProducts = products.filter((product) => product.id === "tee-black" || product.id === "tee-graphite");
+    const featuredProducts = products.filter((product) => product.id === "tee-white" || product.id === "tee-graphite");
     featured.innerHTML = featuredProducts.map((product) => productCard(product, true)).join("");
   }
 }
@@ -349,13 +350,16 @@ function renderCart() {
     .map((item, index) => {
       const product = productById(item.id);
       if (!product) return "";
+      const variant = productVariant(product, item.variant);
       return `
         <div class="cart-row">
-          <div class="cart-row-visual product-visual--${productVariant(product, item.variant).visual}" aria-hidden="true"></div>
-          <div>
-            <strong>${product.name}</strong>
-            <span>${productVariant(product, item.variant).name}${item.size ? ` · Размер: ${item.size}` : ""}</span>
-          </div>
+          <a class="cart-item-link" href="/item/${product.id}/" target="_blank" rel="noopener">
+            <img class="cart-row-image" src="${variant.imagePath}/${variant.images[0]}" alt="${product.name}" loading="lazy" />
+            <div>
+              <strong>${product.name}</strong>
+              <span>${variant.name}${item.size ? ` · Размер: ${item.size}` : ""}</span>
+            </div>
+          </a>
           <div class="quantity-stepper quantity-stepper--cart">
             <button type="button" data-cart-delta="${index}" data-delta="-1">−</button>
             <strong>${item.quantity}</strong>
@@ -388,6 +392,12 @@ function cartOrderItems() {
 
 function cartOrderTotal(items = cartOrderItems()) {
   return items.reduce((sum, item) => sum + item.total, 0);
+}
+
+function saveLocalOrder(order) {
+  const orders = JSON.parse(localStorage.getItem(ordersStorageKey) || "[]");
+  orders.unshift(order);
+  localStorage.setItem(ordersStorageKey, JSON.stringify(orders));
 }
 
 function updateCartCount() {
@@ -507,6 +517,21 @@ document.addEventListener("click", (event) => {
     document.querySelectorAll("[data-product-card]").forEach((card) => {
       card.classList.toggle("is-filtered-out", filter !== "all" && card.dataset.type !== filter);
     });
+    const filterLabel = document.querySelector("[data-filter-label]");
+    if (filterLabel) filterLabel.textContent = filterButton.textContent.trim();
+    const filterBar = filterButton.closest(".filter-bar");
+    const filterToggle = document.querySelector("[data-filter-toggle]");
+    if (filterBar?.classList.contains("is-open") && filterToggle) {
+      filterToggle.setAttribute("aria-expanded", "false");
+      filterBar.classList.remove("is-open");
+    }
+  }
+
+  const filterToggle = event.target.closest("[data-filter-toggle]");
+  if (filterToggle) {
+    const filterBar = document.querySelector(".filter-bar");
+    const isOpen = filterBar?.classList.toggle("is-open") || false;
+    filterToggle.setAttribute("aria-expanded", String(isOpen));
   }
 
   if (event.target.closest("[data-theme-toggle]")) {
@@ -528,18 +553,14 @@ document.addEventListener("submit", async (event) => {
   const submitButton = form.querySelector('button[type="submit"]');
   const formData = new FormData(form);
   const order = {
-    customer: {
-      name: String(formData.get("name") || "").trim(),
-      contactInfo: String(formData.get("contactInfo") || "").trim(),
-      address: String(formData.get("address") || "").trim(),
-    },
+    customer: { email: String(formData.get("email") || "").trim().toLowerCase() },
     items,
     total: cartOrderTotal(items),
     paymentStatus: "pending_payment",
   };
 
-  if (!order.customer.name || !order.customer.contactInfo || !order.customer.address) {
-    setOrderStatus("Заполните имя, контакт и адрес.", "error");
+  if (!/^[^\s@]+@gmail\.com$/i.test(order.customer.email)) {
+    setOrderStatus("Введите действующий адрес Gmail.", "error");
     return;
   }
 
@@ -559,6 +580,7 @@ document.addEventListener("submit", async (event) => {
       throw new Error(result.error || "Не удалось сохранить заказ.");
     }
 
+    saveLocalOrder({ ...order, orderId: result.orderId, createdAt: new Date().toISOString(), status: "pending_approval" });
     writeCart([]);
     form.reset();
     setOrderStatus(`Заказ сохранен. Номер: ${result.orderId}`, "success");
@@ -571,7 +593,14 @@ document.addEventListener("submit", async (event) => {
 });
 
 const savedTheme = localStorage.getItem(themeKey);
-if (savedTheme) {
+const isSmallScreen = window.matchMedia("(max-width: 640px)").matches;
+if (isSmallScreen) {
+  const systemTheme = window.matchMedia("(prefers-color-scheme: dark)");
+  applyTheme(systemTheme.matches ? "dark" : "light");
+  systemTheme.addEventListener?.("change", (event) => {
+    applyTheme(event.matches ? "dark" : "light");
+  });
+} else if (savedTheme) {
   applyTheme(savedTheme);
 } else if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
   applyTheme("dark");

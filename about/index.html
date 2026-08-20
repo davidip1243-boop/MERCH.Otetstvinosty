@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121411" />
     <meta
       name="description"
       content="История команды Ответственности: зачем подростки делают православный мерч и куда идет прибыль."
@@ -23,16 +24,21 @@
         </span>
       </a>
       <nav class="topnav" aria-label="Основная навигация">
-        <a href="/">Главная</a>
-        <a href="/catalog/">Каталог</a>
+        <a href="/"><svg class="nav-home-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3V10Z" /><path class="nav-home-door" d="M9 20v-6h6v6" /></svg>Главная</a>
+        <a href="/catalog/"><svg class="nav-shirt-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4 4 2 4-2 4 3-2 4-2-1v10H8V10l-2 1-2-4 4-3Z" /></svg>Каталог</a>
         <a href="/about/" aria-current="page">О нас</a>
+        <a class="nav-cart-button" href="/cart/" aria-label="Корзина"><svg class="nav-cart-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.9-1.4L20.5 8H6" /><circle cx="9" cy="20" r="1.2" /><circle cx="17" cy="20" r="1.2" /></svg>Корзина</a>
       </nav>
       <div class="topbar-actions">
         <button class="round-action" data-theme-toggle aria-label="Переключить тему" title="Тема">
           ◐
         </button>
         <a class="round-action cart-link" href="/cart/" aria-label="Корзина">
-          🛒
+          <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.9-1.4L20.5 8H6" />
+            <circle cx="9" cy="20" r="1.2" />
+            <circle cx="17" cy="20" r="1.2" />
+          </svg>
           <span data-cart-count>0</span>
         </a>
       </div>
@@ -51,9 +57,7 @@
       <section class="story-layout">
         <div class="story-flow">
           <p class="reveal">
-            Мы давно мечтаем о путешествии, где за окном меняются города, в телефоне появляются
-            фотографии храмов и дорог, а рядом все те же люди, с которыми ты растешь и учишься
-            отвечать за свои решения.
+            Мы давно мечтаем о путешествии во Владивосток.
           </p>
           <figure class="story-image reveal">
             <img src="/assets/images/about/otvetstvinosty-trip.jpg" alt="Команда Ответственности в путешествии" />
@@ -99,10 +103,10 @@
 
       <section class="quote-strip reveal">
         <p>
-          «Нас определяет окружение. Мы хотим, чтобы в нашем кругу было больше смысла, смелости и
-          красивых вещей, которые не стыдно носить каждый день».
+          Мы любим путешествовать, трудиться и веселиться. Каждая вещь — это часть нашей истории и
+          маленький шаг к поездке, которую мы хотим заработать сами.
         </p>
-        <a class="button button-primary" href="/catalog/">Поддержать дроп</a>
+        <a class="button button-primary" href="/catalog/">Поддержать</a>
       </section>
 
       <footer class="site-footer">

@@ -28,6 +28,14 @@
       "dest": "/cart/index.html"
     },
     {
+      "src": "/admin",
+      "dest": "/admin/index.html"
+    },
+    {
+      "src": "/admin/",
+      "dest": "/admin/index.html"
+    },
+    {
       "src": "/item/tee-team",
       "dest": "/item/tee-team/index.html"
     },

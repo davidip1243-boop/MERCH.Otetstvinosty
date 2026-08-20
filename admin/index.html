@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#10110f" />
+    <title>Панель администраторов | Ответственности</title>
+    <link rel="icon" href="/assets/images/favicon.png" type="image/png" />
+    <link rel="stylesheet" href="/admin/admin.css" />
+  </head>
+  <body>
+    <div class="admin-shell">
+      <aside class="sidebar">
+        <a class="admin-brand" href="/" aria-label="Вернуться в магазин"><img src="/assets/images/menu-logo.png" alt="" /><span>ОТВЕТСТВЕННОСТИ<small>ПАНЕЛЬ КОМАНДЫ</small></span></a>
+        <nav class="side-nav" aria-label="Навигация панели">
+          <a class="is-active" href="#orders"><span>▤</span>Заказы <b id="nav-order-count">0</b></a>
+        </nav>
+        <div class="sidebar-bottom"><a href="/" class="store-link">← Открыть магазин</a><div class="admin-user"><span>А</span><div><strong>Администратор</strong><small>Панель команды</small></div><button aria-label="Меню профиля">•••</button></div></div>
+      </aside>
+      <main class="dashboard">
+        <header class="dashboard-header"><div><p class="eyebrow">Панель команды</p><h1>Заказы</h1></div><div class="header-actions"><span class="live-dot">Система работает</span><button class="icon-button" id="theme-toggle" aria-label="Переключить тему">◐</button><button class="mobile-menu" id="mobile-menu" aria-label="Открыть меню">☰</button></div></header>
+
+        <section id="orders" class="panel orders-panel"><div class="panel-heading orders-heading"><div><p class="eyebrow">Заказы из корзины</p><h2>Входящие заказы <span id="orders-count-label">0</span></h2></div><div class="order-actions"><label class="search"><span>⌕</span><input id="order-search" type="search" placeholder="Поиск по заказам" /></label><select id="status-filter"><option value="all">Все статусы</option><option value="pending_approval">На проверке</option><option value="approved">Одобрены</option><option value="rejected">Отклонены</option></select></div></div><div class="table-wrap"><table><thead><tr><th>Заказ</th><th>Gmail</th><th>Состав</th><th>Сумма</th><th>Статус</th><th>Действие</th></tr></thead><tbody id="orders-body"></tbody></table></div><div class="empty-state" id="empty-state" hidden>Заказов пока нет. Новые заказы появятся здесь после оформления в корзине.</div></section>
+        <footer class="dashboard-footer"><span>Ответственности · Админ-панель</span><span>Реальные данные появятся после подключения постоянного хранилища</span></footer>
+      </main>
+    </div>
+    <script src="/admin/admin.js" type="module"></script>
+  </body>
+</html>

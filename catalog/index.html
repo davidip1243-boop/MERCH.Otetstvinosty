@@ -3,6 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="theme-color" content="#121411" />
     <meta name="description" content="Каталог мерча Ответственности: футболки, худи, лонгсливы и шоперы." />
     <title>Каталог | Ответственности</title>
     <link rel="icon" href="/assets/images/favicon.png" type="image/png" />
@@ -20,16 +21,21 @@
         </span>
       </a>
       <nav class="topnav" aria-label="Основная навигация">
-        <a href="/">Главная</a>
-        <a href="/catalog/" aria-current="page">Каталог</a>
+        <a href="/"><svg class="nav-home-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m3 10 9-7 9 7v10H3V10Z" /><path class="nav-home-door" d="M9 20v-6h6v6" /></svg>Главная</a>
+        <a href="/catalog/" aria-current="page"><svg class="nav-shirt-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m8 4 4 2 4-2 4 3-2 4-2-1v10H8V10l-2 1-2-4 4-3Z" /></svg>Каталог</a>
         <a href="/about/">О нас</a>
+        <a class="nav-cart-button" href="/cart/" aria-label="Корзина"><svg class="nav-cart-symbol" viewBox="0 0 24 24" aria-hidden="true"><path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.9-1.4L20.5 8H6" /><circle cx="9" cy="20" r="1.2" /><circle cx="17" cy="20" r="1.2" /></svg>Корзина</a>
       </nav>
       <div class="topbar-actions">
         <button class="round-action" data-theme-toggle aria-label="Переключить тему" title="Тема">
           ◐
         </button>
         <a class="round-action cart-link" href="/cart/" aria-label="Корзина">
-          🛒
+          <svg class="cart-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M3 4h2l2.1 10.1a2 2 0 0 0 2 1.6h7.8a2 2 0 0 0 1.9-1.4L20.5 8H6" />
+            <circle cx="9" cy="20" r="1.2" />
+            <circle cx="17" cy="20" r="1.2" />
+          </svg>
           <span data-cart-count>0</span>
         </a>
       </div>
@@ -41,6 +47,9 @@
           <p class="label">Коллекция</p>
           <h1>Каталог</h1>
         </div>
+        <button class="mobile-filter-toggle" type="button" data-filter-toggle aria-expanded="false">
+          <span>Фильтры · <b data-filter-label>Все</b></span>
+        </button>
         <div class="filter-bar" aria-label="Фильтр каталога">
           <button class="filter-chip is-active" data-filter="all">Все</button>
           <button class="filter-chip" data-filter="tshirts">Футболки</button>
