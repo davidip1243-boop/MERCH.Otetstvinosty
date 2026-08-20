@@ -17,8 +17,8 @@ module.exports = async function handler(req, res) {
     OrderId: String(orderId),
     Description: "Заказ orthodox-merch-shop",
     NotificationURL: `${process.env.SITE_URL || "https://orthodox-merch-shop.vercel.app"}/api/tbank-notification`,
-    SuccessURL: `${process.env.SITE_URL || "https://orthodox-merch-shop.vercel.app"}/cart/?payment=success`,
-    FailURL: `${process.env.SITE_URL || "https://orthodox-merch-shop.vercel.app"}/cart/?payment=failed`,
+    SuccessURL: `${process.env.SITE_URL || "https://orthodox-merch-shop.vercel.app"}/checkout/?payment=success`,
+    FailURL: `${process.env.SITE_URL || "https://orthodox-merch-shop.vercel.app"}/checkout/?payment=failed`,
     DATA: { Email: customer.email, Phone: customer.phone || "" },
     Receipt: { Email: customer.email, Taxation: process.env.TBANK_TAXATION || "usn_income", Items: items.map((item) => ({ Name: item.name, Price: Math.round(Number(item.unitPrice) * 100), Quantity: item.quantity, Amount: Math.round(Number(item.total) * 100), Tax: "none" })) },
   };

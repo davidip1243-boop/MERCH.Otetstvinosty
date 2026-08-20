@@ -55,29 +55,29 @@
               <strong data-cart-total>0 ₽</strong>
             </div>
             <form class="checkout-form" data-order-form>
-              <div class="checkout-head">
+              <div class="checkout-head" data-delivery-only-hide>
                 <div>
-                  <p class="checkout-kicker">Оформление</p>
-                  <h2 class="checkout-title">Ваша доставка</h2>
+                  <p class="checkout-kicker" data-delivery-only-hide>Оформление</p>
+                  <h2 class="checkout-title" data-delivery-only-hide>Ваша доставка</h2>
                 </div>
                 <button class="account-chip" type="button" data-account-open><span class="account-avatar">○</span><span data-account-label>Войти</span></button>
               </div>
-              <div class="checkout-steps" aria-label="Этапы оформления"><span class="is-active">01 Данные</span><i></i><span>02 Оплата</span></div>
+              <div class="checkout-steps" data-delivery-only-hide aria-label="Этапы оформления"><span class="is-active">01 Данные</span><i></i><span>02 Оплата</span></div>
               <div class="fulfillment-switch" role="group" aria-label="Способ получения">
                 <button type="button" class="is-active" data-fulfillment="delivery">Доставка</button>
                 <button type="button" data-fulfillment="pickup">Самовывоз</button>
               </div>
-              <div class="checkout-fields">
+              <div class="checkout-fields" data-delivery-only-hide>
                 <label>Имя <input name="name" autocomplete="name" placeholder="Ваше имя" required /></label>
                 <label>Телефон <input name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00" required /></label>
                 <label class="field-wide">Gmail <input name="email" type="email" inputmode="email" autocomplete="email" placeholder="yourname@gmail.com" pattern="^[^\s@]+@gmail\.com$" required /></label>
                 <label class="field-wide" data-delivery-field>Адрес доставки <input name="address" autocomplete="street-address" placeholder="Город, улица, дом, квартира" required /></label>
               </div>
-              <div class="pay-method" role="group" aria-label="Способ оплаты">
+              <div class="pay-method" data-delivery-only-hide role="group" aria-label="Способ оплаты">
                 <div class="pay-method-copy"><span class="tbank-mark">T</span><span><strong>Оплата через Т‑Банк</strong><small>Карта, СБП или T‑Pay</small></span></div><span class="pay-check">✓</span>
               </div>
               <button class="button button-primary checkout-submit" type="submit"><span data-checkout-action>Перейти к оплате</span><b data-checkout-total>0 ₽</b></button>
-              <p class="checkout-safe">🔒 Защищённая оплата на странице Т‑Банка</p>
+              <p class="checkout-safe" data-delivery-only-hide>🔒 Защищённая оплата на странице Т‑Банка</p>
               <p class="order-status" data-order-status role="status" aria-live="polite"></p>
             </form>
             <div class="account-panel" data-account-panel hidden>

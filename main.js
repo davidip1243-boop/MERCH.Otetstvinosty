@@ -431,6 +431,21 @@ function hydrateAccount() {
   if (avatar) avatar.textContent = account.email.charAt(0).toUpperCase();
 }
 
+function syncFulfillmentUI(mode = document.querySelector("[data-fulfillment].is-active")?.dataset.fulfillment || "delivery") {
+  const isDelivery = mode === "delivery";
+  const form = document.querySelector("[data-order-form]");
+  const deliveryField = document.querySelector("[data-delivery-field]");
+  const action = document.querySelector("[data-checkout-action]");
+  form?.toggleAttribute("data-delivery-mode", isDelivery);
+  deliveryField?.toggleAttribute("hidden", !isDelivery);
+  document.querySelectorAll("[data-delivery-only-hide]").forEach((node) => node.toggleAttribute("hidden", isDelivery));
+  if (action) action.textContent = isDelivery ? "Продолжить к оформлению" : "Заказать";
+  document.querySelectorAll('[name="name"], [name="phone"], [name="email"], [name="address"]').forEach((field) => {
+    field.disabled = isDelivery;
+    if (field.name === "address") field.required = !isDelivery;
+  });
+}
+
 function themeBaseColor(theme) {
   return theme === "light" ? "#f7ead5" : "#0f0f0e";
 }
@@ -456,13 +471,7 @@ document.addEventListener("click", (event) => {
   if (fulfillmentButton) {
     const mode = fulfillmentButton.dataset.fulfillment;
     document.querySelectorAll("[data-fulfillment]").forEach((button) => button.classList.toggle("is-active", button === fulfillmentButton));
-    const deliveryField = document.querySelector("[data-delivery-field]");
-    const address = document.querySelector('[name="address"]');
-    const isDelivery = mode === "delivery";
-    deliveryField?.toggleAttribute("hidden", !isDelivery);
-    const action = document.querySelector("[data-checkout-action]");
-    if (action) action.textContent = isDelivery ? "Перейти к оплате" : "Заказать";
-    if (address) { address.required = isDelivery; address.disabled = !isDelivery; }
+    syncFulfillmentUI(mode);
     return;
   }
   const accountOpen = event.target.closest("[data-account-open]");
@@ -584,6 +593,14 @@ document.addEventListener("submit", async (event) => {
   if (!form) return;
   event.preventDefault();
 
+  const fulfillmentMethod = document.querySelector("[data-fulfillment].is-active")?.dataset.fulfillment || "delivery";
+  if (fulfillmentMethod === "delivery") {
+    localStorage.setItem("otv-checkout-draft-v1", JSON.stringify({ items: cartOrderItems(), total: cartOrderTotal(), fulfillmentMethod }));
+    const checkoutTab = window.open("/checkout/", "_blank");
+    if (!checkoutTab) setOrderStatus("Разрешите открытие новой вкладки для оформления заказа.", "error");
+    return;
+  }
+
   const items = cartOrderItems();
   if (!items.length) {
     setOrderStatus("Добавьте товар в корзину перед заказом.", "error");
@@ -594,7 +611,7 @@ document.addEventListener("submit", async (event) => {
   const formData = new FormData(form);
   const order = {
     customer: { name: String(formData.get("name") || "").trim(), phone: String(formData.get("phone") || "").trim(), email: String(formData.get("email") || "").trim().toLowerCase(), address: String(formData.get("address") || "").trim(), pickupPoint: String(formData.get("pickupPoint") || "").trim() },
-    fulfillmentMethod: document.querySelector("[data-fulfillment].is-active")?.dataset.fulfillment || "delivery",
+    fulfillmentMethod,
     items,
     total: cartOrderTotal(items),
     paymentStatus: "pending_payment",
@@ -632,7 +649,7 @@ document.addEventListener("submit", async (event) => {
     setOrderStatus(error.message || "Не удалось сохранить заказ.", "error");
   } finally {
     submitButton.disabled = false;
-    submitButton.querySelector("span").textContent = document.querySelector("[data-fulfillment].is-active")?.dataset.fulfillment === "pickup" ? "Заказать" : "Перейти к оплате";
+    submitButton.querySelector("span").textContent = "Заказать";
   }
 });
 
@@ -654,6 +671,7 @@ renderProducts();
 renderProductDetailPage();
 refreshCheckoutTotal();
 hydrateAccount();
+syncFulfillmentUI();
 renderCart();
 updateCartCount();
 

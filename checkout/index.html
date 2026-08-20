@@ -1,0 +1,47 @@
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Оформление заказа | Ответственности</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <link rel="stylesheet" href="/checkout/checkout.css" />
+  </head>
+  <body data-page="checkout">
+    <main class="checkout-screen">
+      <div class="checkout-progress" aria-label="Прогресс оформления"><span class="is-active" data-progress-step="1">01</span><i></i><span data-progress-step="2">02</span><i></i><span data-progress-step="3">03</span></div>
+      <section class="checkout-shell">
+        <div class="checkout-brand">ОТВЕТСТВЕННОСТИ <span>Оформление заказа</span></div>
+        <div data-checkout-view="form">
+          <p class="checkout-kicker">Шаг 01 · Получатель</p>
+          <h1>Куда отправить<br /><em>ваш заказ?</em></h1>
+          <p class="checkout-lead">Заполните данные — после этого откроется защищённая форма Т‑Банка.</p>
+          <form class="delivery-details" data-delivery-details>
+            <label>Gmail <input name="email" type="email" autocomplete="email" placeholder="yourname@gmail.com" pattern="^[^\s@]+@gmail\.com$" required /></label>
+            <label>Имя <input name="name" autocomplete="name" placeholder="Ваше имя" required /></label>
+            <label>Телефон <input name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00" required /></label>
+            <label>Адрес доставки <input name="address" autocomplete="street-address" placeholder="Город, улица, дом, квартира" required /></label>
+            <button class="checkout-continue" type="submit">Продолжить <span>→</span></button>
+          </form>
+        </div>
+        <div data-checkout-view="review" hidden>
+          <p class="checkout-kicker">Шаг 02 · Оплата</p>
+          <h1>Проверьте данные<br /><em>и оплатите заказ.</em></h1>
+          <div class="checkout-review"><span>Получатель</span><strong data-review-name></strong><small data-review-email></small><span>Доставка</span><strong data-review-address></strong><span>Итого</span><strong data-review-total></strong></div>
+          <button class="checkout-continue" type="button" data-pay-button>Открыть оплату Т‑Банк <span>→</span></button>
+          <button class="checkout-back" type="button" data-back-button>← Изменить данные</button>
+        </div>
+        <div data-checkout-view="result" hidden>
+          <div class="checkout-result-icon" data-result-icon>✓</div>
+          <p class="checkout-kicker" data-result-kicker>Готово</p>
+          <h1 data-result-title>Заказ оплачен.</h1>
+          <p class="checkout-lead" data-result-copy>Спасибо. Мы отправили подтверждение на вашу почту.</p>
+          <a class="checkout-continue checkout-result-link" href="/">Вернуться в магазин <span>→</span></a>
+        </div>
+        <p class="checkout-error" data-checkout-error role="alert"></p>
+      </section>
+      <p class="checkout-legal">Оплата проходит на защищённой странице Т‑Банка. Данные карты не сохраняются в магазине.</p>
+    </main>
+    <script src="/checkout/checkout.js" type="module"></script>
+  </body>
+</html>

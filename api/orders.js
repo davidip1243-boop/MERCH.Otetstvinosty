@@ -47,7 +47,7 @@ module.exports = async function handler(req, res) {
 
   const savedOrder = {
     ...order,
-    customer: { email },
+    customer: { ...(order.customer || {}), email },
     orderId: `OTV-${Date.now()}`,
     createdAt: new Date().toISOString(),
     status: "pending_approval",

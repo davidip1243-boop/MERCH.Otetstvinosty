@@ -28,6 +28,14 @@
       "dest": "/cart/index.html"
     },
     {
+      "src": "/checkout",
+      "dest": "/checkout/index.html"
+    },
+    {
+      "src": "/checkout/",
+      "dest": "/checkout/index.html"
+    },
+    {
       "src": "/admin",
       "dest": "/admin/index.html"
     },
