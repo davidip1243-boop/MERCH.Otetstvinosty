@@ -53,12 +53,12 @@ module.exports = async function handler(req, res) {
     status: "pending_approval",
   };
   const confirmation = await sendOrderConfirmation(savedOrder);
-  if (confirmation.error) return res.status(422).json({ error: confirmation.error });
   getOrders().unshift(savedOrder);
 
   return res.status(200).json({
     ok: true,
     message: "Заявка сохранена. Мы скоро свяжемся с вами.",
     orderId: savedOrder.orderId,
+    emailWarning: confirmation.error || null,
   });
 };

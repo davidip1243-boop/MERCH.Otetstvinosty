@@ -55,14 +55,35 @@
               <strong data-cart-total>0 ₽</strong>
             </div>
             <form class="checkout-form" data-order-form>
-              <h2 class="checkout-title">Детали заказа</h2>
-              <label>
-                Gmail
-                <input name="email" type="email" inputmode="email" autocomplete="email" placeholder="yourname@gmail.com" pattern="^[^\\s@]+@gmail\\.com$" required />
-              </label>
-              <button class="button button-primary" type="submit">Заказать</button>
+              <div class="checkout-head">
+                <div>
+                  <p class="checkout-kicker">Оформление</p>
+                  <h2 class="checkout-title">Ваша доставка</h2>
+                </div>
+                <button class="account-chip" type="button" data-account-open><span class="account-avatar">○</span><span data-account-label>Войти</span></button>
+              </div>
+              <div class="checkout-steps" aria-label="Этапы оформления"><span class="is-active">01 Данные</span><i></i><span>02 Оплата</span></div>
+              <div class="checkout-fields">
+                <label>Имя <input name="name" autocomplete="name" placeholder="Ваше имя" required /></label>
+                <label>Телефон <input name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00" required /></label>
+                <label class="field-wide">Gmail <input name="email" type="email" inputmode="email" autocomplete="email" placeholder="yourname@gmail.com" pattern="^[^\\s@]+@gmail\\.com$" required /></label>
+                <label class="field-wide">Адрес доставки <input name="address" autocomplete="street-address" placeholder="Город, улица, дом, квартира" required /></label>
+              </div>
+              <div class="pay-method" role="group" aria-label="Способ оплаты">
+                <div class="pay-method-copy"><span class="tbank-mark">T</span><span><strong>Оплата через Т‑Банк</strong><small>Карта, СБП или T‑Pay</small></span></div><span class="pay-check">✓</span>
+              </div>
+              <button class="button button-primary checkout-submit" type="submit"><span>Перейти к оплате</span><b data-checkout-total>0 ₽</b></button>
+              <p class="checkout-safe">🔒 Защищённая оплата на странице Т‑Банка</p>
               <p class="order-status" data-order-status role="status" aria-live="polite"></p>
             </form>
+            <div class="account-panel" data-account-panel hidden>
+              <button class="account-close" type="button" data-account-close aria-label="Закрыть">×</button>
+              <p class="checkout-kicker">Личный кабинет</p>
+              <h2>Сохраним ваши данные<br />для следующего заказа.</h2>
+              <label>Gmail <input data-account-email type="email" placeholder="yourname@gmail.com" /></label>
+              <button class="button button-primary" type="button" data-account-submit>Войти по Gmail</button>
+              <small>Мы используем почту только для статуса заказа.</small>
+            </div>
           </div>
         </div>
       </section>

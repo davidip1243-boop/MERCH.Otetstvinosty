@@ -415,6 +415,22 @@ function setOrderStatus(message, type = "") {
   status.dataset.status = type;
 }
 
+function refreshCheckoutTotal() {
+  const total = money(cartOrderTotal());
+  document.querySelectorAll("[data-checkout-total]").forEach((node) => { node.textContent = total; });
+}
+
+function hydrateAccount() {
+  const account = JSON.parse(localStorage.getItem("otv-account-v1") || "null");
+  if (!account) return;
+  const email = document.querySelector('[name="email"]');
+  if (email && !email.value) email.value = account.email || "";
+  const label = document.querySelector("[data-account-label]");
+  const avatar = document.querySelector(".account-avatar");
+  if (label) label.textContent = account.email.split("@")[0].slice(0, 12);
+  if (avatar) avatar.textContent = account.email.charAt(0).toUpperCase();
+}
+
 function themeBaseColor(theme) {
   return theme === "light" ? "#f7ead5" : "#0f0f0e";
 }
@@ -436,6 +452,17 @@ function applyTheme(theme) {
 }
 
 document.addEventListener("click", (event) => {
+  const accountOpen = event.target.closest("[data-account-open]");
+  if (accountOpen) { document.querySelector("[data-account-panel]")?.removeAttribute("hidden"); return; }
+  const accountClose = event.target.closest("[data-account-close]");
+  if (accountClose) { document.querySelector("[data-account-panel]")?.setAttribute("hidden", ""); return; }
+  const accountSubmit = event.target.closest("[data-account-submit]");
+  if (accountSubmit) {
+    const input = document.querySelector("[data-account-email]");
+    if (!/^[^\s@]+@gmail\.com$/i.test(input?.value || "")) { input?.focus(); return; }
+    localStorage.setItem("otv-account-v1", JSON.stringify({ email: input.value.trim().toLowerCase() }));
+    document.querySelector("[data-account-panel]")?.setAttribute("hidden", ""); hydrateAccount(); setOrderStatus("Вы вошли в аккаунт.", "success"); return;
+  }
   const openButton = event.target.closest("[data-open-product]");
   if (openButton) {
     openProduct(openButton.dataset.openProduct);
@@ -553,7 +580,7 @@ document.addEventListener("submit", async (event) => {
   const submitButton = form.querySelector('button[type="submit"]');
   const formData = new FormData(form);
   const order = {
-    customer: { email: String(formData.get("email") || "").trim().toLowerCase() },
+    customer: { name: String(formData.get("name") || "").trim(), phone: String(formData.get("phone") || "").trim(), email: String(formData.get("email") || "").trim().toLowerCase(), address: String(formData.get("address") || "").trim() },
     items,
     total: cartOrderTotal(items),
     paymentStatus: "pending_payment",
@@ -565,8 +592,8 @@ document.addEventListener("submit", async (event) => {
   }
 
   submitButton.disabled = true;
-  submitButton.textContent = "Отправляем";
-  setOrderStatus("Сохраняем заказ...", "");
+  submitButton.querySelector("span").textContent = "Создаём платёж…";
+  setOrderStatus("Подготавливаем защищённую оплату…", "");
 
   try {
     const response = await fetch("/api/orders", {
@@ -580,15 +607,18 @@ document.addEventListener("submit", async (event) => {
       throw new Error(result.error || "Не удалось сохранить заказ.");
     }
 
-    saveLocalOrder({ ...order, orderId: result.orderId, createdAt: new Date().toISOString(), status: "pending_approval" });
+    const paymentResponse = await fetch("/api/tbank-init", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...order, orderId: result.orderId }) });
+    const payment = await paymentResponse.json().catch(() => ({}));
+    saveLocalOrder({ ...order, orderId: result.orderId, createdAt: new Date().toISOString(), status: "pending_payment" });
+    if (!paymentResponse.ok) throw new Error(payment.error || "Не удалось открыть оплату Т‑Банка.");
     writeCart([]);
-    form.reset();
-    setOrderStatus(`Заказ сохранен. Номер: ${result.orderId}`, "success");
+    if (payment.paymentUrl) { window.location.href = payment.paymentUrl; return; }
+    setOrderStatus(`Заказ ${result.orderId} создан. Ссылка на оплату появится после подключения Т‑Банка.`, "success");
   } catch (error) {
     setOrderStatus(error.message || "Не удалось сохранить заказ.", "error");
   } finally {
     submitButton.disabled = false;
-    submitButton.textContent = "Заказать";
+    submitButton.querySelector("span").textContent = "Перейти к оплате";
   }
 });
 
@@ -608,6 +638,8 @@ if (isSmallScreen) {
 
 renderProducts();
 renderProductDetailPage();
+refreshCheckoutTotal();
+hydrateAccount();
 renderCart();
 updateCartCount();
 
