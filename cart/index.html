@@ -42,6 +42,12 @@
     </header>
 
     <main>
+      <div class="cart-maintenance-overlay" role="alertdialog" aria-modal="true" aria-labelledby="cart-maintenance-title">
+        <div class="cart-maintenance-card">
+          <p class="label">Корзина</p>
+          <h1 id="cart-maintenance-title">Платёжная система временно не работает</h1>
+        </div>
+      </div>
       <section class="cart-page reveal">
         <div class="cart-copy">
           <p class="label">Корзина</p>
@@ -73,13 +79,16 @@
                 <label class="field-wide">Gmail <input name="email" type="email" inputmode="email" autocomplete="email" placeholder="yourname@gmail.com" pattern="^[^\s@]+@gmail\.com$" required /></label>
                 <label class="field-wide" data-delivery-field>Адрес доставки <input name="address" autocomplete="street-address" placeholder="Город, улица, дом, квартира" required /></label>
               </div>
-              <div class="pay-method" data-delivery-only-hide role="group" aria-label="Способ оплаты">
-                <div class="pay-method-copy"><span class="tbank-mark">T</span><span><strong>Оплата через Т‑Банк</strong><small>Карта, СБП или T‑Pay</small></span></div><span class="pay-check">✓</span>
-              </div>
               <button class="button button-primary checkout-submit" type="submit"><span data-checkout-action>Перейти к оплате</span><b data-checkout-total>0 ₽</b></button>
               <p class="checkout-safe" data-delivery-only-hide>🔒 Защищённая оплата на странице Т‑Банка</p>
               <p class="order-status" data-order-status role="status" aria-live="polite"></p>
             </form>
+            <section class="pickup-confirmation" data-pickup-confirmation hidden aria-live="polite">
+              <p class="checkout-kicker">Самовывоз</p>
+              <h2>Спасибо за заказ!</h2>
+              <p>Теперь вы можете забрать свой новый стильный мерч на нашей стойке регистрации.</p>
+              <a class="button button-primary" href="/catalog/">Вернуться в каталог</a>
+            </section>
             <div class="account-panel" data-account-panel hidden>
               <button class="account-close" type="button" data-account-close aria-label="Закрыть">×</button>
               <p class="checkout-kicker">Личный кабинет</p>

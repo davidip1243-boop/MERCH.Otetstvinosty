@@ -614,7 +614,7 @@ document.addEventListener("submit", async (event) => {
     fulfillmentMethod,
     items,
     total: cartOrderTotal(items),
-    paymentStatus: "pending_payment",
+    paymentStatus: fulfillmentMethod === "pickup" ? "not_required" : "pending_payment",
   };
 
   if (!/^[^\s@]+@gmail\.com$/i.test(order.customer.email)) {
@@ -636,6 +636,14 @@ document.addEventListener("submit", async (event) => {
 
     if (!response.ok) {
       throw new Error(result.error || "Не удалось сохранить заказ.");
+    }
+
+    if (fulfillmentMethod === "pickup") {
+      saveLocalOrder({ ...order, orderId: result.orderId, createdAt: new Date().toISOString(), status: "pickup_pending" });
+      writeCart([]);
+      form.setAttribute("hidden", "");
+      document.querySelector("[data-pickup-confirmation]")?.removeAttribute("hidden");
+      return;
     }
 
     const paymentResponse = await fetch("/api/tbank-init", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ ...order, orderId: result.orderId }) });
