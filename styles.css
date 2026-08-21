@@ -1436,6 +1436,12 @@ p {
   line-height: 0.98;
 }
 
+.cart-maintenance-note {
+  margin-top: 1.4rem;
+  color: var(--muted);
+  font-size: clamp(1rem, 2vw, 1.25rem);
+}
+
 .cart-copy {
   display: grid;
   gap: 0.8rem;
