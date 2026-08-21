@@ -3295,8 +3295,8 @@ body[data-page="about"] .quote-strip p {
     grid-template-columns: repeat(4, minmax(0, 1fr));
     min-height: 3.35rem;
     padding-top: 0.5rem;
-    padding-left: 0.4rem;
-    padding-right: 1.05rem;
+    padding-left: 0.7rem;
+    padding-right: 0.75rem;
     padding-bottom: calc(0.72rem + env(safe-area-inset-bottom));
   }
 
@@ -3491,7 +3491,7 @@ body[data-page="about"] .quote-strip p {
   }
 
   body[data-page="home"] .topnav a {
-    transform: translate(-0.22rem, 0.24rem);
+    transform: translate(-0.14rem, 0.24rem);
   }
 
   .topnav a:nth-child(1)::before,
@@ -3519,7 +3519,7 @@ body[data-page="about"] .quote-strip p {
   }
 
   .topnav .nav-cart-button {
-    transform: translate(-0.4rem, 0.08rem);
+    transform: translate(-0.32rem, 0.08rem);
     margin-right: 0.45rem;
   }
 

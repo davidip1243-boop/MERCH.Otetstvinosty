@@ -30,22 +30,10 @@ function createTeeProduct(colour) {
 
 const defaultProducts = [
   {
-    id: "hoodie-road",
-    name: "Худи «Дорога»",
-    type: "hoodies",
-    price: 4900,
-    color: "pine",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    lead: "Теплое худи свободного кроя для поездок, встреч и долгих прогулок.",
-    note: "Базовый цвет и мягкая посадка на каждый день.",
-    details: ["Мягкий футер", "Свободная посадка", "Размер выбирается в карточке товара"],
-    variants: [{ id: "default", name: "Базовый", visual: "pine", imagePath: "/assets/images/products/defaults/hoodie-road", images: ["01.svg", "02.svg"] }],
-  },
-  {
     id: "longsleeve-light",
     name: "Лонгслив «Свет»",
     type: "long-sleeves",
-    price: 3300,
+    price: 3800,
     color: "chalk",
     sizes: ["S", "M", "L", "XL", "XXL"],
     lead: "Легкий лонгслив с длинным рукавом и спокойной вышивкой.",
@@ -57,7 +45,7 @@ const defaultProducts = [
     id: "tote-dream",
     name: "Шопер «Путь»",
     type: "shoppers",
-    price: 1800,
+    price: 800,
     color: "canvas",
     sizes: [],
     lead: "Плотный шопер для книг, вещей в дорогу и всего нужного на каждый день.",
@@ -69,7 +57,6 @@ const defaultProducts = [
 
 const productTypeLabels = {
   tshirts: "Футболки",
-  hoodies: "Худи",
   "long-sleeves": "Лонгсливы",
   shoppers: "Шоперы",
 };

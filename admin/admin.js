@@ -1,7 +1,21 @@
 const money = (n) => `${new Intl.NumberFormat("ru-RU").format(n)} ₽`;
 const ordersStorageKey = "otv-orders-v1";
+const adminSessionKey = "otv-admin-session";
 const statusLabels = { pending_approval: "На проверке", approved: "Одобрен", rejected: "Отклонен" };
 let orders = JSON.parse(localStorage.getItem(ordersStorageKey) || "[]");
+
+const loginOverlay = document.querySelector("#admin-login");
+const loginForm = document.querySelector("#admin-login-form");
+const loginError = document.querySelector("#login-error");
+if (sessionStorage.getItem(adminSessionKey) === "ok") loginOverlay.classList.add("is-hidden");
+loginForm.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  loginError.textContent = "";
+  const response = await fetch("/api/admin-auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: document.querySelector("#admin-password").value }) });
+  if (!response.ok) { loginError.textContent = "Неверный пароль."; return; }
+  sessionStorage.setItem(adminSessionKey, "ok");
+  loginOverlay.classList.add("is-hidden");
+});
 
 function orderRow(order) {
   const item = order.items?.[0] || {};

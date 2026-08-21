@@ -9,6 +9,17 @@
     <link rel="stylesheet" href="/admin/admin.css" />
   </head>
   <body>
+    <div class="admin-login" id="admin-login" role="dialog" aria-labelledby="admin-login-title">
+      <form class="admin-login-card" id="admin-login-form">
+        <img src="/assets/images/menu-logo.png" alt="" />
+        <p class="eyebrow">Закрытая зона</p>
+        <h1 id="admin-login-title">Панель администраторов</h1>
+        <p>Введите пароль, чтобы открыть заказы.</p>
+        <label>Пароль<input id="admin-password" type="password" autocomplete="current-password" required /></label>
+        <button class="login-button" type="submit">Войти</button>
+        <div class="login-error" id="login-error" role="alert"></div>
+      </form>
+    </div>
     <div class="admin-shell">
       <aside class="sidebar">
         <a class="admin-brand" href="/" aria-label="Вернуться в магазин"><img src="/assets/images/menu-logo.png" alt="" /><span>ОТВЕТСТВЕННОСТИ<small>ПАНЕЛЬ КОМАНДЫ</small></span></a>
