@@ -1,19 +1,20 @@
 const money = (n) => `${new Intl.NumberFormat("ru-RU").format(n)} ₽`;
 const ordersStorageKey = "otv-orders-v1";
 const adminSessionKey = "otv-admin-session";
-const statusLabels = { pending_approval: "На проверке", approved: "Одобрен", rejected: "Отклонен" };
+const statusLabels = { pending_approval: "На проверке", approved: "Одобрен", rejected: "Отклонен", paid: "Оплачен", pickup_pending: "Самовывоз" };
 let orders = JSON.parse(localStorage.getItem(ordersStorageKey) || "[]");
 
 const loginOverlay = document.querySelector("#admin-login");
 const loginForm = document.querySelector("#admin-login-form");
 const loginError = document.querySelector("#login-error");
-if (sessionStorage.getItem(adminSessionKey) === "ok") loginOverlay.classList.add("is-hidden");
+if (sessionStorage.getItem(adminSessionKey)) loginOverlay.classList.add("is-hidden");
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   loginError.textContent = "";
   const response = await fetch("/api/admin-auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: document.querySelector("#admin-password").value }) });
-  if (!response.ok) { loginError.textContent = "Неверный пароль."; return; }
-  sessionStorage.setItem(adminSessionKey, "ok");
+  if (!response.ok) { loginError.textContent = response.status === 503 ? "Пароль администратора не настроен." : "Неверный пароль."; return; }
+  const result = await response.json();
+  sessionStorage.setItem(adminSessionKey, result.session);
   loginOverlay.classList.add("is-hidden");
 });
 
@@ -33,7 +34,7 @@ function renderOrders() {
 }
 async function loadOrders() {
   try {
-    const response = await fetch("/api/orders");
+    const response = await fetch("/api/orders", { headers: { "x-admin-session": sessionStorage.getItem(adminSessionKey) || "" } });
     if (response.ok) {
       const data = await response.json();
       const localIds = new Set(orders.map((order) => order.orderId));
@@ -45,7 +46,7 @@ async function loadOrders() {
 document.querySelector("#order-search").addEventListener("input", renderOrders);
 document.querySelector("#status-filter").addEventListener("change", renderOrders);
 document.addEventListener("change", (event) => { const select = event.target.closest("[data-order-status]"); if (!select) return; const order = orders.find((item) => item.orderId === select.dataset.orderStatus); if (order) { order.status = select.value; localStorage.setItem(ordersStorageKey, JSON.stringify(orders)); renderOrders(); } });
-document.addEventListener("click", async (event) => { const button = event.target.closest("[data-approve-order]"); if (!button) return; const order = orders.find((item) => item.orderId === button.dataset.approveOrder); if (order) { order.status = "approved"; localStorage.setItem(ordersStorageKey, JSON.stringify(orders)); try { await fetch("/api/orders", { method: "PUT", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ orderId: order.orderId, status: order.status }) }); } catch { /* local approval remains visible */ } renderOrders(); } });
+document.addEventListener("click", async (event) => { const button = event.target.closest("[data-approve-order]"); if (!button) return; const order = orders.find((item) => item.orderId === button.dataset.approveOrder); if (order) { order.status = "approved"; localStorage.setItem(ordersStorageKey, JSON.stringify(orders)); try { await fetch("/api/orders", { method: "PUT", headers: { "Content-Type": "application/json", "x-admin-session": sessionStorage.getItem(adminSessionKey) || "" }, body: JSON.stringify({ orderId: order.orderId, status: order.status }) }); } catch { /* local approval remains visible */ } renderOrders(); } });
 document.querySelector("#theme-toggle").addEventListener("click", () => document.body.classList.toggle("light-theme"));
 document.querySelector("#mobile-menu").addEventListener("click", () => document.querySelector(".sidebar").classList.toggle("is-open"));
 loadOrders();

@@ -8,3 +8,5 @@ data/app.db
 data/app.db-shm
 data/app.db-wal
 .vercel
+
+.env.local

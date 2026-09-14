@@ -42,13 +42,6 @@
     </header>
 
     <main>
-      <div class="cart-maintenance-overlay" role="alertdialog" aria-modal="true" aria-labelledby="cart-maintenance-title">
-        <div class="cart-maintenance-card">
-          <p class="label">Корзина</p>
-          <h1 id="cart-maintenance-title">Платёжная система временно не работает</h1>
-          <p class="cart-maintenance-note">Товар можно получить на ресепшене в Богоявленском или Преображенском.</p>
-        </div>
-      </div>
       <section class="cart-page reveal">
         <div class="cart-copy">
           <p class="label">Корзина</p>
@@ -62,10 +55,10 @@
               <strong data-cart-total>0 ₽</strong>
             </div>
             <form class="checkout-form" data-order-form>
-              <div class="checkout-head" data-delivery-only-hide>
+              <div class="checkout-head">
                 <div>
-                  <p class="checkout-kicker" data-delivery-only-hide>Оформление</p>
-                  <h2 class="checkout-title" data-delivery-only-hide>Ваша доставка</h2>
+                  <p class="checkout-kicker">Оформление</p>
+                  <h2 class="checkout-title">Ваш заказ</h2>
                 </div>
                 <button class="account-chip" type="button" data-account-open><span class="account-avatar">○</span><span data-account-label>Войти</span></button>
               </div>
@@ -74,7 +67,7 @@
                 <button type="button" class="is-active" data-fulfillment="delivery">Доставка</button>
                 <button type="button" data-fulfillment="pickup">Самовывоз</button>
               </div>
-              <div class="checkout-fields" data-delivery-only-hide>
+              <div class="checkout-fields">
                 <label>Имя <input name="name" autocomplete="name" placeholder="Ваше имя" required /></label>
                 <label>Телефон <input name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00" required /></label>
                 <label class="field-wide">Gmail <input name="email" type="email" inputmode="email" autocomplete="email" placeholder="yourname@gmail.com" pattern="^[^\s@]+@gmail\.com$" required /></label>

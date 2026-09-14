@@ -1,0 +1,12 @@
+{
+  "name": "orthodox-merch-shop",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "convex:dev": "convex dev",
+    "convex:deploy": "convex deploy"
+  },
+  "dependencies": {
+    "convex": "^1.27.3"
+  }
+}

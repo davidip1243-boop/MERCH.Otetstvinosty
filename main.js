@@ -428,8 +428,8 @@ function syncFulfillmentUI(mode = document.querySelector("[data-fulfillment].is-
   document.querySelectorAll("[data-delivery-only-hide]").forEach((node) => node.toggleAttribute("hidden", isDelivery));
   if (action) action.textContent = isDelivery ? "Продолжить к оформлению" : "Заказать";
   document.querySelectorAll('[name="name"], [name="phone"], [name="email"], [name="address"]').forEach((field) => {
-    field.disabled = isDelivery;
-    if (field.name === "address") field.required = !isDelivery;
+    field.disabled = false;
+    if (field.name === "address") field.required = isDelivery;
   });
 }
 
@@ -610,8 +610,8 @@ document.addEventListener("submit", async (event) => {
   }
 
   submitButton.disabled = true;
-  submitButton.querySelector("span").textContent = "Создаём платёж…";
-  setOrderStatus("Подготавливаем защищённую оплату…", "");
+  submitButton.querySelector("span").textContent = fulfillmentMethod === "pickup" ? "Создаём заказ…" : "Создаём платёж…";
+  setOrderStatus(fulfillmentMethod === "pickup" ? "Сохраняем заказ…" : "Подготавливаем защищённую оплату…", "");
 
   try {
     const response = await fetch("/api/orders", {
