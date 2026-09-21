@@ -1,69 +1,19 @@
-const teeColours = [
-  { id: "white", name: "Белая", visual: "chalk", price: 3000, images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg"] },
-  { id: "graphite", name: "Графитовая", visual: "wine", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg", "06.jpg", "07.jpg"] },
-  { id: "banana", name: "Банановая", visual: "canvas", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
-  { id: "light-brown", name: "Светло-коричневая", visual: "canvas", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
-  { id: "light-grey", name: "Светло-серая", visual: "pine", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
-  { id: "burgundy", name: "Бордовая", visual: "wine", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"] },
-];
-
-function createTeeProduct(colour) {
-  return {
-    id: `tee-${colour.id}`,
-    name: `Футболка ${colour.name.toLowerCase()}`,
-    type: "tshirts",
-    price: colour.price || 2500,
-    color: colour.visual,
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    lead: "Плотный хлопок, свободная посадка.",
-    note: "Для встреч, поездок и обычного воскресенья.",
-    details: ["Плотная посадка oversize", "Мягкий хлопок", "Размер выбирается в карточке товара"],
-    variants: [
-      {
-        ...colour,
-        imagePath: `/assets/images/products/tee-team/${colour.id}`,
-        images: colour.images || ["01.jpg", "02.jpg", "03.jpg", "04.jpg", "05.jpg"],
-      },
-    ],
-  };
-}
-
-const defaultProducts = [
-  {
-    id: "longsleeve-light",
-    name: "Лонгслив «Свет»",
-    type: "long-sleeves",
-    price: 3800,
-    color: "chalk",
-    sizes: ["S", "M", "L", "XL", "XXL"],
-    lead: "Легкий лонгслив с длинным рукавом и спокойной вышивкой.",
-    note: "Лаконичная база для прохладного дня.",
-    details: ["Мягкий хлопок", "Длинный рукав", "Размер выбирается в карточке товара"],
-    variants: [{ id: "default", name: "Светлый", visual: "chalk", imagePath: "/assets/images/products/defaults/longsleeve-light", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg"] }],
-  },
-  {
-    id: "tote-dream",
-    name: "Шопер «Путь»",
-    type: "shoppers",
-    price: 800,
-    color: "canvas",
-    sizes: [],
-    lead: "Плотный шопер для книг, вещей в дорогу и всего нужного на каждый день.",
-    note: "Практичная вещь с тихим характером.",
-    details: ["Плотный канвас", "Усиленные ручки", "Внутреннее отделение"],
-    variants: [{ id: "default", name: "Канвас", visual: "canvas", imagePath: "/assets/images/products/defaults/tote-dream", images: ["01.jpg", "02.jpg", "03.jpg", "04.jpg"] }],
-  },
-];
-
 const productTypeLabels = {
   tshirts: "Футболки",
   "long-sleeves": "Лонгсливы",
   shoppers: "Шоперы",
 };
 
-const products = [...teeColours.map(createTeeProduct), ...defaultProducts];
-const catalogProducts = products;
-const legacyColourProductIds = Object.fromEntries(teeColours.map((colour) => [colour.id, `tee-${colour.id}`]));
+let products = [];
+let catalogProducts = products;
+const legacyColourProductIds = {
+  white: "tee-white",
+  graphite: "tee-graphite",
+  banana: "tee-banana",
+  "light-brown": "tee-light-brown",
+  "light-grey": "tee-light-grey",
+  burgundy: "tee-burgundy",
+};
 
 const storageKey = "otv-cart-v2";
 const ordersStorageKey = "otv-orders-v1";
@@ -77,6 +27,29 @@ if (isMobilePreview) {
   previewStyles.rel = "stylesheet";
   previewStyles.href = "/mobile-preview/mobile-preview.css";
   document.head.append(previewStyles);
+}
+
+async function loadProductsFromDatabase() {
+  const response = await fetch("/api/products", { headers: { Accept: "application/json" } });
+  if (!response.ok) throw new Error(`Product catalog request failed (${response.status})`);
+  const data = await response.json();
+  products = (Array.isArray(data.products) ? data.products : []).map((product) => ({
+    ...product,
+    id: product.slug,
+    type: product.category,
+    color: product.color || product.variants?.[0]?.visual || "chalk",
+    lead: product.lead || "Мерч команды по ответственностям.",
+    note: product.note || "Вещь для встреч, поездок и обычного дня.",
+    details: product.details || [],
+  }));
+  catalogProducts = products;
+  if (!products.length) throw new Error("Product catalog is empty");
+}
+
+function showCatalogError() {
+  document.querySelectorAll("[data-product-grid], [data-featured-products], [data-product-detail-root]").forEach((node) => {
+    node.innerHTML = `<p class="catalog-error">Каталог временно недоступен. Обновите страницу через минуту.</p>`;
+  });
 }
 
 function openProduct(id) {
@@ -662,30 +635,40 @@ if (isSmallScreen) {
   applyTheme("dark");
 }
 
-renderProducts();
-renderProductDetailPage();
-refreshCheckoutTotal();
-hydrateAccount();
-syncFulfillmentUI();
-renderCart();
-updateCartCount();
+async function initializeApp() {
+  try {
+    await loadProductsFromDatabase();
+    renderProducts();
+    renderProductDetailPage();
+    refreshCheckoutTotal();
+    hydrateAccount();
+    syncFulfillmentUI();
+    renderCart();
+    updateCartCount();
 
-const revealObserver = new IntersectionObserver(
-  (entries) => {
-    entries.forEach((entry) => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add("is-visible");
-        revealObserver.unobserve(entry.target);
-      }
+    const revealObserver = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            entry.target.classList.add("is-visible");
+            revealObserver.unobserve(entry.target);
+          }
+        });
+      },
+      { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
+    );
+
+    document.querySelectorAll(".reveal").forEach((node, index) => {
+      node.style.setProperty("--reveal-delay", `${Math.min(index * 70, 420)}ms`);
+      revealObserver.observe(node);
     });
-  },
-  { threshold: 0.16, rootMargin: "0px 0px -8% 0px" },
-);
+  } catch (error) {
+    console.error("Catalog initialization failed", error);
+    showCatalogError();
+  }
+}
 
-document.querySelectorAll(".reveal").forEach((node, index) => {
-  node.style.setProperty("--reveal-delay", `${Math.min(index * 70, 420)}ms`);
-  revealObserver.observe(node);
-});
+initializeApp();
 
 const progress = document.querySelector("[data-scroll-progress]");
 function updateScrollProgress() {
