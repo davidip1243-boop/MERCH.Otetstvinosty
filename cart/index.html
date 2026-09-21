@@ -88,8 +88,10 @@
               <p class="checkout-kicker">Личный кабинет</p>
               <h2>Сохраним ваши данные<br />для следующего заказа.</h2>
               <label>Gmail <input data-account-email type="email" placeholder="yourname@gmail.com" /></label>
-              <button class="button button-primary" type="button" data-account-submit>Войти по Gmail</button>
-              <small>Мы используем почту только для статуса заказа.</small>
+              <label>Пароль <input data-account-password type="password" minlength="8" placeholder="Минимум 8 символов" /></label>
+              <div class="account-actions"><button class="button button-primary" type="button" data-account-submit data-account-mode="login">Войти</button><button class="button" type="button" data-account-submit data-account-mode="signup">Создать аккаунт</button></div>
+              <small>Покупатели сохраняются в базе, чтобы данные заказа были доступны команде.</small>
+              <p class="order-status" data-account-status role="status" aria-live="polite"></p>
             </div>
           </div>
         </div>

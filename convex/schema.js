@@ -28,6 +28,17 @@ const productVariant = v.object({
 });
 
 export default defineSchema({
+  users: defineTable({
+    email: v.string(),
+    passwordHash: v.string(),
+    passwordSalt: v.string(),
+    role: v.union(v.literal("admin"), v.literal("buyer")),
+    customerId: v.optional(v.id("customers")),
+    createdAt: v.string(),
+    updatedAt: v.optional(v.string()),
+    lastLoginAt: v.optional(v.string()),
+  }).index("by_email", ["email"]),
+
   customers: defineTable({
     email: v.string(),
     name: v.optional(v.string()),

@@ -12,8 +12,8 @@ if (sessionStorage.getItem(adminSessionKey)) loginOverlay.classList.add("is-hidd
 loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
   loginError.textContent = "";
-  const response = await fetch("/api/admin-auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ password: document.querySelector("#admin-password").value }) });
-  if (!response.ok) { loginError.textContent = response.status === 503 ? "Пароль администратора не настроен." : "Неверный пароль."; return; }
+  const response = await fetch("/api/admin-auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ email: document.querySelector("#admin-email").value, password: document.querySelector("#admin-password").value }) });
+  if (!response.ok) { const data = await response.json().catch(() => ({})); loginError.textContent = data.error || "Неверные данные входа."; return; }
   const result = await response.json();
   sessionStorage.setItem(adminSessionKey, result.session);
   loginOverlay.classList.add("is-hidden");

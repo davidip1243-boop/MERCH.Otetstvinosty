@@ -1,6 +1,6 @@
-const crypto = require("crypto");
 const { ConvexHttpClient } = require("convex/browser");
 const { anyApi } = require("convex/server");
+const { getSession } = require("./_auth");
 
 function getOrders() {
   if (!globalThis.__otvOrders) globalThis.__otvOrders = [];
@@ -13,15 +13,7 @@ function getDatabase() {
 }
 
 function validAdminSession(value) {
-  if (!process.env.ADMIN_PASSWORD || !value) return false;
-  const [encoded, received] = String(value).split(".");
-  if (!encoded || !received) return false;
-  let payload;
-  try { payload = Buffer.from(encoded, "base64url").toString("utf8"); } catch { return false; }
-  const timestamp = Number(payload);
-  if (!Number.isFinite(timestamp) || Date.now() - timestamp > 12 * 60 * 60 * 1000 || Date.now() < timestamp) return false;
-  const expected = crypto.createHmac("sha256", process.env.ADMIN_SESSION_SECRET || process.env.ADMIN_PASSWORD).update(payload).digest("hex");
-  return received.length === expected.length && crypto.timingSafeEqual(Buffer.from(received), Buffer.from(expected));
+  return getSession(value)?.role === "admin";
 }
 
 function requireAdmin(req, res) {

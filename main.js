@@ -391,6 +391,11 @@ function hydrateAccount() {
   if (avatar) avatar.textContent = account.email.charAt(0).toUpperCase();
 }
 
+function setAccountStatus(message, type = "") {
+  const node = document.querySelector("[data-account-status]");
+  if (node) { node.textContent = message; node.dataset.status = type; }
+}
+
 function syncFulfillmentUI(mode = document.querySelector("[data-fulfillment].is-active")?.dataset.fulfillment || "delivery") {
   const isDelivery = mode === "delivery";
   const form = document.querySelector("[data-order-form]");
@@ -441,9 +446,17 @@ document.addEventListener("click", (event) => {
   const accountSubmit = event.target.closest("[data-account-submit]");
   if (accountSubmit) {
     const input = document.querySelector("[data-account-email]");
-    if (!/^[^\s@]+@gmail\.com$/i.test(input?.value || "")) { input?.focus(); return; }
-    localStorage.setItem("otv-account-v1", JSON.stringify({ email: input.value.trim().toLowerCase() }));
-    document.querySelector("[data-account-panel]")?.setAttribute("hidden", ""); hydrateAccount(); setOrderStatus("Вы вошли в аккаунт.", "success"); return;
+    const password = document.querySelector("[data-account-password]");
+    const email = input?.value.trim().toLowerCase() || "";
+    if (!/^[^\s@]+@gmail\.com$/i.test(email)) { setAccountStatus("Введите Gmail.", "error"); input?.focus(); return; }
+    if ((password?.value || "").length < 8) { setAccountStatus("Пароль должен быть не короче 8 символов.", "error"); password?.focus(); return; }
+    accountSubmit.disabled = true;
+    fetch("/api/auth", { method: "POST", headers: { "Content-Type": "application/json" }, body: JSON.stringify({ mode: accountSubmit.dataset.accountMode, email, password: password.value }) })
+      .then(async (response) => { const data = await response.json().catch(() => ({})); if (!response.ok) throw new Error(data.error || "Не удалось войти."); return data; })
+      .then((data) => { localStorage.setItem("otv-account-v1", JSON.stringify({ email, session: data.session, role: data.user.role })); document.querySelector("[data-account-panel]")?.setAttribute("hidden", ""); hydrateAccount(); setOrderStatus(data.user.role === "admin" ? "Вы вошли как администратор." : "Аккаунт сохранён.", "success"); })
+      .catch((error) => setAccountStatus(error.message, "error"))
+      .finally(() => { accountSubmit.disabled = false; });
+    return;
   }
   const openButton = event.target.closest("[data-open-product]");
   if (openButton) {
