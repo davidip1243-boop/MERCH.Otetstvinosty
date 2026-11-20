@@ -14,8 +14,45 @@ const validateCustomer = (data) => {
   return errors;
 };
 
+async function setupDeliveryMap() {
+  if (fulfillmentMethod === "pickup") { document.querySelector("[data-map-field]")?.setAttribute("hidden", ""); return; }
+  const status = document.querySelector("[data-map-status]");
+  try {
+    const config = await fetch("/api/maps-config").then((response) => response.json());
+    if (!config.apiKey) throw new Error("Map key is not configured yet.");
+    await new Promise((resolve, reject) => {
+      const script = document.createElement("script");
+      script.src = `https://api-maps.yandex.ru/2.1/?apikey=${encodeURIComponent(config.apiKey)}&lang=ru_RU`;
+      script.onload = resolve; script.onerror = reject; document.head.appendChild(script);
+    });
+    await new Promise((resolve) => window.ymaps.ready(resolve));
+    const addressInput = document.querySelector('[name="address"]');
+    const map = new window.ymaps.Map("delivery-map", { center: [55.75, 37.61], zoom: 9, controls: ["zoomControl"] });
+    const marker = new window.ymaps.Placemark([55.75, 37.61], {}, { draggable: true });
+    map.geoObjects.add(marker);
+    const setAddressFromCoords = (coords) => {
+      marker.geometry.setCoordinates(coords);
+      status.textContent = "Определяем адрес…";
+      window.ymaps.geocode(coords).then((result) => {
+        const object = result.geoObjects.get(0);
+        const address = object?.getAddressLine?.() || "";
+        if (address) addressInput.value = address;
+        status.textContent = address ? "Адрес выбран по точке на карте." : "Переместите метку точнее.";
+      }).catch(() => { status.textContent = "Не удалось определить адрес. Введите его вручную."; });
+    };
+    map.events.add("click", (event) => setAddressFromCoords(event.get("coords")));
+    marker.events.add("dragend", () => setAddressFromCoords(marker.geometry.getCoordinates()));
+    document.querySelector("[data-locate-button]")?.addEventListener("click", () => {
+      if (!navigator.geolocation) { status.textContent = "Геолокация недоступна. Выберите точку на карте."; return; }
+      status.textContent = "Запрашиваем разрешение на геолокацию…";
+      navigator.geolocation.getCurrentPosition(({ coords }) => { map.setCenter([coords.latitude, coords.longitude], 16); setAddressFromCoords([coords.latitude, coords.longitude]); }, () => { status.textContent = "Не удалось получить местоположение. Выберите точку на карте."; }, { enableHighAccuracy: true, timeout: 10000 });
+    });
+  } catch (mapError) { if (status) status.textContent = "Карта временно недоступна. Введите адрес вручную."; }
+}
+
 if (!draft?.items?.length) { error("Корзина пуста. Вернитесь в магазин и добавьте товар."); document.querySelector('[data-checkout-view="form"]')?.setAttribute("hidden", ""); }
 if (fulfillmentMethod === "pickup") { document.querySelector("[data-delivery-address]")?.setAttribute("hidden", ""); document.querySelector('[name="address"]')?.removeAttribute("required"); document.querySelector('[data-pay-button]')?.replaceChildren(document.createTextNode("Подтвердить заказ "), Object.assign(document.createElement("span"), { textContent: "→" })); }
+setupDeliveryMap();
 if (new URLSearchParams(location.search).get("payment") === "success") { show("result"); progress(3); localStorage.removeItem("otv-checkout-draft-v1"); }
 if (new URLSearchParams(location.search).get("payment") === "failed") { show("result"); progress(3); document.querySelector("[data-result-icon]").textContent = "×"; document.querySelector("[data-result-kicker]").textContent = "Оплата не прошла"; document.querySelector("[data-result-title]").textContent = "Попробуйте ещё раз."; document.querySelector("[data-result-copy]").textContent = "Т‑Банк не подтвердил платёж. Проверьте данные карты или выберите другой способ оплаты."; }
 document.querySelector("[data-delivery-details]")?.addEventListener("submit", (event) => {
