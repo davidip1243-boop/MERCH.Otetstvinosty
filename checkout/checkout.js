@@ -33,14 +33,19 @@ async function setupDeliveryMap() {
     addressInput.dataset.houseConfirmed = "false";
     const marker = new window.ymaps.Placemark([55.75, 37.61], {}, { draggable: true });
     map.geoObjects.add(marker);
-    const findHouse = async (query) => {
-      let result;
-      try { result = await window.ymaps.geocode(query, { kind: "house", results: 5 }); } catch { result = await window.ymaps.geocode(query, { results: 10 }); }
-      const objects = result?.geoObjects;
-      if (!objects) return null;
-      for (let index = 0; index < objects.getLength(); index += 1) {
-        const object = objects.get(index);
-        if (object?.properties?.get("metaDataProperty.GeocoderMetaData.kind") === "house") return object;
+    const findAddress = async (query) => {
+      const results = [];
+      try { results.push(await window.ymaps.geocode(query, { kind: "house", results: 5 })); } catch {}
+      try { results.push(await window.ymaps.geocode(query, { results: 10 })); } catch {}
+      for (const result of results) {
+        const objects = result?.geoObjects;
+        if (!objects) continue;
+        for (let index = 0; index < objects.getLength(); index += 1) {
+          const object = objects.get(index);
+          const kind = object?.properties?.get("metaDataProperty.GeocoderMetaData.kind");
+          const address = object?.getAddressLine?.() || object?.properties?.get("text") || "";
+          if (kind === "house" || /\b\d{1,5}[а-яa-z]?\b/iu.test(address)) return object;
+        }
       }
       return null;
     };
@@ -48,7 +53,7 @@ async function setupDeliveryMap() {
       marker.geometry.setCoordinates(coords);
       status.textContent = "Определяем адрес…";
       try {
-        const object = await findHouse(coords);
+        const object = await findAddress(coords);
         const address = object?.getAddressLine?.() || object?.properties?.get("text") || "";
         if (!object || !address) { addressInput.dataset.houseConfirmed = "false"; status.textContent = "Адрес не найден по точке. Введите адрес вручную ниже."; return; }
         addressInput.value = address; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity("");
@@ -56,7 +61,7 @@ async function setupDeliveryMap() {
       } catch { addressInput.dataset.houseConfirmed = "false"; status.textContent = "Не удалось определить адрес по точке. Введите адрес вручную ниже."; }
     };
     addressInput.addEventListener("input", () => { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); });
-    addressInput.addEventListener("blur", async () => { if (!addressInput.value.trim()) return; const object = await findHouse(addressInput.value.trim()).catch(() => null); if (object) { marker.geometry.setCoordinates(object.geometry.getCoordinates()); addressInput.value = object.getAddressLine?.() || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Дом найден по адресу."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); status.textContent = "Адрес не подтверждён картой. Проверьте город, улицу и номер дома."; } });
+    addressInput.addEventListener("blur", async () => { if (!addressInput.value.trim()) return; const object = await findAddress(addressInput.value.trim()).catch(() => null); if (object) { marker.geometry.setCoordinates(object.geometry.getCoordinates()); addressInput.value = object.getAddressLine?.() || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Адрес найден."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); status.textContent = "Проверьте город, улицу и номер дома."; } });
     map.events.add("click", (event) => setAddressFromCoords(event.get("coords")));
     marker.events.add("dragend", () => setAddressFromCoords(marker.geometry.getCoordinates()));
     document.querySelector("[data-locate-button]")?.addEventListener("click", () => {
