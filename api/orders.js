@@ -1,5 +1,6 @@
 const { ConvexHttpClient } = require("convex/browser");
 const { anyApi } = require("convex/server");
+const { validateCustomer } = require("./_validation");
 const { getSession } = require("./_auth");
 
 function getOrders() {
@@ -104,8 +105,10 @@ module.exports = async function handler(req, res) {
   const order = req.body || {};
   const items = Array.isArray(order.items) ? order.items : [];
   if (!items.length) return res.status(400).json({ error: "Cart is empty." });
-  const email = String(order.customer?.email || "").trim().toLowerCase();
-  if (!/^[^\s@]+@gmail\.com$/.test(email)) return res.status(400).json({ error: "Use a valid Gmail address." });
+  const fulfillmentMethod = order.fulfillmentMethod === "pickup" ? "pickup" : "delivery";
+  const customerValidation = validateCustomer(order.customer || {}, fulfillmentMethod);
+  if (!customerValidation.ok) return res.status(400).json({ error: "Проверьте данные получателя.", fields: customerValidation.errors });
+  const email = customerValidation.normalized.email;
   if (!validOrderTotals(items, order.total)) return res.status(400).json({ error: "Order totals are invalid." });
   if (database) {
     try {
@@ -118,7 +121,8 @@ module.exports = async function handler(req, res) {
 
   const savedOrder = {
     ...order,
-    customer: { ...(order.customer || {}), email },
+    fulfillmentMethod,
+    customer: customerValidation.normalized,
     orderId: `OTV-${Date.now()}`,
     createdAt: new Date().toISOString(),
     status: "pending_approval",

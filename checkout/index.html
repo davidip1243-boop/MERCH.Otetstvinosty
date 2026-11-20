@@ -19,8 +19,8 @@
           <form class="delivery-details" data-delivery-details>
             <label>Gmail <input name="email" type="email" autocomplete="email" placeholder="yourname@gmail.com" pattern="^[^\s@]+@gmail\.com$" required /></label>
             <label>Имя <input name="name" autocomplete="name" placeholder="Ваше имя" required /></label>
-            <label>Телефон <input name="phone" type="tel" autocomplete="tel" placeholder="+7 900 000-00-00" required /></label>
-            <label>Адрес доставки <input name="address" autocomplete="street-address" placeholder="Город, улица, дом, квартира" required /></label>
+            <label>Телефон <input name="phone" type="tel" inputmode="tel" autocomplete="tel" placeholder="+7 900 000-00-00" minlength="10" required /></label>
+            <label>Адрес доставки <input name="address" autocomplete="street-address" placeholder="Город, улица, дом, квартира" minlength="10" required /></label>
             <button class="checkout-continue" type="submit">Продолжить <span>→</span></button>
           </form>
         </div>

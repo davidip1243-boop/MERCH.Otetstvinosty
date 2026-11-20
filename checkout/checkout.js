@@ -3,6 +3,15 @@ const views = { form: document.querySelector('[data-checkout-view="form"]'), rev
 const progress = (step) => document.querySelectorAll("[data-progress-step]").forEach((node) => node.classList.toggle("is-active", Number(node.dataset.progressStep) <= step));
 const show = (view) => Object.entries(views).forEach(([key, node]) => node.toggleAttribute("hidden", key !== view));
 const error = (message = "") => { document.querySelector("[data-checkout-error]").textContent = message; };
+const normalizePhone = (value) => { const raw = String(value || "").trim().replace(/[\s()\-]/g, ""); if (/^8\d{10}$/.test(raw)) return `+7${raw.slice(1)}`; if (/^7\d{10}$/.test(raw)) return `+${raw}`; if (/^\+7\d{10}$/.test(raw)) return raw; return ""; };
+const validateCustomer = (data) => {
+  const errors = [];
+  if (!/^[\p{L}][\p{L}\s'’-]{1,79}$/u.test(data.name.trim())) errors.push("Введите имя буквами.");
+  data.phone = normalizePhone(data.phone); if (!data.phone) errors.push("Введите российский номер телефона.");
+  if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com$/i.test(data.email) || data.email.includes("..")) errors.push("Введите действующий Gmail.");
+  const address = data.address.trim(); if (address.length < 10 || !/\p{L}{2,}/u.test(address) || !/\b\d{1,5}[а-яa-z]?\b/iu.test(address)) errors.push("Укажите город, улицу и номер дома.");
+  return errors;
+};
 
 if (!draft?.items?.length) { error("Корзина пуста. Вернитесь в магазин и добавьте товар."); document.querySelector('[data-checkout-view="form"]')?.setAttribute("hidden", ""); }
 if (new URLSearchParams(location.search).get("payment") === "success") { show("result"); progress(3); localStorage.removeItem("otv-checkout-draft-v1"); }
@@ -10,6 +19,8 @@ if (new URLSearchParams(location.search).get("payment") === "failed") { show("re
 document.querySelector("[data-delivery-details]")?.addEventListener("submit", (event) => {
   event.preventDefault();
   const data = Object.fromEntries(new FormData(event.currentTarget));
+  const validationErrors = validateCustomer(data);
+  if (validationErrors.length) { error(validationErrors.join(" ")); return; }
   localStorage.setItem("otv-checkout-customer-v1", JSON.stringify(data));
   document.querySelector("[data-review-name]").textContent = data.name;
   document.querySelector("[data-review-email]").textContent = data.email;

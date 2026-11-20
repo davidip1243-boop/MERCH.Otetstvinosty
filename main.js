@@ -404,7 +404,7 @@ function syncFulfillmentUI(mode = document.querySelector("[data-fulfillment].is-
   form?.toggleAttribute("data-delivery-mode", isDelivery);
   deliveryField?.toggleAttribute("hidden", !isDelivery);
   document.querySelectorAll("[data-delivery-only-hide]").forEach((node) => node.toggleAttribute("hidden", isDelivery));
-  if (action) action.textContent = isDelivery ? "Продолжить к оформлению" : "Заказать";
+  if (action) action.textContent = "Оформить заказ";
   document.querySelectorAll('[name="name"], [name="phone"], [name="email"], [name="address"]').forEach((field) => {
     field.disabled = false;
     if (field.name === "address") field.required = isDelivery;
@@ -590,7 +590,17 @@ document.addEventListener("submit", async (event) => {
     paymentStatus: fulfillmentMethod === "pickup" ? "not_required" : "pending_payment",
   };
 
-  if (!/^[^\s@]+@gmail\.com$/i.test(order.customer.email)) {
+  if (!/^[\p{L}][\p{L}\s'’-]{1,79}$/u.test(order.customer.name) || (order.customer.name.match(/[\p{L}]/gu) || []).length < 2) {
+    setOrderStatus("Введите имя буквами.", "error");
+    return;
+  }
+  const normalizedPhone = order.customer.phone.replace(/[\s()\-]/g, "");
+  if (!/^(\+7|7|8)\d{10}$/.test(normalizedPhone)) {
+    setOrderStatus("Введите российский номер: +7 900 000-00-00.", "error");
+    return;
+  }
+  order.customer.phone = normalizedPhone.startsWith("8") ? `+7${normalizedPhone.slice(1)}` : normalizedPhone.startsWith("7") ? `+${normalizedPhone}` : normalizedPhone;
+  if (!/^[^\s@]+@gmail\.com$/i.test(order.customer.email) || order.customer.email.includes("..")) {
     setOrderStatus("Введите действующий адрес Gmail.", "error");
     return;
   }
@@ -630,7 +640,7 @@ document.addEventListener("submit", async (event) => {
     setOrderStatus(error.message || "Не удалось сохранить заказ.", "error");
   } finally {
     submitButton.disabled = false;
-    submitButton.querySelector("span").textContent = "Заказать";
+    submitButton.querySelector("span").textContent = "Оформить заказ";
   }
 });
 
