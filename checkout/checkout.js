@@ -35,6 +35,7 @@ async function setupDeliveryMap() {
     map.geoObjects.add(marker);
     const findAddress = async (query) => {
       const results = [];
+      let fallback = null;
       try { results.push(await window.ymaps.geocode(query, { kind: "house", results: 5 })); } catch {}
       try { results.push(await window.ymaps.geocode(query, { results: 10 })); } catch {}
       for (const result of results) {
@@ -45,9 +46,10 @@ async function setupDeliveryMap() {
           const kind = object?.properties?.get("metaDataProperty.GeocoderMetaData.kind");
           const address = object?.getAddressLine?.() || object?.properties?.get("text") || "";
           if (kind === "house" || /\b\d{1,5}[а-яa-z]?\b/iu.test(address)) return object;
+          if (!fallback && address.trim()) fallback = object;
         }
       }
-      return null;
+      return fallback;
     };
     const setAddressFromCoords = async (coords) => {
       marker.geometry.setCoordinates(coords);
