@@ -33,7 +33,16 @@ async function setupDeliveryMap() {
     addressInput.dataset.houseConfirmed = "false";
     const marker = new window.ymaps.Placemark([55.75, 37.61], {}, { draggable: true });
     map.geoObjects.add(marker);
+    const lookupServerAddress = async (query) => {
+      const params = Array.isArray(query) ? new URLSearchParams({ lat: String(query[0]), lon: String(query[1]) }) : new URLSearchParams({ q: String(query) });
+      const response = await fetch(`/api/maps-geocode?${params}`);
+      if (!response.ok) return null;
+      const result = await response.json();
+      if (!result.address) return null;
+      return { address: result.address, coords: Number.isFinite(result.latitude) && Number.isFinite(result.longitude) ? [result.latitude, result.longitude] : null };
+    };
     const findAddress = async (query) => {
+      try { const serverResult = await lookupServerAddress(query); if (serverResult) return serverResult; } catch {}
       const results = [];
       let fallback = null;
       try { results.push(await window.ymaps.geocode(query, { kind: "house", results: 5 })); } catch {}
@@ -45,25 +54,25 @@ async function setupDeliveryMap() {
           const object = objects.get(index);
           const kind = object?.properties?.get("metaDataProperty.GeocoderMetaData.kind");
           const address = object?.getAddressLine?.() || object?.properties?.get("text") || "";
-          if (kind === "house" || /\b\d{1,5}[а-яa-z]?\b/iu.test(address)) return object;
+          if (kind === "house" || /\b\d{1,5}[а-яa-z]?\b/iu.test(address)) return { address, coords: object.geometry?.getCoordinates?.() || null };
           if (!fallback && address.trim()) fallback = object;
         }
       }
-      return fallback;
+      return fallback ? { address: fallback.getAddressLine?.() || fallback.properties?.get("text") || "", coords: fallback.geometry?.getCoordinates?.() || null } : null;
     };
     const setAddressFromCoords = async (coords) => {
       marker.geometry.setCoordinates(coords);
       status.textContent = "Определяем адрес…";
       try {
-        const object = await findAddress(coords);
-        const address = object?.getAddressLine?.() || object?.properties?.get("text") || "";
-        if (!object || !address) { addressInput.dataset.houseConfirmed = "false"; status.textContent = "Адрес не найден по точке. Введите адрес вручную ниже."; return; }
-        addressInput.value = address; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity("");
-        status.textContent = "Дом найден. Адрес выбран по точке на карте.";
+        const result = await findAddress(coords);
+        if (!result?.address) { addressInput.dataset.houseConfirmed = "false"; status.textContent = "Адрес не найден по точке. Введите адрес вручную ниже."; return; }
+        if (result.coords) marker.geometry.setCoordinates(result.coords);
+        addressInput.value = result.address; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity("");
+        status.textContent = "Адрес выбран по точке на карте.";
       } catch { addressInput.dataset.houseConfirmed = "false"; status.textContent = "Не удалось определить адрес по точке. Введите адрес вручную ниже."; }
     };
     addressInput.addEventListener("input", () => { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); });
-    addressInput.addEventListener("blur", async () => { if (!addressInput.value.trim()) return; const object = await findAddress(addressInput.value.trim()).catch(() => null); if (object) { marker.geometry.setCoordinates(object.geometry.getCoordinates()); addressInput.value = object.getAddressLine?.() || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Адрес найден."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); status.textContent = "Проверьте город, улицу и номер дома."; } });
+    addressInput.addEventListener("blur", async () => { if (!addressInput.value.trim()) return; const result = await findAddress(addressInput.value.trim()).catch(() => null); if (result) { if (result.coords) marker.geometry.setCoordinates(result.coords); addressInput.value = result.address || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Адрес найден."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); status.textContent = "Проверьте город, улицу и номер дома."; } });
     map.events.add("click", (event) => setAddressFromCoords(event.get("coords")));
     marker.events.add("dragend", () => setAddressFromCoords(marker.geometry.getCoordinates()));
     document.querySelector("[data-locate-button]")?.addEventListener("click", () => {
