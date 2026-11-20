@@ -11,7 +11,6 @@ const validateCustomer = (data) => {
   data.phone = normalizePhone(data.phone); if (!data.phone) errors.push("Введите российский номер телефона.");
   if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com$/i.test(data.email) || data.email.includes("..")) errors.push("Введите действующий Gmail.");
   const address = data.address.trim(); if (fulfillmentMethod === "delivery" && (address.length < 10 || !/\p{L}{2,}/u.test(address) || !/\b\d{1,5}[а-яa-z]?\b/iu.test(address))) errors.push("Укажите город, улицу и номер дома.");
-  const mapField = document.querySelector("[data-map-field]"); if (fulfillmentMethod === "delivery" && mapField?.dataset.mapReady === "true" && document.querySelector('[name="address"]')?.dataset.houseConfirmed !== "true") errors.push("Выберите на карте точку рядом с домом или зданием.");
   return errors;
 };
 
@@ -51,13 +50,13 @@ async function setupDeliveryMap() {
       try {
         const object = await findHouse(coords);
         const address = object?.getAddressLine?.() || object?.properties?.get("text") || "";
-        if (!object || !address) { addressInput.value = ""; addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точку рядом с домом или зданием."); status.textContent = "Здесь нет найденного дома. Переместите метку к зданию."; return; }
+        if (!object || !address) { addressInput.dataset.houseConfirmed = "false"; status.textContent = "Адрес не найден по точке. Введите адрес вручную ниже."; return; }
         addressInput.value = address; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity("");
         status.textContent = "Дом найден. Адрес выбран по точке на карте.";
-      } catch { addressInput.value = ""; addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точку рядом с домом или зданием."); status.textContent = "Не удалось определить адрес. Попробуйте точнее приблизить карту."; }
+      } catch { addressInput.dataset.houseConfirmed = "false"; status.textContent = "Не удалось определить адрес по точке. Введите адрес вручную ниже."; }
     };
     addressInput.addEventListener("input", () => { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); });
-    addressInput.addEventListener("blur", async () => { if (!addressInput.value.trim()) return; const object = await findHouse(addressInput.value.trim()).catch(() => null); if (object) { marker.geometry.setCoordinates(object.geometry.getCoordinates()); addressInput.value = object.getAddressLine?.() || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Дом найден по адресу."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точный адрес дома."); status.textContent = "Укажите номер дома, а не только улицу или район."; } });
+    addressInput.addEventListener("blur", async () => { if (!addressInput.value.trim()) return; const object = await findHouse(addressInput.value.trim()).catch(() => null); if (object) { marker.geometry.setCoordinates(object.geometry.getCoordinates()); addressInput.value = object.getAddressLine?.() || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Дом найден по адресу."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); status.textContent = "Адрес не подтверждён картой. Проверьте город, улицу и номер дома."; } });
     map.events.add("click", (event) => setAddressFromCoords(event.get("coords")));
     marker.events.add("dragend", () => setAddressFromCoords(marker.geometry.getCoordinates()));
     document.querySelector("[data-locate-button]")?.addEventListener("click", () => {
