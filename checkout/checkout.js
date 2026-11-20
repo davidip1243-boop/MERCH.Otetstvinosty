@@ -34,20 +34,30 @@ async function setupDeliveryMap() {
     addressInput.dataset.houseConfirmed = "false";
     const marker = new window.ymaps.Placemark([55.75, 37.61], {}, { draggable: true });
     map.geoObjects.add(marker);
-    const setAddressFromCoords = (coords) => {
+    const findHouse = async (query) => {
+      let result;
+      try { result = await window.ymaps.geocode(query, { kind: "house", results: 5 }); } catch { result = await window.ymaps.geocode(query, { results: 10 }); }
+      const objects = result?.geoObjects;
+      if (!objects) return null;
+      for (let index = 0; index < objects.getLength(); index += 1) {
+        const object = objects.get(index);
+        if (object?.properties?.get("metaDataProperty.GeocoderMetaData.kind") === "house") return object;
+      }
+      return null;
+    };
+    const setAddressFromCoords = async (coords) => {
       marker.geometry.setCoordinates(coords);
       status.textContent = "Определяем адрес…";
-      window.ymaps.geocode(coords, { kind: "house", results: 1 }).then((result) => {
-        const object = result.geoObjects.get(0);
-        const kind = object?.properties.get("metaDataProperty.GeocoderMetaData.kind");
-        const address = object?.getAddressLine?.() || "";
-        if (kind !== "house" || !address) { addressInput.value = ""; addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точку рядом с домом или зданием."); status.textContent = "Здесь нет найденного дома. Переместите метку к зданию."; return; }
+      try {
+        const object = await findHouse(coords);
+        const address = object?.getAddressLine?.() || object?.properties?.get("text") || "";
+        if (!object || !address) { addressInput.value = ""; addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точку рядом с домом или зданием."); status.textContent = "Здесь нет найденного дома. Переместите метку к зданию."; return; }
         addressInput.value = address; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity("");
         status.textContent = "Дом найден. Адрес выбран по точке на карте.";
-      }).catch(() => { status.textContent = "Не удалось определить адрес. Введите его вручную."; });
+      } catch { addressInput.value = ""; addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точку рядом с домом или зданием."); status.textContent = "Не удалось определить адрес. Попробуйте точнее приблизить карту."; }
     };
     addressInput.addEventListener("input", () => { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); });
-    addressInput.addEventListener("blur", () => { if (!addressInput.value.trim()) return; window.ymaps.geocode(addressInput.value.trim(), { kind: "house", results: 1 }).then((result) => { const object = result.geoObjects.get(0); const kind = object?.properties.get("metaDataProperty.GeocoderMetaData.kind"); if (kind === "house") { marker.geometry.setCoordinates(object.geometry.getCoordinates()); addressInput.value = object.getAddressLine?.() || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Дом найден по адресу."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точный адрес дома."); status.textContent = "Укажите номер дома, а не только улицу или район."; } }).catch(() => {}); });
+    addressInput.addEventListener("blur", async () => { if (!addressInput.value.trim()) return; const object = await findHouse(addressInput.value.trim()).catch(() => null); if (object) { marker.geometry.setCoordinates(object.geometry.getCoordinates()); addressInput.value = object.getAddressLine?.() || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Дом найден по адресу."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точный адрес дома."); status.textContent = "Укажите номер дома, а не только улицу или район."; } });
     map.events.add("click", (event) => setAddressFromCoords(event.get("coords")));
     marker.events.add("dragend", () => setAddressFromCoords(marker.geometry.getCoordinates()));
     document.querySelector("[data-locate-button]")?.addEventListener("click", () => {
