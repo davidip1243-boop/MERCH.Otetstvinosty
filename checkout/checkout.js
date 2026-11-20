@@ -11,6 +11,7 @@ const validateCustomer = (data) => {
   data.phone = normalizePhone(data.phone); if (!data.phone) errors.push("Введите российский номер телефона.");
   if (!/^[a-z0-9.!#$%&'*+/=?^_`{|}~-]+@gmail\.com$/i.test(data.email) || data.email.includes("..")) errors.push("Введите действующий Gmail.");
   const address = data.address.trim(); if (fulfillmentMethod === "delivery" && (address.length < 10 || !/\p{L}{2,}/u.test(address) || !/\b\d{1,5}[а-яa-z]?\b/iu.test(address))) errors.push("Укажите город, улицу и номер дома.");
+  const mapField = document.querySelector("[data-map-field]"); if (fulfillmentMethod === "delivery" && mapField?.dataset.mapReady === "true" && document.querySelector('[name="address"]')?.dataset.houseConfirmed !== "true") errors.push("Выберите на карте точку рядом с домом или зданием.");
   return errors;
 };
 
@@ -28,18 +29,25 @@ async function setupDeliveryMap() {
     await new Promise((resolve) => window.ymaps.ready(resolve));
     const addressInput = document.querySelector('[name="address"]');
     const map = new window.ymaps.Map("delivery-map", { center: [55.75, 37.61], zoom: 9, controls: ["zoomControl"] });
+    const mapField = document.querySelector("[data-map-field]");
+    mapField.dataset.mapReady = "true";
+    addressInput.dataset.houseConfirmed = "false";
     const marker = new window.ymaps.Placemark([55.75, 37.61], {}, { draggable: true });
     map.geoObjects.add(marker);
     const setAddressFromCoords = (coords) => {
       marker.geometry.setCoordinates(coords);
       status.textContent = "Определяем адрес…";
-      window.ymaps.geocode(coords).then((result) => {
+      window.ymaps.geocode(coords, { kind: "house", results: 1 }).then((result) => {
         const object = result.geoObjects.get(0);
+        const kind = object?.properties.get("metaDataProperty.GeocoderMetaData.kind");
         const address = object?.getAddressLine?.() || "";
-        if (address) addressInput.value = address;
-        status.textContent = address ? "Адрес выбран по точке на карте." : "Переместите метку точнее.";
+        if (kind !== "house" || !address) { addressInput.value = ""; addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точку рядом с домом или зданием."); status.textContent = "Здесь нет найденного дома. Переместите метку к зданию."; return; }
+        addressInput.value = address; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity("");
+        status.textContent = "Дом найден. Адрес выбран по точке на карте.";
       }).catch(() => { status.textContent = "Не удалось определить адрес. Введите его вручную."; });
     };
+    addressInput.addEventListener("input", () => { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity(""); });
+    addressInput.addEventListener("blur", () => { if (!addressInput.value.trim()) return; window.ymaps.geocode(addressInput.value.trim(), { kind: "house", results: 1 }).then((result) => { const object = result.geoObjects.get(0); const kind = object?.properties.get("metaDataProperty.GeocoderMetaData.kind"); if (kind === "house") { marker.geometry.setCoordinates(object.geometry.getCoordinates()); addressInput.value = object.getAddressLine?.() || addressInput.value; addressInput.dataset.houseConfirmed = "true"; addressInput.setCustomValidity(""); status.textContent = "Дом найден по адресу."; } else { addressInput.dataset.houseConfirmed = "false"; addressInput.setCustomValidity("Выберите точный адрес дома."); status.textContent = "Укажите номер дома, а не только улицу или район."; } }).catch(() => {}); });
     map.events.add("click", (event) => setAddressFromCoords(event.get("coords")));
     marker.events.add("dragend", () => setAddressFromCoords(marker.geometry.getCoordinates()));
     document.querySelector("[data-locate-button]")?.addEventListener("click", () => {
