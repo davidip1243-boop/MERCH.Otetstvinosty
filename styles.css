@@ -1610,6 +1610,7 @@ body[data-page="cart"] .site-footer {
   body[data-page="cart"] .cart-board { grid-column:2; grid-row:1; }
   body[data-page="cart"] .cart-board { min-height:31rem; }
   body[data-page="cart"] .cart-order-panel { min-height:100%; }
+  body[data-page="cart"] .checkout-fields { display:none !important; }
   body[data-page="cart"] .cart-row { padding:.7rem; gap:.7rem; }
   body[data-page="cart"] .cart-item-link { grid-template-columns:3.7rem minmax(0,1fr); gap:.7rem; }
   body[data-page="cart"] .cart-row-image { width:3.7rem; height:3.7rem; }
@@ -1641,6 +1642,7 @@ body[data-page="cart"] .site-footer {
 }
 
 .checkout-form [hidden] { display: none !important; }
+body[data-page="cart"] .checkout-fields { display: none !important; }
 
 input {
   width: 100%;

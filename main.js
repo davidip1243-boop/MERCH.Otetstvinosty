@@ -567,18 +567,16 @@ document.addEventListener("submit", async (event) => {
   event.preventDefault();
 
   const fulfillmentMethod = document.querySelector("[data-fulfillment].is-active")?.dataset.fulfillment || "delivery";
-  if (fulfillmentMethod === "delivery") {
-    localStorage.setItem("otv-checkout-draft-v1", JSON.stringify({ items: cartOrderItems(), total: cartOrderTotal(), fulfillmentMethod }));
-    const checkoutTab = window.open("/checkout/", "_blank");
-    if (!checkoutTab) setOrderStatus("Разрешите открытие новой вкладки для оформления заказа.", "error");
-    return;
-  }
-
   const items = cartOrderItems();
   if (!items.length) {
     setOrderStatus("Добавьте товар в корзину перед заказом.", "error");
     return;
   }
+
+  localStorage.setItem("otv-checkout-draft-v1", JSON.stringify({ items, total: cartOrderTotal(items), fulfillmentMethod }));
+  const checkoutTab = window.open("/checkout/", "_blank");
+  if (!checkoutTab) setOrderStatus("Разрешите открытие новой вкладки для оформления заказа.", "error");
+  return;
 
   const submitButton = form.querySelector('button[type="submit"]');
   const formData = new FormData(form);
